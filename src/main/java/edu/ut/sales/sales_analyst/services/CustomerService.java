@@ -9,9 +9,9 @@ import edu.ut.sales.sales_analyst.model.entities.Customer;
 import edu.ut.sales.sales_analyst.repositories.CustomerRepo;
 import edu.ut.sales.sales_analyst.services.impl.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CustomerService implements ICustomerService {
@@ -25,7 +25,7 @@ public class CustomerService implements ICustomerService {
     @Override
     public CustomerResponse createCustomer(CustomerCreateRequest customerCreateRequest) {
         if (customerRepo.findByEmail(customerCreateRequest.getEmail()) != null) {
-            throw new AppException(ErrorCode.CUSTOMER_EMAIL_NOT_FOUND);
+            throw new AppException(ErrorCode.CUSTOMER_ALREADY_EXISTS);
         }
 
         Customer customer = new Customer();
@@ -48,12 +48,12 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public List<CustomerResponse> getAllCustomers() {
-        List <Customer> customerList = customerRepo.findAll();
+    public Page<CustomerResponse> getAllCustomers(Pageable pageable) {
+        Page<Customer> customerList = customerRepo.findAll(pageable);
         if (customerList.isEmpty()) {
-            throw new AppException(ErrorCode.lIST_CUSTOMER_NOT_FOUND);
+            throw new AppException(ErrorCode.LIST_CUSTOMER_NOT_FOUND);
         }
-        return customerMapper.toCustomerDTOList(customerList);
+        return customerList.map(customerMapper::toCustomerDTO);
     }
 
     @Override

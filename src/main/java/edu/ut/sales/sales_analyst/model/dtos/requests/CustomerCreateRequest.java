@@ -22,6 +22,7 @@ public class CustomerCreateRequest {
     @Pattern(regexp = "^\\d{10,11}$", message = "Invalid phone number")
     private String phone;
 
+    @NotBlank(message = "Address cannot be blank")
     private String address;
     private Date createAt;
 }

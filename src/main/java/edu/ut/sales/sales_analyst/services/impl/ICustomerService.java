@@ -2,8 +2,8 @@ package edu.ut.sales.sales_analyst.services.impl;
 
 import edu.ut.sales.sales_analyst.model.dtos.requests.CustomerCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.CustomerResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ICustomerService {
 
@@ -11,7 +11,7 @@ public interface ICustomerService {
 
     CustomerResponse getCustomer(String customerId);
 
-    List<CustomerResponse> getAllCustomers();
+    Page<CustomerResponse> getAllCustomers(Pageable pageable);
 
     CustomerResponse updateCustomer(String customerId, CustomerCreateRequest customer);
 

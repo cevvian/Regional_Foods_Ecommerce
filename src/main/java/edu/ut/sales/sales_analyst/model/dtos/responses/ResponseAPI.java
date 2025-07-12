@@ -7,13 +7,13 @@ import org.springframework.http.HttpStatus;
 @Getter
 @Setter
 public class ResponseAPI<T> {
-    private String responseMessage;
-    private HttpStatus responseCode;
+    private String message;
+    private HttpStatus code;
     private T data;
 
     public ResponseAPI(String responseMessage, HttpStatus responseCode, T data) {
-        this.responseMessage = responseMessage;
-        this.responseCode = responseCode;
+        this.message = responseMessage;
+        this.code = responseCode;
         this.data = data;
     }
 }
