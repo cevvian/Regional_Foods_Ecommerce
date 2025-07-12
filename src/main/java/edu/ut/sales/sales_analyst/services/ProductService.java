@@ -8,7 +8,6 @@ import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.entities.Product;
 import edu.ut.sales.sales_analyst.repositories.ProductRepo;
 import edu.ut.sales.sales_analyst.services.impl.IProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductService implements IProductService {
 
-    @Autowired
-    private ProductRepo productRepo;
+    private final ProductRepo productRepo;
 
-    @Autowired
-    private ProductMapper productMapper;
+    private final ProductMapper productMapper;
+
+    public ProductService(ProductRepo productRepo, ProductMapper productMapper) {
+        this.productRepo = productRepo;
+        this.productMapper = productMapper;
+    }
 
     @Override
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {

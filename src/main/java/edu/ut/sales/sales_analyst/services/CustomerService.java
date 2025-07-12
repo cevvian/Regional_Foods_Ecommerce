@@ -8,7 +8,6 @@ import edu.ut.sales.sales_analyst.model.dtos.responses.CustomerResponse;
 import edu.ut.sales.sales_analyst.model.entities.Customer;
 import edu.ut.sales.sales_analyst.repositories.CustomerRepo;
 import edu.ut.sales.sales_analyst.services.impl.ICustomerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomerService implements ICustomerService {
 
-    @Autowired
-    private CustomerRepo customerRepo;
+    private final CustomerRepo customerRepo;
 
-    @Autowired
-    private CustomerMapper customerMapper;
+    private final CustomerMapper customerMapper;
+
+    public CustomerService(CustomerRepo customerRepo, CustomerMapper customerMapper) {
+        this.customerRepo = customerRepo;
+        this.customerMapper = customerMapper;
+    }
 
     @Override
     public CustomerResponse createCustomer(CustomerCreateRequest customerCreateRequest) {

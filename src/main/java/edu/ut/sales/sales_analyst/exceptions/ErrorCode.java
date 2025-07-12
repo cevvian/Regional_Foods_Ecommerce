@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
-    //----------------CUSTOMER--------------------//
+
+    // ---------------- CUSTOMER (1000–1299) ----------------
 
     // Not Found (1000–1099)
     CUSTOMER_NOT_FOUND(1000, "Customer not found", HttpStatus.NOT_FOUND),
@@ -14,28 +15,53 @@ public enum ErrorCode {
     CUSTOMER_EMAIL_NOT_FOUND(1002, "Customer's email not found", HttpStatus.NOT_FOUND),
     LIST_CUSTOMER_NOT_FOUND(1003, "List of customers not found", HttpStatus.NOT_FOUND),
 
-    // Already Exists (1100–1199)
+    // Already Exists (1100–1149)
     CUSTOMER_ALREADY_EXISTS(1100, "Customer already exists", HttpStatus.CONFLICT),
 
-    // Validation Errors (1200–1299)
-    CUSTOMER_NAME_REQUIRED(1200, "Customer name is required", HttpStatus.BAD_REQUEST),
-    CUSTOMER_EMAIL_INVALID(1201, "Invalid email format", HttpStatus.BAD_REQUEST),
-    CUSTOMER_PHONE_INVALID(1202, "Invalid phone number format", HttpStatus.BAD_REQUEST),
-    CUSTOMER_ADDRESS_REQUIRED(1203, "Address cannot be blank", HttpStatus.BAD_REQUEST),
+    // Validation Errors (1150–1199)
+    CUSTOMER_NAME_REQUIRED(1150, "Customer name is required", HttpStatus.BAD_REQUEST),
+    CUSTOMER_EMAIL_INVALID(1151, "Invalid email format", HttpStatus.BAD_REQUEST),
+    CUSTOMER_PHONE_INVALID(1152, "Invalid phone number format", HttpStatus.BAD_REQUEST),
+    CUSTOMER_ADDRESS_REQUIRED(1153, "Address cannot be blank", HttpStatus.BAD_REQUEST),
 
+    // ---------------- PRODUCT (1300–1499) ----------------
 
-    //---------------PRODUCT---------------------//
-    // Not Found (2000–2099)
-    PRODUCT_NOT_FOUND(2000, "Product not found", HttpStatus.NOT_FOUND),
-    PRODUCT_LIST_EMPTY(2001, "No products available", HttpStatus.NOT_FOUND),
+    // Not Found (1300–1349)
+    PRODUCT_NOT_FOUND(1300, "Product not found", HttpStatus.NOT_FOUND),
+    PRODUCT_LIST_EMPTY(1301, "No products available", HttpStatus.NOT_FOUND),
 
-    // Already Exists (2100–2199)
-    PRODUCT_ALREADY_EXISTS(2100, "Product already exists", HttpStatus.CONFLICT),
+    // Already Exists (1350–1374)
+    PRODUCT_ALREADY_EXISTS(1350, "Product already exists", HttpStatus.CONFLICT),
 
-    // Validation Errors (2200–2299)
-    PRODUCT_INVALID_PRICE(2200, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
-    PRODUCT_INVALID_STOCK(2201, "Stock quantity cannot be negative", HttpStatus.BAD_REQUEST),
-    ;
+    // Validation Errors (1375–1399)
+    PRODUCT_INVALID_PRICE(1375, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_STOCK(1376, "Stock quantity cannot be negative", HttpStatus.BAD_REQUEST),
+
+    // ---------------- ORDER (1600–1799) ----------------
+
+    // Not Found (1600–1649)
+    ORDER_NOT_FOUND(1600, "Order not found", HttpStatus.NOT_FOUND),
+    ORDER_LIST_EMPTY(1601, "No orders found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (1650–1674)
+    ORDER_ALREADY_EXISTS(1650, "Order already exists", HttpStatus.CONFLICT),
+
+    // Business Rule Errors (1675–1699)
+    ORDER_ALREADY_CANCELLED(1675, "Order is already cancelled", HttpStatus.BAD_REQUEST),
+    ORDER_CANNOT_UPDATE_CANCELLED(1676, "Cannot update a cancelled order", HttpStatus.BAD_REQUEST),
+    ORDER_INVALID_STATUS_TRANSITION(1677, "Invalid status transition", HttpStatus.BAD_REQUEST),
+
+    // ---------------- ORDER ITEM (1900–1999) ----------------
+
+    // Not Found (1900–1949)
+    ORDER_ITEM_NOT_FOUND(1900, "Order item not found", HttpStatus.NOT_FOUND),
+
+    // Validation Errors (1950–1999)
+    ORDER_ITEM_QUANTITY_INVALID(1950, "Order item must have quantity >= 1", HttpStatus.BAD_REQUEST),
+    ORDER_ITEM_PRODUCT_ID_MISSING(1951, "Product ID in order item is missing", HttpStatus.BAD_REQUEST),
+    ORDER_ITEM_LIST_EMPTY(1952, "Order must contain at least one item", HttpStatus.BAD_REQUEST);
+
+    // ---------------- Fields ----------------
 
     private final int code;
     private final String message;
