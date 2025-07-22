@@ -3,29 +3,23 @@ package edu.ut.sales.sales_analyst.model.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
 @Entity
-@Table(name = "ORDERITEMS")
-public class OrderItem {
-
+@Table(name = "CARTITEMS")
+public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "orderItemId")
-    private String orderItemId;
+    @Column(name = "cartItemId")
+    private String cartItemId;
 
     @Column(name = "quantity")
     private int quantity;
 
-    @Column(name = "unitPrice")
-    private BigDecimal unitPrice;
+    @ManyToOne
+    @JoinColumn(name = "cartId")
+    private Cart cart;
 
     @ManyToOne
-    @JoinColumn(name = "orderId")
-    private Order order;
-
-    @OneToOne
     @JoinColumn(name = "productId")
     private Product product;
 }

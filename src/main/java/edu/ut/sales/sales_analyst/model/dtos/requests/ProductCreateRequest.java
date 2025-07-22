@@ -19,6 +19,9 @@ public class ProductCreateRequest {
     @NotBlank(message = "Product's name can not be blank")
     private String productName;
 
+    @NotBlank(message = "Category's id can not be blank")
+    private String categoryId;
+
     @NotBlank(message = "Product's description can not be blank")
     private String description;
 
@@ -28,6 +31,4 @@ public class ProductCreateRequest {
 
     @Min(value = 0, message = "Stock quantity cannot be negative")
     private int stockQuantity;
-
-    private String category;
 }

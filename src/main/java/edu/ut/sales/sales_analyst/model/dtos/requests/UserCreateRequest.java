@@ -11,10 +11,10 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerCreateRequest {
+public class UserCreateRequest {
 
-    @NotBlank(message = "Customer name is required")
-    private String customerName;
+    @NotBlank(message = "User's name is required")
+    private String userName;
 
     @Email(message = "Invalid email format")
     private String email;
@@ -22,7 +22,5 @@ public class CustomerCreateRequest {
     @Pattern(regexp = "^\\d{10,11}$", message = "Invalid phone number")
     private String phone;
 
-    @NotBlank(message = "Address cannot be blank")
-    private String address;
     private Date createAt;
 }

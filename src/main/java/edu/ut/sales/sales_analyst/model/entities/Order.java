@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -18,11 +18,9 @@ public class Order {
     @Column(name = "orderId")
     private String orderId;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Customer customer;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<OrderItem> orderItems;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "userId")
+    private User user;
 
     @Column(name = "totalAmount")
     private BigDecimal totalAmount;
@@ -30,10 +28,12 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    @Column(name = "orderDate")
+    private LocalDateTime orderDate = LocalDateTime.now();
+
     @Column(name = "isActive")
     private boolean isActive = true;
 
-    @Column(name = "orderDate")
-    private Date orderDate = new Date();
-
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderItem> orderItems;
 }

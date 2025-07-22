@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -27,6 +29,24 @@ public class Product {
     @Column(name = "stockQuantity")
     private int stockQuantity;
 
-    @Column(name = "category")
-    private String category;
+    @Column(name = "createAt")
+    private LocalDateTime createAt = LocalDateTime.now();
+
+    @ManyToOne
+    @JoinColumn(name = "userId")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "categoryId")
+    private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "regionId")
+    private Region region;
+
+    @OneToMany(mappedBy = "product")
+    private List<ImageProduct> images;
+
+    @OneToMany(mappedBy = "product")
+    private List<Review> reviews;
 }

@@ -6,12 +6,12 @@ import edu.ut.sales.sales_analyst.mappers.OrderMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderItemRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
-import edu.ut.sales.sales_analyst.model.entities.Customer;
+import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.model.entities.Order;
 import edu.ut.sales.sales_analyst.model.entities.OrderItem;
 import edu.ut.sales.sales_analyst.model.entities.Product;
 import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
-import edu.ut.sales.sales_analyst.repositories.CustomerRepo;
+import edu.ut.sales.sales_analyst.repositories.UserRepo;
 import edu.ut.sales.sales_analyst.repositories.OrderItemRepo;
 import edu.ut.sales.sales_analyst.repositories.OrderRepo;
 import edu.ut.sales.sales_analyst.repositories.ProductRepo;
@@ -30,16 +30,16 @@ public class OrderService implements IOrderService {
 
     private final OrderMapper orderMapper;
 
-    private final CustomerRepo customerRepo;
+    private final UserRepo userRepo;
 
     private final ProductRepo productRepo;
 
     private final OrderItemRepo orderItemRepo;
 
-    public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, CustomerRepo customerRepo, ProductRepo productRepo, OrderItemRepo orderItemRepo) {
+    public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo, ProductRepo productRepo, OrderItemRepo orderItemRepo) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
-        this.customerRepo = customerRepo;
+        this.userRepo = userRepo;
         this.productRepo = productRepo;
         this.orderItemRepo = orderItemRepo;
     }
@@ -47,7 +47,7 @@ public class OrderService implements IOrderService {
     @Override
     public OrderResponse createOrder(OrderCreateRequest orderCreateRequest) {
         // 1. Kiểm tra customer tồn tại
-        Customer customer = customerRepo.findByCustomerId(orderCreateRequest.getCustomerId());
+        User customer = userRepo.findByUserId(orderCreateRequest.getCustomerId());
         if (customer == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
@@ -73,7 +73,7 @@ public class OrderService implements IOrderService {
 
         // 4. Tạo Order entity và lưu DB
         Order order = new Order();
-        order.setCustomer(customer);
+        order.setUser(customer);
         order.setTotalAmount(totalAmount);
         order.setStatus(OrderStatus.PENDING);
 
@@ -123,11 +123,11 @@ public class OrderService implements IOrderService {
 
     @Override
     public Page<OrderResponse> getOrdersByCustomerId(String id, Pageable pageable) {
-        Customer customer = customerRepo.findByCustomerId(id);
+        User customer = userRepo.findByUserId(id);
         if (customer == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
-        Page<Order> orders = orderRepo.findByCustomer_CustomerId(id, pageable);
+        Page<Order> orders = orderRepo.findByUser_UserId(id, pageable);
         if (orders.isEmpty()) {
             throw new AppException(ErrorCode.ORDER_LIST_EMPTY);
         }
@@ -142,11 +142,11 @@ public class OrderService implements IOrderService {
         }
 
         // Kiểm tra customer mới
-        Customer customer = customerRepo.findByCustomerId(orderCreateRequest.getCustomerId());
+        User customer = userRepo.findByUserId(orderCreateRequest.getCustomerId());
         if (customer == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
-        order.setCustomer(customer);
+        order.setUser(customer);
 
         // Xóa các order item cũ trước
         orderItemRepo.deleteByOrder(order);

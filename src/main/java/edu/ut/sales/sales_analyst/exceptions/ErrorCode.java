@@ -59,8 +59,19 @@ public enum ErrorCode {
     // Validation Errors (1950–1999)
     ORDER_ITEM_QUANTITY_INVALID(1950, "Order item must have quantity >= 1", HttpStatus.BAD_REQUEST),
     ORDER_ITEM_PRODUCT_ID_MISSING(1951, "Product ID in order item is missing", HttpStatus.BAD_REQUEST),
-    ORDER_ITEM_LIST_EMPTY(1952, "Order must contain at least one item", HttpStatus.BAD_REQUEST);
+    ORDER_ITEM_LIST_EMPTY(1952, "Order must contain at least one item", HttpStatus.BAD_REQUEST),
 
+    // ---------------- CATEGORY (2000–2299) ----------------
+
+    // Not Found (2000–2049)
+    CATEGORY_NOT_FOUND(2000, "Category not found", HttpStatus.NOT_FOUND),
+
+    // Validation Errors (2050–2099)
+    CATEGORY_NAME_REQUIRED(2050, "Category name is required", HttpStatus.BAD_REQUEST),
+    CATEGORY_NAME_TOO_SHORT(2051, "Category name must be at least 2 characters", HttpStatus.BAD_REQUEST),
+    CATEGORY_NAME_TOO_LONG(2052, "Category name must be at most 50 characters", HttpStatus.BAD_REQUEST),
+    CATEGORY_ID_INVALID(2053, "Category ID is invalid", HttpStatus.BAD_REQUEST),
+    CATEGORY_ALREADY_EXISTS(2054, "Category with this name already exists", HttpStatus.CONFLICT);
     // ---------------- Fields ----------------
 
     private final int code;
