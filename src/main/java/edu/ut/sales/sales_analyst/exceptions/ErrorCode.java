@@ -71,8 +71,34 @@ public enum ErrorCode {
     CATEGORY_NAME_TOO_SHORT(2051, "Category name must be at least 2 characters", HttpStatus.BAD_REQUEST),
     CATEGORY_NAME_TOO_LONG(2052, "Category name must be at most 50 characters", HttpStatus.BAD_REQUEST),
     CATEGORY_ID_INVALID(2053, "Category ID is invalid", HttpStatus.BAD_REQUEST),
-    CATEGORY_ALREADY_EXISTS(2054, "Category with this name already exists", HttpStatus.CONFLICT);
+    CATEGORY_REQUIRED(2054, "Category ID is required", HttpStatus.BAD_REQUEST),
+    CATEGORY_ALREADY_EXISTS(2055, "Category with this name already exists", HttpStatus.CONFLICT),
     // ---------------- Fields ----------------
+
+    // ---------------- NEWS (2300–2599) ----------------
+
+    // Not Found (2300–2349)
+    NEWS_NOT_FOUND(2300, "News not found", HttpStatus.NOT_FOUND),
+    NEWS_LIST_EMPTY(2301, "No news articles found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (2350–2399)
+    NEWS_ALREADY_EXISTS(2350, "News with this title already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (2400–2499)
+    NEWS_TITLE_REQUIRED(2400, "News title is required", HttpStatus.BAD_REQUEST),
+    NEWS_TITLE_TOO_SHORT(2401, "News title must be at least 5 characters", HttpStatus.BAD_REQUEST),
+    NEWS_TITLE_TOO_LONG(2402, "News title must be at most 150 characters", HttpStatus.BAD_REQUEST),
+    NEWS_CONTENT_REQUIRED(2403, "News content is required", HttpStatus.BAD_REQUEST),
+    NEWS_AUTHOR_REQUIRED(2404, "Author name is required", HttpStatus.BAD_REQUEST),
+    NEWS_PUBLISH_DATE_INVALID(2405, "Publish date is invalid", HttpStatus.BAD_REQUEST),
+
+    // ---------------- FILE / IMAGE UPLOAD (2500–2599) ----------------
+
+    FILE_UPLOAD_NOT_FOUND(2500, "No file found to upload", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FAILED(2501, "Failed to upload file", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_TYPE_NOT_SUPPORTED(2502, "File type is not supported", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FOLDER_INVALID(2503, "Target folder for upload is invalid", HttpStatus.BAD_REQUEST);
+
 
     private final int code;
     private final String message;
@@ -83,4 +109,6 @@ public enum ErrorCode {
         this.message = message;
         this.statusCode = statusCode;
     }
+
+
 }

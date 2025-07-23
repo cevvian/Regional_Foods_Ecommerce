@@ -8,12 +8,12 @@ import org.springframework.http.HttpStatus;
 @Setter
 public class ResponseAPI<T> {
     private String message;
-    private HttpStatus code;
+    private int code;
     private T data;
 
     public ResponseAPI(String responseMessage, HttpStatus responseCode, T data) {
         this.message = responseMessage;
-        this.code = responseCode;
+        this.code = responseCode.value();
         this.data = data;
     }
 }
