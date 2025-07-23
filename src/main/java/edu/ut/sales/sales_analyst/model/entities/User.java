@@ -32,6 +32,9 @@ public class User {
     @Column(nullable = false)
     private Boolean isActive = true;
 
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
     private LocalDateTime createAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user")
