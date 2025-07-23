@@ -49,7 +49,7 @@ public class OrderService implements IOrderService {
         // 1. Kiểm tra customer tồn tại
         User customer = userRepo.findByUserId(orderCreateRequest.getCustomerId());
         if (customer == null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
         // 2. Lấy danh sách sản phẩm từ request
@@ -125,7 +125,7 @@ public class OrderService implements IOrderService {
     public Page<OrderResponse> getOrdersByCustomerId(String id, Pageable pageable) {
         User customer = userRepo.findByUserId(id);
         if (customer == null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
         Page<Order> orders = orderRepo.findByUser_UserId(id, pageable);
         if (orders.isEmpty()) {
@@ -144,7 +144,7 @@ public class OrderService implements IOrderService {
         // Kiểm tra customer mới
         User customer = userRepo.findByUserId(orderCreateRequest.getCustomerId());
         if (customer == null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
         order.setUser(customer);
 

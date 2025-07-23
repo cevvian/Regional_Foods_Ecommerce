@@ -7,22 +7,22 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 public enum ErrorCode {
 
-    // ---------------- CUSTOMER (1000–1299) ----------------
+    // ---------------- USER (1000–1299) ----------------
 
     // Not Found (1000–1099)
-    CUSTOMER_NOT_FOUND(1000, "Customer not found", HttpStatus.NOT_FOUND),
-    CUSTOMER_PHONE_NOT_FOUND(1001, "Customer's phone not found", HttpStatus.NOT_FOUND),
-    CUSTOMER_EMAIL_NOT_FOUND(1002, "Customer's email not found", HttpStatus.NOT_FOUND),
-    LIST_CUSTOMER_NOT_FOUND(1003, "List of customers not found", HttpStatus.NOT_FOUND),
+    USER_NOT_FOUND(1000, "USER not found", HttpStatus.NOT_FOUND),
+    USER_PHONE_NOT_FOUND(1001, "USER's phone not found", HttpStatus.NOT_FOUND),
+    USER_EMAIL_NOT_FOUND(1002, "USER's email not found", HttpStatus.NOT_FOUND),
+    LIST_USER_NOT_FOUND(1003, "List of USERs not found", HttpStatus.NOT_FOUND),
 
     // Already Exists (1100–1149)
-    CUSTOMER_ALREADY_EXISTS(1100, "Customer already exists", HttpStatus.CONFLICT),
+    USER_ALREADY_EXISTS(1100, "USER already exists", HttpStatus.CONFLICT),
 
     // Validation Errors (1150–1199)
-    CUSTOMER_NAME_REQUIRED(1150, "Customer name is required", HttpStatus.BAD_REQUEST),
-    CUSTOMER_EMAIL_INVALID(1151, "Invalid email format", HttpStatus.BAD_REQUEST),
-    CUSTOMER_PHONE_INVALID(1152, "Invalid phone number format", HttpStatus.BAD_REQUEST),
-    CUSTOMER_ADDRESS_REQUIRED(1153, "Address cannot be blank", HttpStatus.BAD_REQUEST),
+    USER_NAME_REQUIRED(1150, "USER name is required", HttpStatus.BAD_REQUEST),
+    USER_EMAIL_INVALID(1151, "Invalid email format", HttpStatus.BAD_REQUEST),
+    USER_PHONE_INVALID(1152, "Invalid phone number format", HttpStatus.BAD_REQUEST),
+    USER_ADDRESS_REQUIRED(1153, "Address cannot be blank", HttpStatus.BAD_REQUEST),
 
     // ---------------- PRODUCT (1300–1499) ----------------
 

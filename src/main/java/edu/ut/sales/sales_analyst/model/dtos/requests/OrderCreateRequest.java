@@ -18,6 +18,9 @@ public class OrderCreateRequest {
     @NotBlank(message = "Customer id can not be blank")
     String customerId;
 
+    @NotBlank(message = "Address id can not be blank")
+    String addressId;
+
     @NotEmpty(message = "Order must contain at least one item")
     List<OrderItemRequest> orderItems;
 }

@@ -15,7 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderResponse {
-    private UserResponse customerResponse;
+    private UserResponse userResponse;
+    private AddressResponse addressResponse;
     private List<OrderItemResponse> orderItemResponses;
     private BigDecimal totalAmount;
     private OrderStatus status;

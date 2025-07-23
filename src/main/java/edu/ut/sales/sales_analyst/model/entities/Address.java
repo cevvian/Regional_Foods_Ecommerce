@@ -3,6 +3,8 @@ package edu.ut.sales.sales_analyst.model.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "ADDRESSES")
@@ -28,4 +30,7 @@ public class Address {
 
     @Column(name = "isDefault")
     private boolean isDefault;
+
+    @OneToMany(mappedBy = "address")
+    private List<Order> orders;
 }

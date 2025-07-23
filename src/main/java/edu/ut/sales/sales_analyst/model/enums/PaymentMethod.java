@@ -1,6 +1,6 @@
 package edu.ut.sales.sales_analyst.model.enums;
 
-public enum Role {
-    ADMIN,
-    CUSTOMER
+public enum PaymentMethod {
+    CASH,
+    VNPAY
 }

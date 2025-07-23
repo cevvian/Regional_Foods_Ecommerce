@@ -31,9 +31,21 @@ public class Order {
     @Column(name = "orderDate")
     private LocalDateTime orderDate = LocalDateTime.now();
 
+    @Column(name = "updatedAt")
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
     @Column(name = "isActive")
     private boolean isActive = true;
 
+    @ManyToOne
+    @JoinColumn(name = "addressId")
+    private Address address;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

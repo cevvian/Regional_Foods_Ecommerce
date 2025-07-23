@@ -2,8 +2,8 @@ package edu.ut.sales.sales_analyst.controllers;
 
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
-import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
+import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
 import edu.ut.sales.sales_analyst.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -22,25 +22,26 @@ public class UserController {
     private UserService userService;
 
     @Operation(summary = "Create new user", description = "API create new user's information")
-    @PostMapping()
-    public ResponseAPI<UserResponse> createUser(@Valid @RequestBody UserCreateRequest userCreateRequest) {
+    @PostMapping("/register")
+    public ResponseAPI<UserDetailResponse> createUser(@Valid @RequestBody UserCreateRequest userCreateRequest) {
         try {
-            UserResponse userResponse = userService.createUser(userCreateRequest);
+            UserDetailResponse userResponse = userService.createUser(userCreateRequest);
             return new ResponseAPI<>("Create user successfully", HttpStatus.CREATED, userResponse);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
 
-    @Operation(summary = "Get all user", description = "API get all user")
+    @Operation(summary = "Get all user", description = "API get all user with pagination (active or not)")
     @GetMapping()
-    public ResponseAPI<Page<UserResponse>> getAllUsers(
+    public ResponseAPI<Page<UserDetailResponse>> getAllUsers(
+            @RequestParam(required = false) Boolean isActive,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<UserResponse> userResponseList = userService.getAllUsers(pageable);
+            Page<UserDetailResponse> userResponseList = userService.getAllUsersWithFilter(pageable, isActive);
             return new ResponseAPI<>("Get all users", HttpStatus.OK, userResponseList);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
@@ -48,9 +49,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseAPI<UserResponse> getUserById(@PathVariable String id) {
+    public ResponseAPI<UserDetailResponse> getUserById(@PathVariable String id) {
         try {
-            UserResponse userResponse = userService.getUser(id);
+            UserDetailResponse userResponse = userService.getUser(id);
             return new ResponseAPI<>("Get user successfully", HttpStatus.OK, userResponse);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
@@ -58,9 +59,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseAPI<UserResponse> updateUser(@PathVariable String id, @RequestBody UserCreateRequest userCreateRequest) {
+    public ResponseAPI<UserDetailResponse> updateUser(@PathVariable String id, @RequestBody UserCreateRequest userCreateRequest) {
         try {
-            UserResponse userResponse = userService.updateUser(id, userCreateRequest);
+            UserDetailResponse userResponse = userService.updateUser(id, userCreateRequest);
             return new ResponseAPI<>("Update user successfully", HttpStatus.OK, userResponse);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
@@ -68,13 +69,26 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseAPI<Boolean> deleteUser(@PathVariable String id) {
+    public ResponseAPI<Boolean> blockUser(@PathVariable String id) {
         try {
-            Boolean response = userService.deleteUser(id);
+            Boolean response = userService.blockUser(id);
             if (response) {
                 return new ResponseAPI<>("Delete user successfully", HttpStatus.OK, null);
             }
             return new ResponseAPI<>("Delete user failed", HttpStatus.INTERNAL_SERVER_ERROR, null);
+        } catch (AppException e) {
+            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseAPI<Boolean> unblockUser(@PathVariable String id) {
+        try {
+            Boolean response = userService.unBlockUser(id);
+            if (response) {
+                return new ResponseAPI<>("Unblock user successfully", HttpStatus.OK, null);
+            }
+            return new ResponseAPI<>("Unblock user failed", HttpStatus.INTERNAL_SERVER_ERROR, null);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }

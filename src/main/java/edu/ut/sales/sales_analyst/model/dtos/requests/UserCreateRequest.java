@@ -1,6 +1,7 @@
 package edu.ut.sales.sales_analyst.model.dtos.requests;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -21,6 +22,12 @@ public class UserCreateRequest {
 
     @Pattern(regexp = "^\\d{10,11}$", message = "Invalid phone number")
     private String phone;
+
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$",
+            message = "Password phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, số và ký tự đặc biệt"
+    )
+    private String password;
 
     private Date createAt;
 }

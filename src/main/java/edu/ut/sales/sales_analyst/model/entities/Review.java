@@ -15,6 +15,7 @@ public class Review {
     private double rating;
     private String comment;
     private LocalDateTime createAt = LocalDateTime.now();
+    private LocalDateTime updateAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "userId")
@@ -24,4 +25,8 @@ public class Review {
     @JoinColumn(name = "productId")
     private Product product;
 
+    @PreUpdate
+    public void preUpdate() {
+        this.updateAt = LocalDateTime.now();
+    }
 }

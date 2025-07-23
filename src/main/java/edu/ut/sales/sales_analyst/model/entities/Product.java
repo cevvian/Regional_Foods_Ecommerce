@@ -32,9 +32,8 @@ public class Product {
     @Column(name = "createAt")
     private LocalDateTime createAt = LocalDateTime.now();
 
-    @ManyToOne
-    @JoinColumn(name = "userId")
-    private User user;
+    @Column(name = "updatedAt")
+    private LocalDateTime updateAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "categoryId")
@@ -49,4 +48,12 @@ public class Product {
 
     @OneToMany(mappedBy = "product")
     private List<Review> reviews;
+
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updateAt = LocalDateTime.now();
+    }
 }
