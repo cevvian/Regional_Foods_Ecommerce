@@ -80,4 +80,17 @@ public class UserController {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
+    @PatchMapping("/{id}")
+    public ResponseAPI<Boolean> unblockUser(@PathVariable String id) {
+        try {
+            Boolean response = userService.unBlockUser(id);
+            if (response) {
+                return new ResponseAPI<>("Unblock user successfully", HttpStatus.OK, null);
+            }
+            return new ResponseAPI<>("Unblock user failed", HttpStatus.INTERNAL_SERVER_ERROR, null);
+        } catch (AppException e) {
+            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
 }
