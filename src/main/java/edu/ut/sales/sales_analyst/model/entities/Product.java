@@ -33,10 +33,6 @@ public class Product {
     private LocalDateTime createAt = LocalDateTime.now();
 
     @ManyToOne
-    @JoinColumn(name = "userId")
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "categoryId")
     private Category category;
 

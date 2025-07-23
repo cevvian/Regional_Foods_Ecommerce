@@ -1,19 +1,21 @@
 package edu.ut.sales.sales_analyst.services.impl;
 
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
-import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface IUserService {
 
-    UserResponse createUser(UserCreateRequest customer);
+    UserDetailResponse createUser(UserCreateRequest user);
 
-    UserResponse getUser(String userId);
+    UserDetailResponse getUser(String userId);
 
-    Page<UserResponse> getAllUsers(Pageable pageable);
+    Page<UserDetailResponse> getAllUsersWithFilter(Pageable pageable, Boolean isActive);
 
-    UserResponse updateUser(String userId, UserCreateRequest customer);
+    UserDetailResponse updateUser(String userId, UserCreateRequest customer);
 
-    Boolean deleteUser(String userId);
+    Boolean blockUser(String userId);
+
+    Boolean unBlockUser(String userId);
 }

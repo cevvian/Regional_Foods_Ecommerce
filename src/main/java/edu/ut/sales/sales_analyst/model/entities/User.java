@@ -29,6 +29,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
+    private Boolean isActive = true;
+
     private LocalDateTime createAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user")
