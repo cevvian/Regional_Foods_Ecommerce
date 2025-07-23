@@ -27,7 +27,7 @@ public class NewController {
 
     private final NewService newService;
 
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseAPI<NewResponse> createNews(
             @RequestParam String title,
             @RequestParam String content,
@@ -110,17 +110,29 @@ public class NewController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseAPI<NewResponse> updateNews(
             @PathVariable String id,
-            @RequestPart(required = false) String title,
-            @RequestPart(required = false) String content,
-            @RequestPart(required = false, name = "categoryId") String categoryId,
-            @RequestPart(required = false) List<ImageNewCreateRequest> images
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String content,
+            @RequestParam(required = false, name = "categoryId") String categoryId,
+            @RequestParam(required = false) List<String> typeContents,
+            @RequestPart(required = false) List<MultipartFile> files
     ) {
         try {
+            List<ImageNewCreateRequest> images = new ArrayList<>();
+
+            if (files != null && typeContents != null && files.size() == typeContents.size()) {
+                for (int i = 0; i < files.size(); i++) {
+                    ImageNewCreateRequest image = new ImageNewCreateRequest();
+                    image.setTypeContent(typeContents.get(i));
+                    image.setFile(files.get(i));
+                    images.add(image);
+                }
+            }
+
             NewUpdateRequest request = new NewUpdateRequest();
             request.setTitle(title);
             request.setContent(content);
-            request.setImages(images);
             request.setCategoryId(categoryId);
+            request.setImages(images);
 
             NewResponse response = newService.updateNews(id, request);
             return new ResponseAPI<>("Update news successfully", HttpStatus.OK, response);
@@ -128,6 +140,7 @@ public class NewController {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseAPI<Boolean> deleteNews(@PathVariable String id) {
