@@ -2,8 +2,12 @@ package edu.ut.sales.sales_analyst.model.entities;
 import edu.ut.sales.sales_analyst.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -45,4 +49,11 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
+        authorityList.add(new SimpleGrantedAuthority(getRole().name()));
+
+        return authorityList;
+    }
 }

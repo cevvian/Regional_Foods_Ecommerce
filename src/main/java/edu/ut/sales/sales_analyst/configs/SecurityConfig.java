@@ -1,4 +1,4 @@
-package edu.ut.sales.sales_analyst.config;
+package edu.ut.sales.sales_analyst.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

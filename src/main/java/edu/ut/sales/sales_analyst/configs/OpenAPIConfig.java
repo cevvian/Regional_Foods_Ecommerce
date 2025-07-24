@@ -1,4 +1,4 @@
-package edu.ut.sales.sales_analyst.config;
+package edu.ut.sales.sales_analyst.configs;
 
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;

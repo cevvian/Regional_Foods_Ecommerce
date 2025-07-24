@@ -71,7 +71,14 @@ public enum ErrorCode {
     CATEGORY_NAME_TOO_SHORT(2051, "Category name must be at least 2 characters", HttpStatus.BAD_REQUEST),
     CATEGORY_NAME_TOO_LONG(2052, "Category name must be at most 50 characters", HttpStatus.BAD_REQUEST),
     CATEGORY_ID_INVALID(2053, "Category ID is invalid", HttpStatus.BAD_REQUEST),
-    CATEGORY_ALREADY_EXISTS(2054, "Category with this name already exists", HttpStatus.CONFLICT);
+    CATEGORY_ALREADY_EXISTS(2054, "Category with this name already exists", HttpStatus.CONFLICT),
+
+    // ---------------- REFRESH TOKEN (2300–2399) ----------------
+    REFRESH_TOKEN_EXPIRED(2350, "Refresh token has expired", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_INVALID(2351, "Refresh token is invalid", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_MISSING(2352, "Refresh token is missing", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_REUSED(2353, "Refresh token has already been used", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_NOT_FOUND(2354, "Refresh token not found", HttpStatus.UNAUTHORIZED);
     // ---------------- Fields ----------------
 
     private final int code;
