@@ -20,11 +20,15 @@ public class New {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private String image;
-
     @Column(name = "createAt")
     private LocalDateTime createAt = LocalDateTime.now();
+
+    @Column(name = "updatedAt")
+    private LocalDateTime updateAt = LocalDateTime.now();
+
+    @ManyToOne
+    @JoinColumn(name = "categoryId")
+    private Category category;
 
     @OneToMany(mappedBy = "news")
     private List<ImageNew> images;

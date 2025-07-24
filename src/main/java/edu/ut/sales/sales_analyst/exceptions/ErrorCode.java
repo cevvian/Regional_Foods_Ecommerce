@@ -9,20 +9,20 @@ public enum ErrorCode {
 
     // ---------------- USER (1000–1299) ----------------
 
-    // Not Found (1000–1099)
+    // Not Found (1000–1049)
     USER_NOT_FOUND(1000, "USER not found", HttpStatus.NOT_FOUND),
     USER_PHONE_NOT_FOUND(1001, "USER's phone not found", HttpStatus.NOT_FOUND),
     USER_EMAIL_NOT_FOUND(1002, "USER's email not found", HttpStatus.NOT_FOUND),
     LIST_USER_NOT_FOUND(1003, "List of USERs not found", HttpStatus.NOT_FOUND),
 
-    // Already Exists (1100–1149)
-    USER_ALREADY_EXISTS(1100, "USER already exists", HttpStatus.CONFLICT),
+    // Already Exists (1050–1074)
+    USER_ALREADY_EXISTS(1050, "USER already exists", HttpStatus.CONFLICT),
 
-    // Validation Errors (1150–1199)
-    USER_NAME_REQUIRED(1150, "USER name is required", HttpStatus.BAD_REQUEST),
-    USER_EMAIL_INVALID(1151, "Invalid email format", HttpStatus.BAD_REQUEST),
-    USER_PHONE_INVALID(1152, "Invalid phone number format", HttpStatus.BAD_REQUEST),
-    USER_ADDRESS_REQUIRED(1153, "Address cannot be blank", HttpStatus.BAD_REQUEST),
+    // Validation Errors (1075–1099)
+    USER_NAME_REQUIRED(1075, "USER name is required", HttpStatus.BAD_REQUEST),
+    USER_EMAIL_INVALID(1076, "Invalid email format", HttpStatus.BAD_REQUEST),
+    USER_PHONE_INVALID(1077, "Invalid phone number format", HttpStatus.BAD_REQUEST),
+    USER_ADDRESS_REQUIRED(1078, "Address cannot be blank", HttpStatus.BAD_REQUEST),
 
     // ---------------- PRODUCT (1300–1499) ----------------
 
@@ -66,19 +66,47 @@ public enum ErrorCode {
     // Not Found (2000–2049)
     CATEGORY_NOT_FOUND(2000, "Category not found", HttpStatus.NOT_FOUND),
 
-    // Validation Errors (2050–2099)
-    CATEGORY_NAME_REQUIRED(2050, "Category name is required", HttpStatus.BAD_REQUEST),
-    CATEGORY_NAME_TOO_SHORT(2051, "Category name must be at least 2 characters", HttpStatus.BAD_REQUEST),
-    CATEGORY_NAME_TOO_LONG(2052, "Category name must be at most 50 characters", HttpStatus.BAD_REQUEST),
-    CATEGORY_ID_INVALID(2053, "Category ID is invalid", HttpStatus.BAD_REQUEST),
-    CATEGORY_ALREADY_EXISTS(2054, "Category with this name already exists", HttpStatus.CONFLICT),
+    // Already Exists (2050–2074)
+    CATEGORY_ALREADY_EXISTS(2050, "Category with this name already exists", HttpStatus.CONFLICT),
 
-    // ---------------- REFRESH TOKEN (2300–2399) ----------------
-    REFRESH_TOKEN_EXPIRED(2350, "Refresh token has expired", HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_INVALID(2351, "Refresh token is invalid", HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_MISSING(2352, "Refresh token is missing", HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_REUSED(2353, "Refresh token has already been used", HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_NOT_FOUND(2354, "Refresh token not found", HttpStatus.UNAUTHORIZED);
+    // Validation Errors (2075–2099)
+    CATEGORY_NAME_REQUIRED(2075, "Category name is required", HttpStatus.BAD_REQUEST),
+    CATEGORY_NAME_TOO_SHORT(2076, "Category name must be at least 2 characters", HttpStatus.BAD_REQUEST),
+    CATEGORY_NAME_TOO_LONG(2077, "Category name must be at most 50 characters", HttpStatus.BAD_REQUEST),
+    CATEGORY_ID_INVALID(2078, "Category ID is invalid", HttpStatus.BAD_REQUEST),
+    CATEGORY_REQUIRED(2079, "Category ID is required", HttpStatus.BAD_REQUEST),
+
+    // ---------------- REFRESH TOKEN (2300–2349) ----------------
+    REFRESH_TOKEN_EXPIRED(2300, "Refresh token has expired", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_INVALID(2301, "Refresh token is invalid", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_MISSING(2302, "Refresh token is missing", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_REUSED(2303, "Refresh token has already been used", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_NOT_FOUND(2304, "Refresh token not found", HttpStatus.UNAUTHORIZED),
+
+    // ---------------- NEWS (2400–2599) ----------------
+
+    // Not Found (2400–2449)
+    NEWS_NOT_FOUND(2400, "News not found", HttpStatus.NOT_FOUND),
+    NEWS_LIST_EMPTY(2401, "No news articles found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (2450–2474)
+    NEWS_ALREADY_EXISTS(2450, "News with this title already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (2475–2499)
+    NEWS_TITLE_REQUIRED(2475, "News title is required", HttpStatus.BAD_REQUEST),
+    NEWS_TITLE_TOO_SHORT(2476, "News title must be at least 5 characters", HttpStatus.BAD_REQUEST),
+    NEWS_TITLE_TOO_LONG(2477, "News title must be at most 150 characters", HttpStatus.BAD_REQUEST),
+    NEWS_CONTENT_REQUIRED(2478, "News content is required", HttpStatus.BAD_REQUEST),
+    NEWS_AUTHOR_REQUIRED(2479, "Author name is required", HttpStatus.BAD_REQUEST),
+    NEWS_PUBLISH_DATE_INVALID(2480, "Publish date is invalid", HttpStatus.BAD_REQUEST),
+
+    // ---------------- FILE / IMAGE UPLOAD (2600–2699) ----------------
+
+    FILE_UPLOAD_NOT_FOUND(2600, "No file found to upload", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FAILED(2601, "Failed to upload file", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_TYPE_NOT_SUPPORTED(2602, "File type is not supported", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FOLDER_INVALID(2603, "Target folder for upload is invalid", HttpStatus.BAD_REQUEST);
+
     // ---------------- Fields ----------------
 
     private final int code;
@@ -90,4 +118,5 @@ public enum ErrorCode {
         this.message = message;
         this.statusCode = statusCode;
     }
+
 }
