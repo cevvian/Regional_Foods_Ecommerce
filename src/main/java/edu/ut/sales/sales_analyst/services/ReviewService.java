@@ -161,17 +161,17 @@ public class ReviewService implements IReviewService {
     @Override
     public Page<ReviewResponse> getReviewsByUserIdAndProductId(String userId, String productId, Pageable pageable) {
 
-        User user = userRepo.findByUserId(userId);
-        if (user == null) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-
         Product product = productRepo.findByProductId(productId);
         if (product == null) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        Page<Review> reviews = reviewRepo.findByUser_UserIdAndProduct_ProductId(userId, productId, pageable);
+        User user = userRepo.findByUserId(userId);
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Page<Review> reviews = reviewRepo.findByUserAndProduct(user, product, pageable);
         if (reviews.isEmpty()) {
             throw new AppException(ErrorCode.REVIEW_LIST_EMPTY);
         }

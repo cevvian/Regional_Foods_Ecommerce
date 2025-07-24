@@ -1,6 +1,8 @@
 package edu.ut.sales.sales_analyst.repositories;
 
+import edu.ut.sales.sales_analyst.model.entities.Product;
 import edu.ut.sales.sales_analyst.model.entities.Review;
+import edu.ut.sales.sales_analyst.model.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +17,7 @@ public interface ReviewRepo extends JpaRepository<Review, Integer> {
 
     Page<Review> findByUser_UserId(String userId, Pageable pageable);
 
-    Page<Review> findByUser_UserIdAndProduct_ProductId(String userId, String productId, Pageable pageable);
+    Page<Review> findByUserAndProduct(User user, Product product, Pageable pageable);
 
     Review findByReviewId(String reviewId);
 

@@ -125,13 +125,11 @@ public class ReviewController {
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<ReviewResponse> response = reviewService.getReviewsByUserIdAndProductId(productId, userId, pageable);
+            Page<ReviewResponse> response = reviewService.getReviewsByUserIdAndProductId(userId, productId, pageable);
             return new ResponseAPI<>("Get reviews by product and user successfully", HttpStatus.OK, response);
         }
         catch (AppException e) {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<ReviewResponse> response = reviewService.getReviewsByUserIdAndProductId(productId, userId, pageable);
-            return new ResponseAPI<>("Get reviews by product and user successfully", HttpStatus.OK, response);
+            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
 }
