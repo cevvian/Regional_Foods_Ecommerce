@@ -105,9 +105,41 @@ public enum ErrorCode {
     FILE_UPLOAD_NOT_FOUND(2600, "No file found to upload", HttpStatus.BAD_REQUEST),
     FILE_UPLOAD_FAILED(2601, "Failed to upload file", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_TYPE_NOT_SUPPORTED(2602, "File type is not supported", HttpStatus.BAD_REQUEST),
-    FILE_UPLOAD_FOLDER_INVALID(2603, "Target folder for upload is invalid", HttpStatus.BAD_REQUEST);
+    FILE_UPLOAD_FOLDER_INVALID(2603, "Target folder for upload is invalid", HttpStatus.BAD_REQUEST),
 
     // ---------------- Fields ----------------
+
+    // ---------------- REVIEW (2700–2899) ----------------
+
+    // Not Found (2700–2749)
+    REVIEW_NOT_FOUND(2700, "Review not found", HttpStatus.NOT_FOUND),
+    REVIEW_LIST_EMPTY(2701, "No reviews found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (2750–2774)
+    REVIEW_ALREADY_EXISTS(2750, "Review already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (2775–2799)
+    REVIEW_RATING_INVALID(2775, "Rating must be between 1 and 5", HttpStatus.BAD_REQUEST),
+    REVIEW_COMMENT_TOO_SHORT(2776, "Comment must be at least 5 characters", HttpStatus.BAD_REQUEST),
+    REVIEW_COMMENT_TOO_LONG(2777, "Comment must be at most 1000 characters", HttpStatus.BAD_REQUEST),
+    REVIEW_PRODUCT_ID_REQUIRED(2778, "Product ID is required for review", HttpStatus.BAD_REQUEST),
+    REVIEW_USER_ID_REQUIRED(2779, "User ID is required for review", HttpStatus.BAD_REQUEST),
+
+    // ---------------- IMAGE NEWS (2900–2999) ----------------
+
+    // Not Found (2900–2949)
+    IMAGENEW_NOT_FOUND(2900, "Image not found", HttpStatus.NOT_FOUND),
+    IMAGENEW_LIST_EMPTY(2901, "No images found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (2950–2969)
+    IMAGENEW_ALREADY_EXISTS(2950, "Image already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (2970–2999)
+    IMAGENEW_TYPE_REQUIRED(2970, "Image type content is required", HttpStatus.BAD_REQUEST),
+    IMAGENEW_URL_REQUIRED(2971, "Image URL is required", HttpStatus.BAD_REQUEST),
+    IMAGENEW_NEWS_ID_REQUIRED(2972, "News ID for the image is required", HttpStatus.BAD_REQUEST),
+    IMAGENEW_INVALID_FILE(2973, "Invalid image file", HttpStatus.BAD_REQUEST);
+
 
     private final int code;
     private final String message;

@@ -28,6 +28,26 @@ public class ImageUploadService {
                 "api_secret", apiSecret));
     }
 
+    public String uploadSingleNewsImage(MultipartFile file, String newsId) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new AppException(ErrorCode.FILE_UPLOAD_NOT_FOUND);
+        }
+
+        String publicId = "news_" + newsId + "_" + System.currentTimeMillis();
+        Map<String, Object> uploadParams = ObjectUtils.asMap(
+                "resource_type", "image",
+                "folder", "news",
+                "public_id", publicId,
+                "context", Map.of("news_id", newsId),
+                "transformation", new Transformation()
+                        .width(800).height(500).crop("fill").quality("auto")
+                        .fetchFormat("webp")
+        );
+
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
+        return (String) uploadResult.get("secure_url");
+    }
+
     public List<String> uploadNewsImages(List<MultipartFile> files, String newsId) throws IOException {
         if (files == null || files.isEmpty()) {
             throw new AppException(ErrorCode.FILE_UPLOAD_NOT_FOUND);
@@ -45,37 +65,6 @@ public class ImageUploadService {
                     "context", Map.of("news_id", newsId),
                     "transformation", new Transformation()
                             .width(800).height(500).crop("fill").quality("auto")
-                            .fetchFormat("webp")
-            );
-
-            Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
-            urls.add((String) uploadResult.get("secure_url"));
-        }
-
-        if (urls.isEmpty()) {
-            throw new AppException(ErrorCode.FILE_UPLOAD_NOT_FOUND);
-        }
-
-        return urls;
-    }
-
-    public List<String> uploadReviewImages(List<MultipartFile> files, String reviewId) throws IOException {
-        if (files == null || files.isEmpty()) {
-            throw new AppException(ErrorCode.FILE_UPLOAD_NOT_FOUND);
-        }
-
-        List<String> urls = new ArrayList<>();
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) continue;
-
-            String publicId = "review_" + reviewId + "_" + System.currentTimeMillis();
-            Map<String, Object> uploadParams = ObjectUtils.asMap(
-                    "resource_type", "image",
-                    "folder", "reviews",
-                    "public_id", publicId,
-                    "context", Map.of("review_id", reviewId),
-                    "transformation", new Transformation()
-                            .width(600).height(600).crop("fill").quality("auto")
                             .fetchFormat("webp")
             );
 

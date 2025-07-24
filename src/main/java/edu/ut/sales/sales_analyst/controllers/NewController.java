@@ -1,13 +1,12 @@
 package edu.ut.sales.sales_analyst.controllers;
 
 import edu.ut.sales.sales_analyst.exceptions.AppException;
-import edu.ut.sales.sales_analyst.model.dtos.requests.ImageNewCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.ImageOfNewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewUpdateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.NewResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.services.NewService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,9 +35,9 @@ public class NewController {
             @RequestPart List<MultipartFile> files
     ) {
         try {
-            List<ImageNewCreateRequest> images = new ArrayList<>();
+            List<ImageOfNewCreateRequest> images = new ArrayList<>();
             for (int i = 0; i < files.size(); i++) {
-                ImageNewCreateRequest image = new ImageNewCreateRequest();
+                ImageOfNewCreateRequest image = new ImageOfNewCreateRequest();
                 image.setTypeContent(typeContents.get(i));
                 image.setFile(files.get(i));
                 images.add(image);
@@ -117,11 +116,11 @@ public class NewController {
             @RequestPart(required = false) List<MultipartFile> files
     ) {
         try {
-            List<ImageNewCreateRequest> images = new ArrayList<>();
+            List<ImageOfNewCreateRequest> images = new ArrayList<>();
 
             if (files != null && typeContents != null && files.size() == typeContents.size()) {
                 for (int i = 0; i < files.size(); i++) {
-                    ImageNewCreateRequest image = new ImageNewCreateRequest();
+                    ImageOfNewCreateRequest image = new ImageOfNewCreateRequest();
                     image.setTypeContent(typeContents.get(i));
                     image.setFile(files.get(i));
                     images.add(image);
@@ -152,6 +151,22 @@ public class NewController {
                 return new ResponseAPI<>("Delete news failed", HttpStatus.INTERNAL_SERVER_ERROR, null);
             }
         } catch (AppException e) {
+            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
+    @GetMapping("/by-category")
+    public ResponseAPI<Page<NewResponse>> getAllNewsByCategory(
+            @RequestParam String categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<NewResponse> response = newService.getNewsByCategory(categoryId, pageable);
+            return new ResponseAPI<>("Get all news successfully", HttpStatus.OK, response);
+        }
+        catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }

@@ -1,7 +1,9 @@
 package edu.ut.sales.sales_analyst.repositories;
 
+import edu.ut.sales.sales_analyst.model.entities.Category;
 import edu.ut.sales.sales_analyst.model.entities.New;
-import edu.ut.sales.sales_analyst.model.entities.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +13,5 @@ public interface NewRepo extends JpaRepository<New, Integer> {
 
     New findByNewId(String newId);
 
+    Page<New> findByCategory(Category category, Pageable pageable);
 }

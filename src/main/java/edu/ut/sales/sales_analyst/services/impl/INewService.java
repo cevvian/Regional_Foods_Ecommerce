@@ -18,4 +18,6 @@ public interface INewService {
     NewResponse updateNews(String newId, NewUpdateRequest request);
 
     Boolean deleteNews(String newId);
+
+    Page<NewResponse> getNewsByCategory(String categoryId, Pageable pageable);
 }

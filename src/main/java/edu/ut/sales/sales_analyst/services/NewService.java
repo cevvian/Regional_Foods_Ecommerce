@@ -3,7 +3,7 @@ package edu.ut.sales.sales_analyst.services;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.NewMapper;
-import edu.ut.sales.sales_analyst.model.dtos.requests.ImageNewCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.ImageOfNewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewUpdateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.NewResponse;
@@ -47,13 +47,13 @@ public class NewService implements INewService {
 
 
     //Upload ảnh, lưu vào DB, và gắn vào đối tượng News.
-    private void handleImageUploadAndAttachToNews(New news, List<ImageNewCreateRequest> imageRequests) {
+    private void handleImageUploadAndAttachToNews(New news, List<ImageOfNewCreateRequest> imageRequests) {
         if (imageRequests == null || imageRequests.isEmpty()) {
             throw new AppException(ErrorCode.FILE_UPLOAD_NOT_FOUND);
         }
 
         List<MultipartFile> files = imageRequests.stream()
-                .map(ImageNewCreateRequest::getFile)
+                .map(ImageOfNewCreateRequest::getFile)
                 .collect(Collectors.toList());
 
         List<String> imageUrls;
@@ -65,7 +65,7 @@ public class NewService implements INewService {
 
         List<ImageNew> imageEntities = new ArrayList<>();
         for (int i = 0; i < imageRequests.size(); i++) {
-            ImageNewCreateRequest imageRequest = imageRequests.get(i);
+            ImageOfNewCreateRequest imageRequest = imageRequests.get(i);
             String imageUrl = imageUrls.get(i);
 
             ImageNew imageEntity = new ImageNew();
@@ -172,5 +172,21 @@ public class NewService implements INewService {
         imageNewRepo.deleteByNews(news);
         newRepo.delete(news);
         return true;
+    }
+
+    @Override
+    public Page<NewResponse> getNewsByCategory(String categoryId, Pageable pageable){
+        Category category = categoryRepo.findByCategoryId(categoryId);
+        if (category == null) {
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+
+        Page<New> news = newRepo.findByCategory(category, pageable);
+
+        if (news.isEmpty()) {
+            throw new AppException(ErrorCode.NEWS_LIST_EMPTY);
+        }
+
+        return news.map(newMapper::ToNewResponse);
     }
 }
