@@ -11,6 +11,6 @@ public class ReviewResponse {
     private String comment;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
-    private String userId;
-    private String productId;
+    private UserResponse user;
+    private ProductResponse product;
 }

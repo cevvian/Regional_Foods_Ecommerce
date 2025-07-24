@@ -24,6 +24,8 @@ public class ReviewController {
     @PostMapping
     public ResponseAPI<ReviewResponse> createReview(@Valid @RequestBody ReviewCreateRequest request) {
         try {
+            System.out.println("Received review create request: " + request);
+
             ReviewResponse response = reviewService.createReview(request);
             return new ResponseAPI<>("Create review successfully", HttpStatus.CREATED, response);
         } catch (AppException e) {

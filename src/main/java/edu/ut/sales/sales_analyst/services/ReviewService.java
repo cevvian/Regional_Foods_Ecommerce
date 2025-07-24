@@ -36,13 +36,17 @@ public class ReviewService implements IReviewService {
 
     @Override
     public ReviewResponse createReview(ReviewCreateRequest request) {
+        System.out.println("👉 [Service] Bắt đầu xử lý createReview");
+
         User user = userRepo.findByUserId(request.getUserId());
         if (user == null) {
+            System.out.println("❌ Không tìm thấy user với ID: " + request.getUserId());
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
         Product product = productRepo.findByProductId(request.getProductId());
         if (product == null) {
+            System.out.println("❌ Không tìm thấy product với ID: " + request.getProductId());
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
@@ -53,10 +57,16 @@ public class ReviewService implements IReviewService {
         review.setProduct(product);
         review.setCreateAt(LocalDateTime.now());
         review.setUpdateAt(LocalDateTime.now());
-
+        System.out.println("✅ Before Save");
         reviewRepo.save(review);
-        return reviewMapper.ToReviewResponse(review);
+        System.out.println("✅ Review saved, preparing to map to response");
+
+        ReviewResponse response = reviewMapper.toReviewResponse(review);
+        System.out.println("✅ Review mapped successfully: " + response);
+
+        return response;
     }
+
 
     @Override
     public ReviewResponse getReview(String reviewId) {
@@ -64,7 +74,7 @@ public class ReviewService implements IReviewService {
         if (review == null) {
             throw new AppException(ErrorCode.REVIEW_NOT_FOUND);
         }
-        return reviewMapper.ToReviewResponse(review);
+        return reviewMapper.toReviewResponse(review);
     }
 
     @Override
@@ -73,7 +83,7 @@ public class ReviewService implements IReviewService {
         if (reviewPage.isEmpty()) {
             throw new AppException(ErrorCode.REVIEW_LIST_EMPTY);
         }
-        return reviewPage.map(reviewMapper::ToReviewResponse);
+        return reviewPage.map(reviewMapper::toReviewResponse);
     }
 
     @Override
@@ -107,7 +117,7 @@ public class ReviewService implements IReviewService {
         }
 
         review.setUpdateAt(LocalDateTime.now());
-        return reviewMapper.ToReviewResponse(reviewRepo.save(review));
+        return reviewMapper.toReviewResponse(reviewRepo.save(review));
     }
 
     @Override
@@ -131,7 +141,7 @@ public class ReviewService implements IReviewService {
         if (reviews.isEmpty()) {
             throw new AppException(ErrorCode.REVIEW_LIST_EMPTY);
         }
-        return reviews.map(reviewMapper::ToReviewResponse);
+        return reviews.map(reviewMapper::toReviewResponse);
     }
 
     @Override
@@ -145,7 +155,7 @@ public class ReviewService implements IReviewService {
         if (reviews.isEmpty()) {
             throw new AppException(ErrorCode.REVIEW_LIST_EMPTY);
         }
-        return reviews.map(reviewMapper::ToReviewResponse);
+        return reviews.map(reviewMapper::toReviewResponse);
     }
 
     @Override
@@ -165,7 +175,7 @@ public class ReviewService implements IReviewService {
         if (reviews.isEmpty()) {
             throw new AppException(ErrorCode.REVIEW_LIST_EMPTY);
         }
-        return reviews.map(reviewMapper::ToReviewResponse);
+        return reviews.map(reviewMapper::toReviewResponse);
     }
 
     //thong ke
