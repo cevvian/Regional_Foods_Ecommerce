@@ -15,4 +15,5 @@ import java.util.List;
 public class CategoryResponse {
     private String categoryId;
     private String categoryName;
+    private String description;
 }
