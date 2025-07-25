@@ -138,9 +138,20 @@ public enum ErrorCode {
     IMAGENEW_TYPE_REQUIRED(2970, "Image type content is required", HttpStatus.BAD_REQUEST),
     IMAGENEW_URL_REQUIRED(2971, "Image URL is required", HttpStatus.BAD_REQUEST),
     IMAGENEW_NEWS_ID_REQUIRED(2972, "News ID for the image is required", HttpStatus.BAD_REQUEST),
-    IMAGENEW_INVALID_FILE(2973, "Invalid image file", HttpStatus.BAD_REQUEST);
+    IMAGENEW_INVALID_FILE(2973, "Invalid image file", HttpStatus.BAD_REQUEST),
 
+    // ---------------- REGION (3000–3099) ----------------
 
+    // Not Found (3000-3049)
+    REGION_NOT_FOUND(3000, "Region not found", HttpStatus.NOT_FOUND),
+    REGION_LIST_EMPTY(3001, "No regions found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (3050-3069)
+    REGION_ALREADY_EXISTS(3050, "Region already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (3070-3099)
+    REGION_NAME_REQUIRED(3003, "Region name is required", HttpStatus.BAD_REQUEST),
+    ;
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;

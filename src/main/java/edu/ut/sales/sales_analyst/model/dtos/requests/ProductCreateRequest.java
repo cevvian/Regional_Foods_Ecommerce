@@ -22,6 +22,9 @@ public class ProductCreateRequest {
     @NotBlank(message = "Category's id can not be blank")
     private String categoryId;
 
+    @NotBlank(message = "Region's id can not be blank")
+    private String regionId;
+
     @NotBlank(message = "Product's description can not be blank")
     private String description;
 
