@@ -50,7 +50,7 @@ public class Product {
     private List<Review> reviews;
 
     @Column(name = "isDeleted")
-    private boolean isDeleted;
+    private boolean isDeleted = Boolean.FALSE;
 
     @PreUpdate
     public void preUpdate() {

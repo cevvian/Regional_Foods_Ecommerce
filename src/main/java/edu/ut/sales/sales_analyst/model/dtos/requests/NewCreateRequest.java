@@ -27,5 +27,5 @@ public class NewCreateRequest {
     @NotEmpty(message = "Please upload at least one image")
     @Size(max = 5, message = "You can upload up to 5 images")
     @Schema(description = "Upload up to 5 images", type = "array", implementation = MultipartFile.class)
-    private List<ImageNewCreateRequest> images;
+    private List<ImageOfNewCreateRequest> images;
 }

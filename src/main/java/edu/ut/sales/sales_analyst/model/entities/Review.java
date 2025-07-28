@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "REVIEWS")
 public class Review {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String reviewId;
 
     private double rating;

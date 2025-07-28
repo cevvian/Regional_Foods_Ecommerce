@@ -19,5 +19,5 @@ public class NewUpdateRequest {
     private String categoryId;
 
     @Schema(description = "Optional new images. Replaces existing images if provided", type = "array", implementation = MultipartFile.class)
-    private List<ImageNewCreateRequest> images;
+    private List<ImageOfNewCreateRequest> images;
 }

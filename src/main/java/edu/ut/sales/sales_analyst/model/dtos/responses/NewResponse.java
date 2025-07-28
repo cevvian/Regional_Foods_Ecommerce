@@ -15,5 +15,5 @@ public class NewResponse {
 
     private CategoryResponse category;
 
-    private List<ImageNewResponse> images;
+    private List<ImageOfNewResponse> images;
 }
