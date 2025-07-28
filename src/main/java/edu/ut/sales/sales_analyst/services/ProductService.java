@@ -4,7 +4,9 @@ import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.ProductMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ProductCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
 import edu.ut.sales.sales_analyst.model.entities.Category;
 import edu.ut.sales.sales_analyst.model.entities.Product;
 import edu.ut.sales.sales_analyst.model.entities.Region;
@@ -22,6 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -98,4 +103,24 @@ public class ProductService implements IProductService {
         return true;
     }
 
+    @Override
+    public List<RevenueStatsDTO> getRevenueByTime(RevenueFilterDTO filter) {
+        if (filter.getMonth() != null && filter.getYear() == null) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+
+        List<Object[]> raw = productRepo.getRevenueByTime(
+                filter.getYear(),
+                filter.getMonth(),
+                filter.getProductId(),
+                filter.getRegionId()
+        );
+
+        return raw.stream()
+                .map(row -> new RevenueStatsDTO(
+                        row[0].toString(),
+                        row[1] != null ? ((Number) row[1]).doubleValue() : 0.0
+                ))
+                .collect(Collectors.toList());
+    }
 }
