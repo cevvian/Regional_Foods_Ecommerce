@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${api.prefix}/users")
 public class UserController {
 
-    UserService userService;
+    private final UserService userService;
 
     @Operation(summary = "Create new user", description = "API create new user's information")
     @PostMapping("/register")

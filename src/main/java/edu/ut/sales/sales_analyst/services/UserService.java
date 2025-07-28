@@ -1,20 +1,28 @@
 package edu.ut.sales.sales_analyst.services;
 
+import edu.ut.sales.sales_analyst.components.JwtTokenUtils;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.UserMapper;
+import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.model.enums.Role;
 import edu.ut.sales.sales_analyst.repositories.UserRepo;
 import edu.ut.sales.sales_analyst.services.impl.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class UserService implements IUserService {
 
     private final UserRepo userRepo;
@@ -23,10 +31,16 @@ public class UserService implements IUserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepo userRepo, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    private final JwtTokenUtils jwtTokenUtils;
+
+    private final AuthenticationManager authenticationManager;
+
+    public UserService(UserRepo userRepo, UserMapper userMapper, PasswordEncoder passwordEncoder, JwtTokenUtils jwtTokenUtils, AuthenticationManager authenticationManager) {
         this.userRepo = userRepo;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenUtils = jwtTokenUtils;
+        this.authenticationManager = authenticationManager;
     }
 
     @Override
@@ -105,5 +119,41 @@ public class UserService implements IUserService {
         }
 
         return true;
+    }
+
+    @Override
+    public String login(LoginRequest accountLoginRequest) throws Exception {
+        try{
+            User existingUser = userRepo.findByEmail(accountLoginRequest.getEmail());
+            if (existingUser == null) {
+                throw new AppException(ErrorCode.USER_NOT_FOUND);
+            }
+
+            if (!passwordEncoder.matches(accountLoginRequest.getPassword(), existingUser.getPassword())) {
+                throw new BadCredentialsException("Wrong email or password");
+            }
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(accountLoginRequest.getEmail(), accountLoginRequest.getPassword(), existingUser.getAuthorities());
+            authenticationManager.authenticate(authenticationToken);
+            return jwtTokenUtils.generateToken(existingUser);
+        }catch (Exception e){
+            log.error("Login failed for user {}: {}", accountLoginRequest.getEmail(), e.getMessage());
+            throw new Exception(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public User getUserDetailsFromToken(String token) {
+        if (jwtTokenUtils.isTokenExpired(token)) {
+            throw new RuntimeException("Token is expired");
+        }
+        String email = jwtTokenUtils.extractEmail(token);
+        User account = userRepo.findByEmail(email);
+        if (account != null) {
+            return account;
+        } else {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
     }
 }
