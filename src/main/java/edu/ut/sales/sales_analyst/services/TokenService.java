@@ -11,6 +11,7 @@ import edu.ut.sales.sales_analyst.services.impl.ITokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,6 +63,7 @@ public class TokenService implements ITokenService {
     }
 
     @Override
+    @Transactional
     public Token refreshToken(String refreshToken, User user) throws Exception {
         Token existingToken = tokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
@@ -70,13 +72,22 @@ public class TokenService implements ITokenService {
             tokenRepository.delete(existingToken);
             throw new AppException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
-        String token = jwtTokenUtil.generateToken(user);
-        LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(expiration);
-        existingToken.setExpirationDate(expirationDateTime);
-        existingToken.setToken(token);
-        existingToken.setRefreshToken(UUID.randomUUID().toString());
-        existingToken.setRefreshExpirationDate(
-                LocalDateTime.now().plusSeconds(expirationRefreshToken));
-        return existingToken;
+
+        // Generate new access token
+        String newAccessToken = jwtTokenUtil.generateToken(user);
+        LocalDateTime accessExp = LocalDateTime.now().plusSeconds(expiration);
+
+        // Rotate refresh token
+        String newRefreshToken = UUID.randomUUID().toString();
+        LocalDateTime refreshExp = LocalDateTime.now().plusSeconds(expirationRefreshToken);
+
+        // Update DB
+        existingToken.setToken(newAccessToken);
+        existingToken.setExpirationDate(accessExp);
+        existingToken.setRefreshToken(newRefreshToken);
+        existingToken.setRefreshExpirationDate(refreshExp);
+
+        return tokenRepository.save(existingToken);
     }
+
 }

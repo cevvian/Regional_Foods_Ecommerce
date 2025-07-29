@@ -24,4 +24,6 @@ public interface IUserService {
     String login(LoginRequest accountLoginRequest) throws Exception;
 
     User getUserDetailsFromToken(String token);
+
+    User getUserFromRefreshToken(String refreshToken);
 }

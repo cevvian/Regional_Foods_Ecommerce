@@ -7,9 +7,10 @@ import edu.ut.sales.sales_analyst.mappers.UserMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
-import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
+import edu.ut.sales.sales_analyst.model.entities.Token;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.model.enums.Role;
+import edu.ut.sales.sales_analyst.repositories.TokenRepo;
 import edu.ut.sales.sales_analyst.repositories.UserRepo;
 import edu.ut.sales.sales_analyst.services.impl.IUserService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +22,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @Slf4j
 public class UserService implements IUserService {
 
     private final UserRepo userRepo;
+
+    private final TokenRepo tokenRepo;
 
     private final UserMapper userMapper;
 
@@ -35,8 +40,9 @@ public class UserService implements IUserService {
 
     private final AuthenticationManager authenticationManager;
 
-    public UserService(UserRepo userRepo, UserMapper userMapper, PasswordEncoder passwordEncoder, JwtTokenUtils jwtTokenUtils, AuthenticationManager authenticationManager) {
+    public UserService(UserRepo userRepo, TokenRepo tokenRepo, UserMapper userMapper, PasswordEncoder passwordEncoder, JwtTokenUtils jwtTokenUtils, AuthenticationManager authenticationManager) {
         this.userRepo = userRepo;
+        this.tokenRepo = tokenRepo;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenUtils = jwtTokenUtils;
@@ -155,5 +161,17 @@ public class UserService implements IUserService {
         } else {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
+    }
+
+    @Override
+    public User getUserFromRefreshToken(String refreshToken) {
+        Token tokenEntity = tokenRepo.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+
+        if (tokenEntity.getRefreshExpirationDate().isBefore(LocalDateTime.now()) || tokenEntity.isRevoked()) {
+            throw new AppException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+        }
+
+        return tokenEntity.getUser();
     }
 }

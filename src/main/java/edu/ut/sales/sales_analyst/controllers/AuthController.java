@@ -1,11 +1,10 @@
 package edu.ut.sales.sales_analyst.controllers;
 
 import edu.ut.sales.sales_analyst.components.JwtTokenUtils;
-import edu.ut.sales.sales_analyst.mappers.UserMapper;
+import edu.ut.sales.sales_analyst.model.dtos.requests.AccessTokenRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.model.dtos.responses.TokenResponse;
-import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
 import edu.ut.sales.sales_analyst.model.entities.Token;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.services.TokenService;
@@ -19,8 +18,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/auth")
@@ -30,7 +27,6 @@ public class AuthController {
     private final UserService userService;
     private final TokenService tokenService;
     private final JwtTokenUtils jwtTokenUtils;
-    private final UserMapper userMapper;
 
     @GetMapping("/generate-secret-key")
     public ResponseAPI<String> generateSecretKey(){
@@ -47,14 +43,6 @@ public class AuthController {
             String token = userService.login(loginReq);
             User userDetail = userService.getUserDetailsFromToken(token);
 
-            UserResponse userResponse = new UserResponse(
-                    userDetail.getUserId(),
-                    userDetail.getUserName(),
-                    userDetail.getEmail(),
-                    userDetail.getPhone(),
-                    userDetail.getIsActive()
-            );
-
             Token jwtToken = tokenService.addToken(userDetail, token);
 
             TokenResponse tokenResponse = new TokenResponse(
@@ -65,8 +53,7 @@ public class AuthController {
                     jwtToken.getExpirationDate(),
                     jwtToken.getRefreshExpirationDate(),
                     jwtToken.isRevoked(),
-                    jwtToken.isExpired(),
-                    userResponse
+                    jwtToken.isExpired()
             );
 
             return new ResponseAPI<>("Đăng nhập thành công", HttpStatus.OK, tokenResponse);
@@ -74,4 +61,29 @@ public class AuthController {
             return new ResponseAPI<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
+    @PostMapping("/refresh")
+    public ResponseAPI<TokenResponse> refresh(@Valid @RequestBody AccessTokenRequest refreshReq) {
+        try {
+            User currentUser = userService.getUserFromRefreshToken(refreshReq.getRefreshToken());
+
+            Token jwtToken = tokenService.refreshToken(refreshReq.getRefreshToken(), currentUser);
+
+            TokenResponse tokenResponse = new TokenResponse(
+                    jwtToken.getTokenId(),
+                    jwtToken.getToken(),
+                    jwtToken.getRefreshToken(),
+                    jwtToken.getTokenType(),
+                    jwtToken.getExpirationDate(),
+                    jwtToken.getRefreshExpirationDate(),
+                    jwtToken.isRevoked(),
+                    jwtToken.isExpired()
+            );
+
+            return new ResponseAPI<>("Get refresh token successfully", HttpStatus.OK, tokenResponse);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
