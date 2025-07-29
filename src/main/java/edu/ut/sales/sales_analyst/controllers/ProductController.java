@@ -2,8 +2,10 @@ package edu.ut.sales.sales_analyst.controllers;
 
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ProductCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
+import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
 import edu.ut.sales.sales_analyst.services.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -73,6 +77,39 @@ public class ProductController {
                 return new ResponseAPI<>("Delete product successfully", HttpStatus.OK, null);
             }
             return new ResponseAPI<>("Delete product failed", HttpStatus.INTERNAL_SERVER_ERROR, null);
+        } catch (AppException e) {
+            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
+    @GetMapping("/statistics")
+    public ResponseAPI<List<RevenueStatsDTO>> getRevenueStats(@RequestBody @Valid RevenueFilterDTO filter) {
+        try {
+            List<RevenueStatsDTO> stats = productService.getRevenueByTime(filter);
+            return new ResponseAPI<>("Get revenue statistics successfully", HttpStatus.OK, stats);
+        } catch (AppException e) {
+            return new ResponseAPI<>(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+        } catch (Exception e) {
+            return new ResponseAPI<>("Unexpected error", HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
+    @GetMapping("/filter")
+    public  ResponseAPI<Page<ProductResponse>> filterProducts(
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) String regionId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer minStock,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<ProductResponse> responses = productService.filterProducts(categoryId, regionId, minPrice, maxPrice,
+                                                                            minStock, minRating, pageable);
+            return new ResponseAPI<>("filter product process succesfully", HttpStatus.OK, responses);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }

@@ -36,6 +36,7 @@ public enum ErrorCode {
     // Validation Errors (1375–1399)
     PRODUCT_INVALID_PRICE(1375, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
     PRODUCT_INVALID_STOCK(1376, "Stock quantity cannot be negative", HttpStatus.BAD_REQUEST),
+    INVALID_REQUEST(1377, "Invalid request parameters", HttpStatus.BAD_REQUEST),
 
     // ---------------- ORDER (1600–1799) ----------------
 

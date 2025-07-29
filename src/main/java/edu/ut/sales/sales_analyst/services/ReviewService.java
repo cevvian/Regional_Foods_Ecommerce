@@ -34,19 +34,22 @@ public class ReviewService implements IReviewService {
         this.reviewMapper = reviewMapper;
     }
 
+    private void updateProductRating(Product product) {
+        Double averageRating = reviewRepo.getAverageRatingByProductId(product.getProductId());
+        product.setRating(averageRating != null ? averageRating : 0.0);
+        product.setUpdateAt(LocalDateTime.now());
+        productRepo.save(product);
+    }
+
     @Override
     public ReviewResponse createReview(ReviewCreateRequest request) {
-        System.out.println("👉 [Service] Bắt đầu xử lý createReview");
-
         User user = userRepo.findByUserId(request.getUserId());
         if (user == null) {
-            System.out.println("❌ Không tìm thấy user với ID: " + request.getUserId());
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
         Product product = productRepo.findByProductId(request.getProductId());
         if (product == null) {
-            System.out.println("❌ Không tìm thấy product với ID: " + request.getProductId());
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
@@ -57,16 +60,12 @@ public class ReviewService implements IReviewService {
         review.setProduct(product);
         review.setCreateAt(LocalDateTime.now());
         review.setUpdateAt(LocalDateTime.now());
-        System.out.println("✅ Before Save");
+
         reviewRepo.save(review);
-        System.out.println("✅ Review saved, preparing to map to response");
+        updateProductRating(product);  // Update rating sau khi tạo
 
-        ReviewResponse response = reviewMapper.toReviewResponse(review);
-        System.out.println("✅ Review mapped successfully: " + response);
-
-        return response;
+        return reviewMapper.toReviewResponse(review);
     }
-
 
     @Override
     public ReviewResponse getReview(String reviewId) {
@@ -93,6 +92,8 @@ public class ReviewService implements IReviewService {
             throw new AppException(ErrorCode.REVIEW_NOT_FOUND);
         }
 
+        Product oldProduct = review.getProduct();  // Giữ lại sản phẩm cũ để cập nhật rating nếu đổi product
+
         if (request.getRating() != null) {
             review.setRating(request.getRating());
         }
@@ -109,15 +110,22 @@ public class ReviewService implements IReviewService {
         }
 
         if (request.getProductId() != null) {
-            Product product = productRepo.findByProductId(request.getProductId());
-            if (product == null) {
+            Product newProduct = productRepo.findByProductId(request.getProductId());
+            if (newProduct == null) {
                 throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
             }
-            review.setProduct(product);
+            review.setProduct(newProduct);
         }
 
         review.setUpdateAt(LocalDateTime.now());
-        return reviewMapper.toReviewResponse(reviewRepo.save(review));
+        Review updated = reviewRepo.save(review);
+
+        updateProductRating(updated.getProduct()); // Cập nhật rating của sản phẩm mới
+        if (!oldProduct.getProductId().equals(updated.getProduct().getProductId())) {
+            updateProductRating(oldProduct); // Nếu đổi sản phẩm thì cũng cập nhật sản phẩm cũ
+        }
+
+        return reviewMapper.toReviewResponse(updated);
     }
 
     @Override
@@ -126,7 +134,9 @@ public class ReviewService implements IReviewService {
         if (review == null) {
             throw new AppException(ErrorCode.REVIEW_NOT_FOUND);
         }
+        Product product = review.getProduct();
         reviewRepo.delete(review);
+        updateProductRating(product); // Update rating sau khi xóa
         return true;
     }
 
@@ -160,7 +170,6 @@ public class ReviewService implements IReviewService {
 
     @Override
     public Page<ReviewResponse> getReviewsByUserIdAndProductId(String userId, String productId, Pageable pageable) {
-
         Product product = productRepo.findByProductId(productId);
         if (product == null) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -178,7 +187,6 @@ public class ReviewService implements IReviewService {
         return reviews.map(reviewMapper::toReviewResponse);
     }
 
-    //thong ke
     @Override
     public Double getAverageRatingByProductId(String productId) {
         Product product = productRepo.findByProductId(productId);
