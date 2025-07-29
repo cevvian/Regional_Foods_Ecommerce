@@ -17,4 +17,13 @@ public interface IProductService {
     Boolean deleteProduct(String productId);
 
     List<RevenueStatsDTO> getRevenueByTime(RevenueFilterDTO filter);
+    Page<ProductResponse> filterProducts(
+            String categoryId,
+            String regionId,
+            Double minPrice,
+            Double maxPrice,
+            Integer minStock,
+            Double minRating,
+            Pageable pageable
+    );
 }

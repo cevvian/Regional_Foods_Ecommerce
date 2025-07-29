@@ -123,4 +123,19 @@ public class ProductService implements IProductService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Page<ProductResponse> filterProducts(String categoryId,
+                                        String regionId,
+                                        Double minPrice,
+                                        Double maxPrice,
+                                        Integer minStock,
+                                        Double minRating,
+                                        Pageable pageable) {
+        Page<Product> products = productRepo.filterProducts(categoryId, regionId, minPrice,
+                                                    maxPrice, minStock, minRating, pageable);
+
+        return products.map(productMapper::toProductDTO);
+    }
+
 }

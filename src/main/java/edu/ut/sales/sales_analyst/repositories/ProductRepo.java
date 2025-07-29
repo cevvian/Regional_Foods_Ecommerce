@@ -1,6 +1,8 @@
 package edu.ut.sales.sales_analyst.repositories;
 
 import edu.ut.sales.sales_analyst.model.entities.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,5 +43,45 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             @Param("month") Integer month,
             @Param("productId") String productId,
             @Param("regionId") String regionId
+    );
+
+
+    @Query(value = """
+    SELECT p.* FROM products p
+    LEFT JOIN (
+        SELECT product_id, AVG(rating) AS avg_rating
+        FROM reviews
+        GROUP BY product_id
+    ) r ON p.product_id = r.product_id
+    WHERE (:categoryId IS NULL OR p.category_id = :categoryId)
+      AND (:regionId IS NULL OR p.region_id = :regionId)
+      AND (:minPrice IS NULL OR p.price >= :minPrice)
+      AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+      AND (:minStock IS NULL OR p.stock_quantity >= :minStock)
+      AND (:minRating IS NULL OR r.avg_rating >= :minRating)
+    """,
+            countQuery = """
+    SELECT COUNT(*) FROM products p
+    LEFT JOIN (
+        SELECT product_id, AVG(rating) AS avg_rating
+        FROM reviews
+        GROUP BY product_id
+    ) r ON p.product_id = r.product_id
+    WHERE (:categoryId IS NULL OR p.category_id = :categoryId)
+      AND (:regionId IS NULL OR p.region_id = :regionId)
+      AND (:minPrice IS NULL OR p.price >= :minPrice)
+      AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+      AND (:minStock IS NULL OR p.stock_quantity >= :minStock)
+      AND (:minRating IS NULL OR r.avg_rating >= :minRating)
+    """,
+            nativeQuery = true)
+    Page<Product> filterProducts(
+            @Param("categoryId") String categoryId,
+            @Param("regionId") String regionId,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            @Param("minStock") Integer minStock,
+            @Param("minRating") Double minRating,
+            Pageable pageable
     );
 }

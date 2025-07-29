@@ -29,6 +29,9 @@ public class Product {
     @Column(name = "stockQuantity")
     private int stockQuantity;
 
+    @Column(name = "rating")
+    private Double rating;
+
     @Column(name = "createAt")
     private LocalDateTime createAt = LocalDateTime.now();
 

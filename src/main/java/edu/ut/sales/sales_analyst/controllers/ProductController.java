@@ -94,4 +94,24 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/filter")
+    public  ResponseAPI<Page<ProductResponse>> filterProducts(
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) String regionId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer minStock,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<ProductResponse> responses = productService.filterProducts(categoryId, regionId, minPrice, maxPrice,
+                                                                            minStock, minRating, pageable);
+            return new ResponseAPI<>("filter product process succesfully", HttpStatus.OK, responses);
+        } catch (AppException e) {
+            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
 }

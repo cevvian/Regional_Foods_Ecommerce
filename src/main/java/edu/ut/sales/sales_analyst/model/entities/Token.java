@@ -19,8 +19,10 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String tokenId;
 
+    @Column(columnDefinition = "TEXT")
     private String token;
 
+    @Column(columnDefinition = "TEXT")
     private String refreshToken;
 
     private String tokenType;
