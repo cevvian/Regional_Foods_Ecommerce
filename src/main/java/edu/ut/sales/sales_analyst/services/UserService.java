@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -129,7 +130,7 @@ public class UserService implements IUserService {
 
     @Override
     public String login(LoginRequest accountLoginRequest) throws Exception {
-        try{
+        try {
             User existingUser = userRepo.findByEmail(accountLoginRequest.getEmail());
             if (existingUser == null) {
                 throw new AppException(ErrorCode.USER_NOT_FOUND);
@@ -139,15 +140,22 @@ public class UserService implements IUserService {
                 throw new BadCredentialsException("Wrong email or password");
             }
 
+            // Auth check
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(accountLoginRequest.getEmail(), accountLoginRequest.getPassword(), existingUser.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(accountLoginRequest.getEmail(),
+                            accountLoginRequest.getPassword());
             authenticationManager.authenticate(authenticationToken);
-            return jwtTokenUtils.generateToken(existingUser);
-        }catch (Exception e){
+
+            // Load CustomUserDetails and generate token
+            UserDetails userDetails = (UserDetails) userRepo.findByEmail(accountLoginRequest.getEmail());
+            return jwtTokenUtils.generateToken(userDetails);
+
+        } catch (Exception e) {
             log.error("Login failed for user {}: {}", accountLoginRequest.getEmail(), e.getMessage());
             throw new Exception(e.getMessage(), e);
         }
     }
+
 
     @Override
     public User getUserDetailsFromToken(String token) {

@@ -1,16 +1,17 @@
 package edu.ut.sales.sales_analyst.filters;
 
 import edu.ut.sales.sales_analyst.components.JwtTokenUtils;
-import edu.ut.sales.sales_analyst.model.entities.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,9 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
+
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtil;
 
@@ -33,64 +36,63 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/users/register", "POST"),
                 Pair.of("/swagger-ui/index.html", "GET"),
                 Pair.of("/v3/api-docs", "GET"),
-                Pair.of("/v3/api-docs/**", "GET"),
                 Pair.of("/v3/api-docs/swagger-config", "GET"),
-                Pair.of("/swagger-ui/**", "GET"),
                 Pair.of("/swagger-ui.html", "GET")
         );
 
-        String requestPath = request.getServletPath();
-        String requestMethod = request.getMethod();
+        String path = request.getServletPath();
+        String method = request.getMethod();
 
         return bypassTokens.stream()
-                .anyMatch(token -> requestPath.startsWith(token.getFirst()) &&
-                        requestMethod.equalsIgnoreCase(token.getSecond()));
+                .anyMatch(token -> path.startsWith(token.getFirst()) &&
+                        method.equalsIgnoreCase(token.getSecond()));
     }
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                    @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
+
+        // Check bypass
         if (isBypassToken(request)) {
             filterChain.doFilter(request, response);
             return;
         }
+
         try {
+            // Get Authorization header
             final String authHeader = request.getHeader("Authorization");
 
-            // If no auth header or not a Bearer token, let Spring Security handle it
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            if (authHeader == null || !authHeader.trim().startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            // Extract and validate token
-            final String token = authHeader.substring(7);
+            // Extract token
+            final String token = authHeader.trim().substring(7).trim();
             final String email = jwtTokenUtil.extractEmail(token);
 
-            // If we have an email and no authentication exists yet, validate the token
+            // Validate token & set authentication
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                User userDetails = (User) userDetailsService.loadUserByUsername(email);
-
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 if (jwtTokenUtil.validateToken(token, userDetails)) {
-                    // Create authentication token
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    // Set authentication in context
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    log.warn("Token validation failed for {}", email);
                 }
             }
-            // Continue filter chain
-            filterChain.doFilter(request, response);
         } catch (Exception e) {
-            // Let the exception propagate to the authentication entry point
-            filterChain.doFilter(request, response);
+            log.error("Exception in JwtTokenFilter: {}", e.getMessage(), e);
         }
 
+        filterChain.doFilter(request, response);
     }
 }

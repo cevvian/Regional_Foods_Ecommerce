@@ -10,6 +10,7 @@ import edu.ut.sales.sales_analyst.repositories.UserRepo;
 import edu.ut.sales.sales_analyst.services.impl.ITokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,8 +74,10 @@ public class TokenService implements ITokenService {
             throw new AppException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
+        UserDetails userDetails = (UserDetails) user;
+
         // Generate new access token
-        String newAccessToken = jwtTokenUtil.generateToken(user);
+        String newAccessToken = jwtTokenUtil.generateToken(userDetails);
         LocalDateTime accessExp = LocalDateTime.now().plusSeconds(expiration);
 
         // Rotate refresh token
