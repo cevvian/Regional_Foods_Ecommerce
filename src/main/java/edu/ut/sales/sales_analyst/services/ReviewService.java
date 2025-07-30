@@ -9,6 +9,7 @@ import edu.ut.sales.sales_analyst.model.dtos.responses.ReviewResponse;
 import edu.ut.sales.sales_analyst.model.entities.Product;
 import edu.ut.sales.sales_analyst.model.entities.Review;
 import edu.ut.sales.sales_analyst.model.entities.User;
+import edu.ut.sales.sales_analyst.repositories.OrderRepo;
 import edu.ut.sales.sales_analyst.repositories.ProductRepo;
 import edu.ut.sales.sales_analyst.repositories.ReviewRepo;
 import edu.ut.sales.sales_analyst.repositories.UserRepo;
@@ -26,12 +27,15 @@ public class ReviewService implements IReviewService {
     private final UserRepo userRepo;
     private final ProductRepo productRepo;
     private final ReviewMapper reviewMapper;
+    private final OrderRepo orderRepo;
 
-    public ReviewService(ReviewRepo reviewRepo, UserRepo userRepo, ProductRepo productRepo, ReviewMapper reviewMapper) {
+    public ReviewService(ReviewRepo reviewRepo, UserRepo userRepo, ProductRepo productRepo,
+                         ReviewMapper reviewMapper, OrderRepo orderRepo) {
         this.reviewRepo = reviewRepo;
         this.userRepo = userRepo;
         this.productRepo = productRepo;
         this.reviewMapper = reviewMapper;
+        this.orderRepo = orderRepo;
     }
 
     private void updateProductRating(Product product) {
@@ -52,6 +56,12 @@ public class ReviewService implements IReviewService {
         if (product == null) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
+
+        boolean hasPurchased = orderRepo.existsCompletedOrderByUserIdAndProductId(user.getUserId(), product.getProductId());
+        if (!hasPurchased) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_REVIEW);
+        }
+
 
         Review review = new Review();
         review.setRating(request.getRating());

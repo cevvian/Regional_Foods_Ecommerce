@@ -12,6 +12,7 @@ import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.model.enums.Role;
 import edu.ut.sales.sales_analyst.repositories.TokenRepo;
 import edu.ut.sales.sales_analyst.repositories.UserRepo;
+import edu.ut.sales.sales_analyst.security.CustomUserDetails;
 import edu.ut.sales.sales_analyst.services.impl.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -147,7 +148,8 @@ public class UserService implements IUserService {
             authenticationManager.authenticate(authenticationToken);
 
             // Load CustomUserDetails and generate token
-            UserDetails userDetails = (UserDetails) userRepo.findByEmail(accountLoginRequest.getEmail());
+//            UserDetails userDetails = (UserDetails) userRepo.findByEmail(accountLoginRequest.getEmail());
+            UserDetails userDetails = new CustomUserDetails(existingUser);
             return jwtTokenUtils.generateToken(userDetails);
 
         } catch (Exception e) {

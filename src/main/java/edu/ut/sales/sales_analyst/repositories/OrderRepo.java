@@ -19,4 +19,15 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
             @Param("active") Boolean active,
             Pageable pageable
     );
+
+    @Query("""
+    SELECT COUNT(oi) > 0
+    FROM Order o
+    JOIN o.orderItems oi
+    WHERE o.user.userId = :userId
+      AND oi.product.productId = :productId
+      AND o.status = 'COMPLETED'
+    """)
+    boolean existsCompletedOrderByUserIdAndProductId(@Param("userId") String userId, @Param("productId") String productId);
+
 }

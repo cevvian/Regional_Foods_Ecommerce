@@ -83,7 +83,7 @@ public class ProductController {
     }
 
     @GetMapping("/statistics")
-    public ResponseAPI<List<RevenueStatsDTO>> getRevenueStats(@RequestBody @Valid RevenueFilterDTO filter) {
+    public ResponseAPI<List<RevenueStatsDTO>> getRevenueStats(@ModelAttribute @Valid RevenueFilterDTO filter) {
         try {
             List<RevenueStatsDTO> stats = productService.getRevenueByTime(filter);
             return new ResponseAPI<>("Get revenue statistics successfully", HttpStatus.OK, stats);
@@ -93,6 +93,7 @@ public class ProductController {
             return new ResponseAPI<>("Unexpected error", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @GetMapping("/filter")
     public  ResponseAPI<Page<ProductResponse>> filterProducts(
