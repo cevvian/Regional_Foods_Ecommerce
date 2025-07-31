@@ -1,0 +1,133 @@
+package edu.ut.sales.sales_analyst.services;
+
+import edu.ut.sales.sales_analyst.exceptions.AppException;
+import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
+import edu.ut.sales.sales_analyst.mappers.CartItemMapper;
+import edu.ut.sales.sales_analyst.mappers.CartMapper;
+import edu.ut.sales.sales_analyst.model.dtos.requests.AddToCartRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.CartItemRequest;
+import edu.ut.sales.sales_analyst.model.dtos.responses.CartItemResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.CartResponse;
+import edu.ut.sales.sales_analyst.model.entities.*;
+import edu.ut.sales.sales_analyst.repositories.CartItemRepo;
+import edu.ut.sales.sales_analyst.repositories.CartRepo;
+import edu.ut.sales.sales_analyst.repositories.ProductRepo;
+import edu.ut.sales.sales_analyst.repositories.UserRepo;
+import edu.ut.sales.sales_analyst.services.impl.ICartService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class CartService implements ICartService {
+    CartRepo cartRepo;
+    CartItemRepo cartItemRepo;
+    CartMapper cartMapper;
+    CartItemMapper cartItemMapper;
+    UserRepo userRepo;
+    ProductRepo productRepo;
+
+    public CartResponse addToCard(AddToCartRequest request){
+        User user = userRepo.findByUserId(request.getUserId());
+        if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
+
+        Cart cart = cartRepo.findByUser(user)
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepo.save(newCart);
+                });
+
+        Product product = productRepo.findById(request.getProductId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        Optional<CartItem> existingItemOpt = cartItemRepo.findByCartAndProduct(cart, product);
+        if (existingItemOpt.isPresent()) {
+            CartItem item = existingItemOpt.get();
+            item.setQuantity(item.getQuantity() + request.getQuantity());
+            cartItemRepo.save(item);
+        } else {
+            CartItem item = new CartItem();
+            item.setCart(cart);
+            item.setProduct(product);
+            item.setQuantity(request.getQuantity());
+            cartItemRepo.save(item);
+        }
+        cartRepo.save(cart);
+        return cartMapper.toCartResponse(cart);
+    }
+
+    public CartResponse viewCart(String userId) {
+        User user = userRepo.findByUserId(userId);
+        return cartMapper.toCartResponse(cartRepo.findByUser(user)
+                .orElseGet(() -> {
+                    Cart cart = new Cart();
+                    cart.setUser(user);
+                    return cartRepo.save(cart);
+                }));
+    }
+
+    public String deleteCartItem(String cartItemId){
+        CartItem cartItem = cartItemRepo.findById(cartItemId)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
+        cartItemRepo.delete(cartItem);
+        boolean isDeleted = !cartItemRepo.existsById(cartItemId);
+        return isDeleted
+                ? "Successfully deleted Item"
+                : "Failed to delete Item";
+    }
+
+    public CartItemResponse updateCartItemQuantity(String cartItemId, CartItemRequest request){
+        CartItem cartItem = cartItemRepo.findById(cartItemId)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
+        cartItem.setQuantity(request.getQuantity());
+        cartItemRepo.save(cartItem);
+        return cartItemMapper.toCartItemResponse(cartItem);
+    }
+
+    public Map<String, String> deleteCartItemList(List<String> cartItemIds) {
+        Map<String, String> result = new HashMap<>();
+
+        for (String cartItemId : cartItemIds) {
+            try {
+                CartItem cartItem = cartItemRepo.findById(cartItemId)
+                        .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
+                cartItemRepo.delete(cartItem);
+                boolean isDeleted = !cartItemRepo.existsById(cartItemId);
+                result.put(cartItemId, isDeleted ? "Deleted" : "Failed to delete");
+            } catch (AppException e) {
+                result.put(cartItemId, "Not found");
+            } catch (Exception e) {
+                result.put(cartItemId, "Error: " + e.getMessage());
+            }
+        }
+
+        return result;
+    }
+
+    public String deleteAllItemsByUser(String userId) {
+        Cart cart = cartRepo.findByUser_UserId(userId);
+        if (cart == null) throw new AppException(ErrorCode.CART_NOT_FOUND);
+
+        List<CartItem> items = cartItemRepo.findAllByUserId(userId);
+        if (items.isEmpty()) {
+            return "No items found for user: " + userId;
+        }
+        cartItemRepo.deleteAll(items);
+
+        boolean isDeletedAll = cartItemRepo.findAllByUserId(userId).isEmpty();
+        return isDeletedAll
+                ? "Successfully deleted all items for user: " + userId
+                : "Failed to delete some items for user: " + userId;
+    }
+}

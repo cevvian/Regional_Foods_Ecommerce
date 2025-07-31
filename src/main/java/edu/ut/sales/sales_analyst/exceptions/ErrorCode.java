@@ -155,6 +155,23 @@ public enum ErrorCode {
 
     // Validation Errors (3070-3099)
     REGION_NAME_REQUIRED(3003, "Region name is required", HttpStatus.BAD_REQUEST),
+
+    // ---------------- REGION (3000–3099) ----------------
+
+    // Not Found (3100-3149)
+    CART_NOT_FOUND(3100, "Cart not found", HttpStatus.NOT_FOUND),
+    CART_ITEM_NOT_FOUND(3101, "Cart item not found", HttpStatus.NOT_FOUND),
+    CART_EMPTY(1002, "Cart is empty", HttpStatus.NOT_FOUND),
+
+    // Already Exists (3150-3169)
+    CART_ALREADY_EXISTS(3150, "Cart already exists for this user", HttpStatus.CONFLICT),
+    CART_ITEM_ALREADY_EXISTS(3151, "Item already exists in cart", HttpStatus.CONFLICT),
+
+    // Validation Errors (3170-3199)
+    INVALID_CART_ITEM_QUANTITY(3170, "Invalid quantity for cart item", HttpStatus.BAD_REQUEST),
+    PRODUCT_OUT_OF_STOCK(3171, "Product is out of stock", HttpStatus.BAD_REQUEST),
+    CART_ITEM_PRODUCT_MISMATCH(3172, "Cart item product does not match", HttpStatus.BAD_REQUEST),
+
     ;
     private final int code;
     private final String message;

@@ -45,8 +45,8 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Address> addresses;
 
-    @OneToMany(mappedBy = "user")
-    private List<Cart> carts;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Cart cart;
 
     @OneToMany(mappedBy = "user")
     private List<Order> orders;

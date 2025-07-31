@@ -25,6 +25,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,11 +68,35 @@ public class ProductService implements IProductService {
 
     public Page<ProductResponse> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepo.findAll(pageable);
-        if (products.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_LIST_EMPTY);
-        }
         return products.map(productMapper::toProductDTO);
     }
+
+    public List<Product> createProductList(List<ProductCreateRequest> requests) {
+        List<Product> savedProducts = new ArrayList<>();
+
+        for (ProductCreateRequest request : requests) {
+            Category category = categoryRepo.findById(request.getCategoryId())
+                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+            Region region = regionRepo.findById(request.getRegionId())
+                    .orElseThrow(() -> new AppException(ErrorCode.REGION_NOT_FOUND));
+
+            Product product = new Product();
+            product.setProductName(request.getProductName());
+            product.setDescription(request.getDescription());
+            product.setPrice(request.getPrice());
+            product.setStockQuantity(request.getStockQuantity());
+            product.setCategory(category);
+            product.setRegion(region);
+
+            savedProducts.add(product);
+        }
+
+        productRepo.saveAll(savedProducts);
+
+        return savedProducts;
+    }
+
 
     public ProductResponse updateProduct(String productId, ProductCreateRequest productCreateRequest) {
         Product product = productRepo.findByProductId(productId);

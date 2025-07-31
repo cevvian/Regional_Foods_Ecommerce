@@ -16,8 +16,8 @@ public class Cart {
     @Column(name = "cartId")
     private String cartId;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId", referencedColumnName = "userId")
+    @OneToOne
+    @JoinColumn(name = "userId", referencedColumnName = "userId", unique = true)
     private User user;
 
     @Column(name = "updatedAt")
@@ -25,4 +25,9 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart")
     private List<CartItem> items;
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
