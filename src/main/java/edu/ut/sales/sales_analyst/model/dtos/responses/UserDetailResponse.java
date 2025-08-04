@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,6 +19,6 @@ public class UserDetailResponse {
     private String phone;
     private String password;
     private Boolean isActive;
-    private AddressResponse address;
+    private List<AddressResponse> address;
     private Date createAt;
 }

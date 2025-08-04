@@ -1,6 +1,7 @@
 package edu.ut.sales.sales_analyst.services.impl;
 
 import edu.ut.sales.sales_analyst.model.dtos.requests.ProductCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.ProductFilterRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
@@ -18,12 +19,7 @@ public interface IProductService {
 
     List<RevenueStatsDTO> getRevenueByTime(RevenueFilterDTO filter);
     Page<ProductResponse> filterProducts(
-            String categoryId,
-            String regionId,
-            Double minPrice,
-            Double maxPrice,
-            Integer minStock,
-            Double minRating,
+            ProductFilterRequest filterRequest,
             Pageable pageable
     );
 }

@@ -13,12 +13,13 @@ import org.springframework.stereotype.Repository;;
 public interface OrderRepo extends JpaRepository<Order, Integer> {
     Order findByOrderId(String orderId);
     Page<Order> findByUser_UserId(String customerId, Pageable pageable);
-    @Query("SELECT o FROM Order o WHERE o.status = :orderStatus AND o.isActive = true")
+    @Query("SELECT o FROM Order o WHERE o.status = :orderStatus AND o.isActive = :active")
     Page<Order> findByOrderStatusAndActive(
             @Param("orderStatus") OrderStatus orderStatus,
             @Param("active") Boolean active,
             Pageable pageable
     );
+
 
     @Query("""
     SELECT COUNT(oi) > 0
