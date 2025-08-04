@@ -12,7 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/reviews")
@@ -22,16 +25,23 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public ResponseAPI<ReviewResponse> createReview(@Valid @RequestBody ReviewCreateRequest request) {
+    public ResponseAPI<?> createReview(@RequestBody @Valid ReviewCreateRequest request, BindingResult result) {
         try {
-            System.out.println("Received review create request: " + request);
+            if (result.hasErrors()) {
+                String errors = result.getFieldErrors()
+                        .stream()
+                        .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                        .collect(Collectors.joining("; "));
+                return new ResponseAPI<>("Validation failed", HttpStatus.BAD_REQUEST, errors);
+            }
 
             ReviewResponse response = reviewService.createReview(request);
             return new ResponseAPI<>("Create review successfully", HttpStatus.CREATED, response);
         } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+            return new ResponseAPI<>(e.getMessage(), (HttpStatus) e.getErrorCode().getStatusCode(), null);
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseAPI<ReviewResponse> getReview(@PathVariable String id) {
@@ -39,7 +49,7 @@ public class ReviewController {
             ReviewResponse response = reviewService.getReview(id);
             return new ResponseAPI<>("Get review successfully", HttpStatus.OK, response);
         } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.NOT_FOUND, null);
+            return new ResponseAPI<>(e.getMessage(), (HttpStatus) e.getErrorCode().getStatusCode(), null);
         }
     }
 
@@ -53,7 +63,7 @@ public class ReviewController {
             Page<ReviewResponse> response = reviewService.getAllReviews(pageable);
             return new ResponseAPI<>("Get all reviews successfully", HttpStatus.OK, response);
         } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+            return new ResponseAPI<>(e.getMessage(), (HttpStatus) e.getErrorCode().getStatusCode(), null);
         }
     }
 
@@ -66,7 +76,7 @@ public class ReviewController {
             ReviewResponse response = reviewService.updateReview(id, request);
             return new ResponseAPI<>("Update review successfully", HttpStatus.OK, response);
         } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.BAD_REQUEST, null);
+            return new ResponseAPI<>(e.getMessage(), (HttpStatus) e.getErrorCode().getStatusCode(), null);
         }
     }
 
@@ -80,7 +90,7 @@ public class ReviewController {
                 return new ResponseAPI<>("Delete review failed", HttpStatus.NOT_FOUND, null);
             }
         } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+            return new ResponseAPI<>(e.getMessage(), (HttpStatus) e.getErrorCode().getStatusCode(), null);
         }
     }
 
@@ -96,7 +106,7 @@ public class ReviewController {
             return new ResponseAPI<>("Get reviews by product successfully", HttpStatus.OK, response);
         }
         catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+            return new ResponseAPI<>(e.getMessage(), (HttpStatus) e.getErrorCode().getStatusCode(), null);
         }
     }
 
@@ -112,7 +122,7 @@ public class ReviewController {
             return new ResponseAPI<>("Get reviews by user successfully", HttpStatus.OK, response);
         }
         catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+            return new ResponseAPI<>(e.getMessage(), (HttpStatus) e.getErrorCode().getStatusCode(), null);
         }
     }
 
@@ -129,7 +139,7 @@ public class ReviewController {
             return new ResponseAPI<>("Get reviews by product and user successfully", HttpStatus.OK, response);
         }
         catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+            return new ResponseAPI<>(e.getMessage(), (HttpStatus) e.getErrorCode().getStatusCode(), null);
         }
     }
 }

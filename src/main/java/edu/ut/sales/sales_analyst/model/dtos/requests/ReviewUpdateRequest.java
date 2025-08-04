@@ -13,7 +13,7 @@ public class ReviewUpdateRequest {
 
     private String comment;
 
-    private String userId;
-
-    private String productId;
+//    private String userId;
+//
+//    private String productId;
 }

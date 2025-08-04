@@ -126,7 +126,7 @@ public enum ErrorCode {
     REVIEW_PRODUCT_ID_REQUIRED(2778, "Product ID is required for review", HttpStatus.BAD_REQUEST),
     REVIEW_USER_ID_REQUIRED(2779, "User ID is required for review", HttpStatus.BAD_REQUEST),
 
-    UNAUTHORIZED_REVIEW(2780, "You can only review products you've purchased", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED_REVIEW(2780, "You can only review products you've purchased", HttpStatus.BAD_REQUEST),
 
 
     // ---------------- IMAGE NEWS (2900–2999) ----------------
