@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccessTokenRequest {
+public class RefreshTokenRequest {
     @JsonProperty("refresh_token")
     @NotBlank(message = "Refresh token is required") String refreshToken;
 }

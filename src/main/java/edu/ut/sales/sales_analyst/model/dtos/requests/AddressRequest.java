@@ -1,4 +1,4 @@
-package edu.ut.sales.sales_analyst.model.dtos.responses;
+package edu.ut.sales.sales_analyst.model.dtos.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddressResponse {
-    private String addressId;
+public class AddressRequest {
+    private String userId;
     private String addressLine;
     private String province;
     private String phone;
     private boolean isDefault;
 }
-

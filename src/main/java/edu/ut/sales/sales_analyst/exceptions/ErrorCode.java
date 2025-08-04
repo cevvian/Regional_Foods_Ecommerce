@@ -152,6 +152,22 @@ public enum ErrorCode {
 
     // Validation Errors (3070-3099)
     REGION_NAME_REQUIRED(3003, "Region name is required", HttpStatus.BAD_REQUEST),
+
+    // ---------------- ADDRESS (3100–3199) ----------------
+
+    // Not Found (3100-3149)
+    ADDRESS_NOT_FOUND(3100, "Address not found", HttpStatus.NOT_FOUND),
+    ADDRESS_LIST_EMPTY(3101, "No addresses found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (3150-3169)
+    ADDRESS_ALREADY_EXISTS(3150, "Address already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (3170-3199)
+    ADDRESS_LINE_REQUIRED(3170, "Address line is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_CITY_REQUIRED(3171, "City is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_PROVINCE_REQUIRED(3172, "Province is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_PHONE_INVALID(3173, "Phone number is invalid", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_DEFAULT_ADDRESS(3174, "Cannot delete default address. Please change default address first.", HttpStatus.BAD_REQUEST)
     ;
     private final int code;
     private final String message;
