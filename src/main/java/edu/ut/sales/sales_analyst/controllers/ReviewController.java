@@ -3,6 +3,7 @@ package edu.ut.sales.sales_analyst.controllers;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ReviewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ReviewUpdateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ReviewResponse;
 import edu.ut.sales.sales_analyst.services.ReviewService;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/reviews")
@@ -44,18 +47,28 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseAPI<Page<ReviewResponse>> getAllReviews(
+    public ResponseAPI<List<ReviewResponse>> getAllReviews(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<ReviewResponse> response = reviewService.getAllReviews(pageable);
-            return new ResponseAPI<>("Get all reviews successfully", HttpStatus.OK, response);
+            Page<ReviewResponse> reviewPage = reviewService.getAllReviews(pageable);
+
+            PageMeta meta = PageMeta.builder()
+                    .page(reviewPage.getNumber())
+                    .size(reviewPage.getSize())
+                    .totalElements(reviewPage.getTotalElements())
+                    .totalPages(reviewPage.getTotalPages())
+                    .last(reviewPage.isLast())
+                    .build();
+
+            return new ResponseAPI<>("Get all reviews successfully", HttpStatus.OK, reviewPage.getContent(), meta);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @PutMapping("/{id}")
     public ResponseAPI<ReviewResponse> updateReview(

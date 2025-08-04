@@ -2,8 +2,10 @@ package edu.ut.sales.sales_analyst.controllers;
 
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
 import edu.ut.sales.sales_analyst.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +18,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,19 +46,29 @@ public class UserController {
 
     @Operation(summary = "Get all users", description = "Retrieve all users with optional filter by active status and pagination")
     @GetMapping
-    public ResponseAPI<Page<UserDetailResponse>> getAllUsers(
+    public ResponseAPI<List<UserResponse>> getAllUsers(
             @RequestParam(required = false) Boolean isActive,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<UserDetailResponse> userResponseList = userService.getAllUsersWithFilter(pageable, isActive);
-            return new ResponseAPI<>("Get all users", HttpStatus.OK, userResponseList);
+            Page<UserResponse> userPage = userService.getAllUsersWithFilter(pageable, isActive);
+
+            PageMeta meta = PageMeta.builder()
+                    .page(userPage.getNumber())
+                    .size(userPage.getSize())
+                    .totalElements(userPage.getTotalElements())
+                    .totalPages(userPage.getTotalPages())
+                    .last(userPage.isLast())
+                    .build();
+
+            return new ResponseAPI<>("Get all users", HttpStatus.OK, userPage.getContent(), meta);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @Operation(summary = "Get user by ID", description = "Retrieve detailed information of a user by their ID")
     @GetMapping("/{id}")

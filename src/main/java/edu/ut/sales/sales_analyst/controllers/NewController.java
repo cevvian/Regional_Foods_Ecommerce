@@ -5,6 +5,7 @@ import edu.ut.sales.sales_analyst.model.dtos.requests.ImageOfNewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewUpdateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.NewResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.services.NewService;
 import lombok.RequiredArgsConstructor;
@@ -83,18 +84,28 @@ public class NewController {
 
 
     @GetMapping
-    public ResponseAPI<Page<NewResponse>> getAllNews(
+    public ResponseAPI<List<NewResponse>> getAllNews(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<NewResponse> response = newService.getAllNews(pageable);
-            return new ResponseAPI<>("Get all news successfully", HttpStatus.OK, response);
+            Page<NewResponse> newsPage = newService.getAllNews(pageable);
+
+            PageMeta meta = PageMeta.builder()
+                    .page(newsPage.getNumber())
+                    .size(newsPage.getSize())
+                    .totalElements(newsPage.getTotalElements())
+                    .totalPages(newsPage.getTotalPages())
+                    .last(newsPage.isLast())
+                    .build();
+
+            return new ResponseAPI<>("Get all news successfully", HttpStatus.OK, newsPage.getContent(), meta);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseAPI<NewResponse> getNews(@PathVariable String id) {

@@ -3,6 +3,7 @@ package edu.ut.sales.sales_analyst.controllers;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ProductCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
@@ -37,19 +38,29 @@ public class ProductController {
         }
     }
 
-    @GetMapping()
-    public ResponseAPI<Page<ProductResponse>> getAllProducts(
+    @GetMapping
+    public ResponseAPI<List<ProductResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<ProductResponse> productResponseList = productService.getAllProducts(pageable);
-            return new ResponseAPI<>("Get all products successfully", HttpStatus.OK, productResponseList);
+            Page<ProductResponse> productPage = productService.getAllProducts(pageable);
+
+            PageMeta meta = PageMeta.builder()
+                    .page(productPage.getNumber())
+                    .size(productPage.getSize())
+                    .totalElements(productPage.getTotalElements())
+                    .totalPages(productPage.getTotalPages())
+                    .last(productPage.isLast())
+                    .build();
+
+            return new ResponseAPI<>("Get all products successfully", HttpStatus.OK, productPage.getContent(), meta);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @PostMapping("/products/list")
     public ResponseAPI<List<Product>> createProductList(

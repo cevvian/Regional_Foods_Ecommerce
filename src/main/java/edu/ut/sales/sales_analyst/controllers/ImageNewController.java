@@ -3,6 +3,7 @@ package edu.ut.sales.sales_analyst.controllers;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ImageNewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ImageNewResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.services.ImageNewService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/image-news")
@@ -81,18 +84,28 @@ public class ImageNewController {
     }
 
     @GetMapping
-    public ResponseAPI<Page<ImageNewResponse>> getAllImages(
+    public ResponseAPI<List<ImageNewResponse>> getAllImages(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<ImageNewResponse> response = imageNewService.getAll(pageable);
-            return new ResponseAPI<>("Get all images successfully", HttpStatus.OK, response);
+            Page<ImageNewResponse> imagePage = imageNewService.getAll(pageable);
+
+            PageMeta meta = PageMeta.builder()
+                    .page(imagePage.getNumber())
+                    .size(imagePage.getSize())
+                    .totalElements(imagePage.getTotalElements())
+                    .totalPages(imagePage.getTotalPages())
+                    .last(imagePage.isLast())
+                    .build();
+
+            return new ResponseAPI<>("Get all images successfully", HttpStatus.OK, imagePage.getContent(), meta);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @GetMapping("/by-news")
     public ResponseAPI<Page<ImageNewResponse>> getImagesByNewsId(

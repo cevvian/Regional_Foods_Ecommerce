@@ -3,6 +3,7 @@ package edu.ut.sales.sales_analyst.controllers;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.CategoryRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.CategoryResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.services.CategoryService;
 import jakarta.validation.Valid;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/category")
@@ -34,19 +37,29 @@ public class CategoryController {
         }
     }
 
-    @GetMapping()
-    public ResponseAPI<Page<CategoryResponse>> getAll(
+    @GetMapping
+    public ResponseAPI<List<CategoryResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<CategoryResponse> responses = categoryService.getAllCategories(pageable);
-            return new ResponseAPI<>("Get all categories", HttpStatus.OK, responses);
+            Page<CategoryResponse> categoryPage = categoryService.getAllCategories(pageable);
+
+            PageMeta meta = PageMeta.builder()
+                    .page(categoryPage.getNumber())
+                    .size(categoryPage.getSize())
+                    .totalElements(categoryPage.getTotalElements())
+                    .totalPages(categoryPage.getTotalPages())
+                    .last(categoryPage.isLast())
+                    .build();
+
+            return new ResponseAPI<>("Get all categories", HttpStatus.OK, categoryPage.getContent(), meta);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseAPI<CategoryResponse> getById(@PathVariable String id) {

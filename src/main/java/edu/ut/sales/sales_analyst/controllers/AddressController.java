@@ -3,6 +3,7 @@ package edu.ut.sales.sales_analyst.controllers;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.AddressRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.AddressResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.services.AddressService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,19 +42,29 @@ public class AddressController {
 
     @Operation(summary = "Get all addresses of a user", description = "Retrieve all addresses of a specific user with pagination")
     @GetMapping("/user/{userId}")
-    public ResponseAPI<Page<AddressResponse>> getAddressesByUserId(
+    public ResponseAPI<List<AddressResponse>> getAddressesByUserId(
             @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<AddressResponse> response = addressService.getAddressesByUserId(pageable, userId);
-            return new ResponseAPI<>("Get addresses successfully", HttpStatus.OK, response);
+            Page<AddressResponse> addressPage = addressService.getAddressesByUserId(pageable, userId);
+
+            PageMeta meta = PageMeta.builder()
+                    .page(addressPage.getNumber())
+                    .size(addressPage.getSize())
+                    .totalElements(addressPage.getTotalElements())
+                    .totalPages(addressPage.getTotalPages())
+                    .last(addressPage.isLast())
+                    .build();
+
+            return new ResponseAPI<>("Get addresses successfully", HttpStatus.OK, addressPage.getContent(), meta);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @Operation(summary = "Create a new address", description = "Add a new address for the user")
     @PostMapping

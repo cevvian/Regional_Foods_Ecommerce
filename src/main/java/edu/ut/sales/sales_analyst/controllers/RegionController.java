@@ -2,6 +2,7 @@ package edu.ut.sales.sales_analyst.controllers;
 
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.RegionRequest;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RegionResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.model.entities.Region;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,19 +48,29 @@ public class RegionController {
         }
     }
 
-    @GetMapping()
-    public ResponseAPI<Page<RegionResponse>> getAll(
+    @GetMapping
+    public ResponseAPI<List<RegionResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<RegionResponse> responses = regionService.getAllRegions(pageable);
-            return new ResponseAPI<>("Get all regions", HttpStatus.OK, responses);
+            Page<RegionResponse> regionPage = regionService.getAllRegions(pageable);
+
+            PageMeta meta = PageMeta.builder()
+                    .page(regionPage.getNumber())
+                    .size(regionPage.getSize())
+                    .totalElements(regionPage.getTotalElements())
+                    .totalPages(regionPage.getTotalPages())
+                    .last(regionPage.isLast())
+                    .build();
+
+            return new ResponseAPI<>("Get all regions", HttpStatus.OK, regionPage.getContent(), meta);
         } catch (AppException e) {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseAPI<RegionResponse> getById(@PathVariable String id) {
