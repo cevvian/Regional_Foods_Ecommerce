@@ -1,13 +1,17 @@
 package edu.ut.sales.sales_analyst.model.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
 @Entity
 @Table(name = "ORDERITEMS")
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderItem {
 
     @Id

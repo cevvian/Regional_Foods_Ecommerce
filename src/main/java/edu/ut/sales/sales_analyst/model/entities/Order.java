@@ -2,7 +2,9 @@ package edu.ut.sales.sales_analyst.model.entities;
 
 import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,6 +13,8 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "ORDERS")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Order {
 
     @Id

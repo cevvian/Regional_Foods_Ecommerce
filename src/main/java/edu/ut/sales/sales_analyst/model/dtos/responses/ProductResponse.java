@@ -16,6 +16,7 @@ public class ProductResponse {
     private String productName;
     private String description;
     private BigDecimal price;
+    private Double rating;
     private int stockQuantity;
     private CategoryResponse category;
     private RegionResponse region;

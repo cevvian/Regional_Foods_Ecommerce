@@ -6,6 +6,7 @@ import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
+import edu.ut.sales.sales_analyst.model.entities.Product;
 import edu.ut.sales.sales_analyst.services.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,6 +51,19 @@ public class ProductController {
         }
     }
 
+    @PostMapping("/products/list")
+    public ResponseAPI<List<Product>> createProductList(
+            @RequestBody List<ProductCreateRequest> requests
+    ) {
+        try {
+            List<Product> productResponse = productService.createProductList(requests);
+            return new ResponseAPI<>("Create product successfully", HttpStatus.CREATED, productResponse);
+        } catch (AppException e) {
+            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
+
     @GetMapping("/{id}")
     public ResponseAPI<ProductResponse> getProduct(@PathVariable String id) {
         try {
@@ -83,7 +98,7 @@ public class ProductController {
     }
 
     @GetMapping("/statistics")
-    public ResponseAPI<List<RevenueStatsDTO>> getRevenueStats(@RequestBody @Valid RevenueFilterDTO filter) {
+    public ResponseAPI<List<RevenueStatsDTO>> getRevenueStats(@ModelAttribute @Valid RevenueFilterDTO filter) {
         try {
             List<RevenueStatsDTO> stats = productService.getRevenueByTime(filter);
             return new ResponseAPI<>("Get revenue statistics successfully", HttpStatus.OK, stats);
@@ -93,6 +108,7 @@ public class ProductController {
             return new ResponseAPI<>("Unexpected error", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @GetMapping("/filter")
     public  ResponseAPI<Page<ProductResponse>> filterProducts(

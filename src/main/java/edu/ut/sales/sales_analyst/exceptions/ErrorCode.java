@@ -126,6 +126,9 @@ public enum ErrorCode {
     REVIEW_PRODUCT_ID_REQUIRED(2778, "Product ID is required for review", HttpStatus.BAD_REQUEST),
     REVIEW_USER_ID_REQUIRED(2779, "User ID is required for review", HttpStatus.BAD_REQUEST),
 
+    UNAUTHORIZED_REVIEW(2780, "You can only review products you've purchased", HttpStatus.FORBIDDEN),
+
+
     // ---------------- IMAGE NEWS (2900–2999) ----------------
 
     // Not Found (2900–2949)
@@ -153,21 +156,37 @@ public enum ErrorCode {
     // Validation Errors (3070-3099)
     REGION_NAME_REQUIRED(3003, "Region name is required", HttpStatus.BAD_REQUEST),
 
-    // ---------------- ADDRESS (3100–3199) ----------------
+    // ---------------- CART (3100–3199) ----------------
 
     // Not Found (3100-3149)
-    ADDRESS_NOT_FOUND(3100, "Address not found", HttpStatus.NOT_FOUND),
-    ADDRESS_LIST_EMPTY(3101, "No addresses found", HttpStatus.NOT_FOUND),
+    CART_NOT_FOUND(3100, "Cart not found", HttpStatus.NOT_FOUND),
+    CART_ITEM_NOT_FOUND(3101, "Cart item not found", HttpStatus.NOT_FOUND),
+    CART_EMPTY(1002, "Cart is empty", HttpStatus.NOT_FOUND),
 
     // Already Exists (3150-3169)
-    ADDRESS_ALREADY_EXISTS(3150, "Address already exists", HttpStatus.CONFLICT),
+    CART_ALREADY_EXISTS(3150, "Cart already exists for this user", HttpStatus.CONFLICT),
+    CART_ITEM_ALREADY_EXISTS(3151, "Item already exists in cart", HttpStatus.CONFLICT),
 
     // Validation Errors (3170-3199)
-    ADDRESS_LINE_REQUIRED(3170, "Address line is required", HttpStatus.BAD_REQUEST),
-    ADDRESS_CITY_REQUIRED(3171, "City is required", HttpStatus.BAD_REQUEST),
-    ADDRESS_PROVINCE_REQUIRED(3172, "Province is required", HttpStatus.BAD_REQUEST),
-    ADDRESS_PHONE_INVALID(3173, "Phone number is invalid", HttpStatus.BAD_REQUEST),
-    CANNOT_DELETE_DEFAULT_ADDRESS(3174, "Cannot delete default address. Please change default address first.", HttpStatus.BAD_REQUEST)
+    INVALID_CART_ITEM_QUANTITY(3170, "Invalid quantity for cart item", HttpStatus.BAD_REQUEST),
+    PRODUCT_OUT_OF_STOCK(3171, "Product is out of stock", HttpStatus.BAD_REQUEST),
+    CART_ITEM_PRODUCT_MISMATCH(3172, "Cart item product does not match", HttpStatus.BAD_REQUEST),
+
+    // ---------------- ADDRESS (3200–3299) ----------------
+
+    // Not Found (3200-3249)
+    ADDRESS_NOT_FOUND(3200, "Address not found", HttpStatus.NOT_FOUND),
+    ADDRESS_LIST_EMPTY(3201, "No addresses found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (3250-3269)
+    ADDRESS_ALREADY_EXISTS(3250, "Address already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (3270-3299)
+    ADDRESS_LINE_REQUIRED(3270, "Address line is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_CITY_REQUIRED(3271, "City is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_PROVINCE_REQUIRED(3272, "Province is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_PHONE_INVALID(3273, "Phone number is invalid", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_DEFAULT_ADDRESS(3274, "Cannot delete default address. Please change default address first.", HttpStatus.BAD_REQUEST)
     ;
     private final int code;
     private final String message;

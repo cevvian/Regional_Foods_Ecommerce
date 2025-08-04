@@ -16,6 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -57,6 +60,16 @@ public class RegionService implements IRegionService {
         return isDeleted
                 ? "Successfully deleted Region"
                 : "Failed to delete Region";
+    }
+
+    public List<Region> addRegions(List<RegionRequest> regionRequests) {
+        List<Region> regions = regionRequests.stream()
+                .map(req -> Region.builder()
+                        .regionName(req.getRegionName())
+                        .build())
+                .collect(Collectors.toList());
+
+        return regionRepo.saveAll(regions);
     }
 
 }

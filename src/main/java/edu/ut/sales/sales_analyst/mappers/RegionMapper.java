@@ -8,5 +8,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface RegionMapper {
     RegionResponse toResponse(Region region);
-        Region toRegion(RegionRequest regionRequest);
+    Region toRegion(RegionRequest regionRequest);
 }
