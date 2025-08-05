@@ -7,6 +7,7 @@ import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.services.AddressService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -93,7 +94,9 @@ public class AddressController {
 
     @Operation(summary = "Change default address", description = "Set a specific address as the default address for the user")
     @PatchMapping("/{addressId}/default")
-    public ResponseAPI<AddressResponse> changeDefaultAddress(@PathVariable String addressId) {
+    public ResponseAPI<AddressResponse> changeDefaultAddress(
+            @Parameter(description = "ID of the address to set as default", required = true)
+            @PathVariable("addressId") String addressId) {
         try {
             AddressResponse response = addressService.changeDefaultAddress(addressId);
             return new ResponseAPI<>("Change default address successfully", HttpStatus.OK, response);
@@ -101,6 +104,7 @@ public class AddressController {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
+
 
     @Operation(summary = "Delete address", description = "Delete an address by ID (cannot delete default address)")
     @DeleteMapping("/{addressId}")
