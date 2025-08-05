@@ -1,7 +1,7 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.RegionRequest;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RegionResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.model.entities.Region;
@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,67 +27,52 @@ import java.util.List;
 public class RegionController {
     RegionService regionService;
 
-    @PostMapping()
-    public ResponseAPI<RegionResponse> create(@Valid @RequestBody RegionRequest request){
-        try {
-            RegionResponse response = regionService.createRegion(request);
-            return new ResponseAPI<>("Create region successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    @PostMapping
+    public ResponseAPI<RegionResponse> create(@Valid @RequestBody RegionRequest request) {
+        RegionResponse response = regionService.createRegion(request);
+        return new ResponseAPI<>("Create region successfully", HttpStatus.CREATED, response);
     }
 
     @PostMapping("/bulk")
-    public ResponseAPI<List<Region>> addRegions(@RequestBody List<RegionRequest> regionRequests) {
-        try {
-            List<Region> createdRegions = regionService.addRegions(regionRequests);
-            return new ResponseAPI<>("Create list region successfully", HttpStatus.CREATED, createdRegions);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    public ResponseAPI<List<Region>> addRegions(@RequestBody @Valid List<RegionRequest> regionRequests) {
+        List<Region> createdRegions = regionService.addRegions(regionRequests);
+        return new ResponseAPI<>("Create list region successfully", HttpStatus.CREATED, createdRegions);
     }
 
-    @GetMapping()
-    public ResponseAPI<Page<RegionResponse>> getAll(
+    @GetMapping
+    public ResponseAPI<List<RegionResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<RegionResponse> responses = regionService.getAllRegions(pageable);
-            return new ResponseAPI<>("Get all regions", HttpStatus.OK, responses);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RegionResponse> regionPage = regionService.getAllRegions(pageable);
+
+        PageMeta meta = PageMeta.builder()
+                .page(regionPage.getNumber())
+                .size(regionPage.getSize())
+                .totalElements(regionPage.getTotalElements())
+                .totalPages(regionPage.getTotalPages())
+                .last(regionPage.isLast())
+                .build();
+
+        return new ResponseAPI<>("Get all regions", HttpStatus.OK, regionPage.getContent(), meta);
     }
 
     @GetMapping("/{id}")
     public ResponseAPI<RegionResponse> getById(@PathVariable String id) {
-        try {
-            RegionResponse response = regionService.getRegionById(id);
-            return new ResponseAPI<>("Get region by id successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        RegionResponse response = regionService.getRegionById(id);
+        return new ResponseAPI<>("Get region by id successfully", HttpStatus.OK, response);
     }
 
     @PutMapping("/{id}")
-    public ResponseAPI<RegionResponse> update(@PathVariable String id, @Valid @RequestBody RegionRequest request){
-        try {
-            RegionResponse response = regionService.updateRegion(id, request);
-            return new ResponseAPI<>("Update successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    public ResponseAPI<RegionResponse> update(@PathVariable String id, @Valid @RequestBody RegionRequest request) {
+        RegionResponse response = regionService.updateRegion(id, request);
+        return new ResponseAPI<>("Update successfully", HttpStatus.OK, response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseAPI<String> delete(@PathVariable String id) {
-        try {
-            String response = regionService.deleteRegion(id);
-            return new ResponseAPI<>("Delete successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        String response = regionService.deleteRegion(id);
+        return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);
     }
 }

@@ -126,7 +126,7 @@ public enum ErrorCode {
     REVIEW_PRODUCT_ID_REQUIRED(2778, "Product ID is required for review", HttpStatus.BAD_REQUEST),
     REVIEW_USER_ID_REQUIRED(2779, "User ID is required for review", HttpStatus.BAD_REQUEST),
 
-    UNAUTHORIZED_REVIEW(2780, "You can only review products you've purchased", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED_REVIEW(2780, "You can only review products you've purchased", HttpStatus.BAD_REQUEST),
 
 
     // ---------------- IMAGE NEWS (2900–2999) ----------------
@@ -156,7 +156,7 @@ public enum ErrorCode {
     // Validation Errors (3070-3099)
     REGION_NAME_REQUIRED(3003, "Region name is required", HttpStatus.BAD_REQUEST),
 
-    // ---------------- REGION (3000–3099) ----------------
+    // ---------------- CART (3100–3199) ----------------
 
     // Not Found (3100-3149)
     CART_NOT_FOUND(3100, "Cart not found", HttpStatus.NOT_FOUND),
@@ -172,6 +172,21 @@ public enum ErrorCode {
     PRODUCT_OUT_OF_STOCK(3171, "Product is out of stock", HttpStatus.BAD_REQUEST),
     CART_ITEM_PRODUCT_MISMATCH(3172, "Cart item product does not match", HttpStatus.BAD_REQUEST),
 
+    // ---------------- ADDRESS (3200–3299) ----------------
+
+    // Not Found (3200-3249)
+    ADDRESS_NOT_FOUND(3200, "Address not found", HttpStatus.NOT_FOUND),
+    ADDRESS_LIST_EMPTY(3201, "No addresses found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (3250-3269)
+    ADDRESS_ALREADY_EXISTS(3250, "Address already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (3270-3299)
+    ADDRESS_LINE_REQUIRED(3270, "Address line is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_CITY_REQUIRED(3271, "City is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_PROVINCE_REQUIRED(3272, "Province is required", HttpStatus.BAD_REQUEST),
+    ADDRESS_PHONE_INVALID(3273, "Phone number is invalid", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_DEFAULT_ADDRESS(3274, "Cannot delete default address. Please change default address first.", HttpStatus.BAD_REQUEST)
     ;
     private final int code;
     private final String message;

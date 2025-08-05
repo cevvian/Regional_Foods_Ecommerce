@@ -4,6 +4,7 @@ import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.ProductMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ProductCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.ProductFilterRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
@@ -151,16 +152,10 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Page<ProductResponse> filterProducts(String categoryId,
-                                        String regionId,
-                                        Double minPrice,
-                                        Double maxPrice,
-                                        Integer minStock,
-                                        Double minRating,
-                                        Pageable pageable) {
-        Page<Product> products = productRepo.filterProducts(categoryId, regionId, minPrice,
-                                                    maxPrice, minStock, minRating, pageable);
-
+    public Page<ProductResponse> filterProducts(ProductFilterRequest filterRequest, Pageable pageable) {
+        Page<Product> products = productRepo.filterProducts(filterRequest.getCategoryId(), filterRequest.getRegionId(),
+                filterRequest.getMinPrice(), filterRequest.getMaxPrice(), filterRequest.getMinStock(),
+                filterRequest.getMinRating(), pageable);
         return products.map(productMapper::toProductDTO);
     }
 

@@ -57,10 +57,10 @@ public class ReviewService implements IReviewService {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        boolean hasPurchased = orderRepo.existsCompletedOrderByUserIdAndProductId(user.getUserId(), product.getProductId());
-        if (!hasPurchased) {
-            throw new AppException(ErrorCode.UNAUTHORIZED_REVIEW);
-        }
+//        boolean hasPurchased = orderRepo.existsCompletedOrderByUserIdAndProductId(user.getUserId(), product.getProductId());
+//        if (!hasPurchased) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED_REVIEW);
+//        }
 
 
         Review review = new Review();
@@ -102,41 +102,51 @@ public class ReviewService implements IReviewService {
             throw new AppException(ErrorCode.REVIEW_NOT_FOUND);
         }
 
-        Product oldProduct = review.getProduct();  // Giữ lại sản phẩm cũ để cập nhật rating nếu đổi product
+//        Product oldProduct = review.getProduct();
+//
+//        User user = request.getUserId() != null
+//                ? userRepo.findByUserId(request.getUserId())
+//                : review.getUser();
+//
+//        if (user == null) {
+//            throw new AppException(ErrorCode.USER_NOT_FOUND);
+//        }
+//
+//        Product product = request.getProductId() != null
+//                ? productRepo.findByProductId(request.getProductId())
+//                : review.getProduct();
+//
+//        if (product == null) {
+//            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+//        }
+//
+//        boolean hasPurchased = orderRepo.existsCompletedOrderByUserIdAndProductId(user.getUserId(), product.getProductId());
+//        if (!hasPurchased) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED_REVIEW);
+//        }
+//
+//        if (request.getRating() != null) {
+//            review.setRating(request.getRating());
+//        }
 
-        if (request.getRating() != null) {
-            review.setRating(request.getRating());
-        }
         if (request.getComment() != null && !request.getComment().isBlank()) {
             review.setComment(request.getComment());
         }
 
-        if (request.getUserId() != null) {
-            User user = userRepo.findByUserId(request.getUserId());
-            if (user == null) {
-                throw new AppException(ErrorCode.USER_NOT_FOUND);
-            }
-            review.setUser(user);
-        }
-
-        if (request.getProductId() != null) {
-            Product newProduct = productRepo.findByProductId(request.getProductId());
-            if (newProduct == null) {
-                throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-            }
-            review.setProduct(newProduct);
-        }
-
+//        review.setUser(user);
+//        review.setProduct(product);
         review.setUpdateAt(LocalDateTime.now());
+
         Review updated = reviewRepo.save(review);
 
-        updateProductRating(updated.getProduct()); // Cập nhật rating của sản phẩm mới
-        if (!oldProduct.getProductId().equals(updated.getProduct().getProductId())) {
-            updateProductRating(oldProduct); // Nếu đổi sản phẩm thì cũng cập nhật sản phẩm cũ
-        }
+        updateProductRating(updated.getProduct());
+//        if (!oldProduct.getProductId().equals(updated.getProduct().getProductId())) {
+//            updateProductRating(oldProduct);
+//        }
 
         return reviewMapper.toReviewResponse(updated);
     }
+
 
     @Override
     public Boolean deleteReview(String reviewId) {

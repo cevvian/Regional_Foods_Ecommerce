@@ -3,6 +3,7 @@ package edu.ut.sales.sales_analyst.services.impl;
 import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,7 @@ public interface IUserService {
 
     UserDetailResponse getUser(String userId);
 
-    Page<UserDetailResponse> getAllUsersWithFilter(Pageable pageable, Boolean isActive);
+    Page<UserResponse> getAllUsersWithFilter(Pageable pageable, Boolean isActive);
 
     UserDetailResponse updateUser(String userId, UserCreateRequest customer);
 

@@ -3,13 +3,17 @@ package edu.ut.sales.sales_analyst.model.entities;
 import edu.ut.sales.sales_analyst.model.enums.PaymentMethod;
 import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table(name = "PAYMENT")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

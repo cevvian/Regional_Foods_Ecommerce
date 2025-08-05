@@ -7,6 +7,7 @@ import edu.ut.sales.sales_analyst.mappers.UserMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
 import edu.ut.sales.sales_analyst.model.entities.Token;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.model.enums.Role;
@@ -64,7 +65,7 @@ public class UserService implements IUserService {
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         newUser.setRole(Role.CUSTOMER);
         userRepo.save(newUser);
-        return userMapper.toUserDTO(newUser);
+        return userMapper.toUserDetailDTO(newUser);
     }
 
     @Override
@@ -73,16 +74,16 @@ public class UserService implements IUserService {
         if (existUser == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-        return userMapper.toUserDTO(existUser);
+        return userMapper.toUserDetailDTO(existUser);
     }
 
     @Override
-    public Page<UserDetailResponse> getAllUsersWithFilter(Pageable pageable, Boolean isActive) {
+    public Page<UserResponse> getAllUsersWithFilter(Pageable pageable, Boolean isActive) {
         Page<User> users = userRepo.findAllByIsActiveNullable(isActive, pageable);
         if (users.isEmpty()) {
             throw new AppException(ErrorCode.LIST_USER_NOT_FOUND);
         }
-        return users.map(userMapper::toUserDTO);
+        return users.map(userMapper::toUserResponse);
     }
 
     @Override
@@ -95,7 +96,7 @@ public class UserService implements IUserService {
         existUser.setEmail(customer.getEmail());
         existUser.setPhone(customer.getPhone());
         userRepo.save(existUser);
-        return userMapper.toUserDTO(existUser);
+        return userMapper.toUserDetailDTO(existUser);
     }
 
 

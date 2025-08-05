@@ -93,4 +93,18 @@ public class TokenService implements ITokenService {
         return tokenRepository.save(existingToken);
     }
 
+    @Override
+    public Boolean revokeToken(String token) {
+        Token existingToken = tokenRepository.findByToken(token)
+                .orElse(null);
+
+        if (existingToken == null || existingToken.isRevoked()) {
+            return false;
+        }
+
+        existingToken.setRevoked(true);
+        tokenRepository.save(existingToken);
+        return true;
+    }
+
 }
