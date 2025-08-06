@@ -37,7 +37,7 @@ public enum ErrorCode {
     PRODUCT_INVALID_PRICE(1375, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
     PRODUCT_INVALID_STOCK(1376, "Stock quantity cannot be negative", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST(1377, "Invalid request parameters", HttpStatus.BAD_REQUEST),
-
+    PRODUCT_INVALID_QUANTITY(1378, "Quantity must be greater than 0", HttpStatus.BAD_REQUEST),
     // ---------------- ORDER (1600–1799) ----------------
 
     // Not Found (1600–1649)
@@ -51,6 +51,8 @@ public enum ErrorCode {
     ORDER_ALREADY_CANCELLED(1675, "Order is already cancelled", HttpStatus.BAD_REQUEST),
     ORDER_CANNOT_UPDATE_CANCELLED(1676, "Cannot update a cancelled order", HttpStatus.BAD_REQUEST),
     ORDER_INVALID_STATUS_TRANSITION(1677, "Invalid status transition", HttpStatus.BAD_REQUEST),
+    PRODUCT_DELETED(1678, "Product deleted", HttpStatus.CONFLICT),
+    ORDER_NOT_ALLOWED_UPDATE(1679, "Order is not allowed update", HttpStatus.BAD_REQUEST),
 
     // ---------------- ORDER ITEM (1900–1999) ----------------
 

@@ -1,14 +1,17 @@
 package edu.ut.sales.sales_analyst.repositories;
 
 import edu.ut.sales.sales_analyst.model.entities.Product;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepo extends JpaRepository<Product, String> {
@@ -16,6 +19,12 @@ public interface ProductRepo extends JpaRepository<Product, String> {
     Product findByProductName(String name);
 
     Product findByProductId(String id);
+
+    //lock hàng tồn kho
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Product p WHERE p.productId = :productId")
+    Optional<Product> findByIdForUpdate(@Param("productId") String productId);
+
 
     @Query(value = """
     SELECT\s

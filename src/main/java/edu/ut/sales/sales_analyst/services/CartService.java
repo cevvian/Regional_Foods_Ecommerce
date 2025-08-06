@@ -111,7 +111,6 @@ public class CartService implements ICartService {
                 result.put(cartItemId, "Error: " + e.getMessage());
             }
         }
-
         return result;
     }
 

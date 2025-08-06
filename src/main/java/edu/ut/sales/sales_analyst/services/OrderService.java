@@ -6,23 +6,22 @@ import edu.ut.sales.sales_analyst.mappers.OrderMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderItemRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
-import edu.ut.sales.sales_analyst.model.entities.User;
-import edu.ut.sales.sales_analyst.model.entities.Order;
-import edu.ut.sales.sales_analyst.model.entities.OrderItem;
-import edu.ut.sales.sales_analyst.model.entities.Product;
+import edu.ut.sales.sales_analyst.model.entities.*;
 import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
-import edu.ut.sales.sales_analyst.repositories.UserRepo;
-import edu.ut.sales.sales_analyst.repositories.OrderItemRepo;
-import edu.ut.sales.sales_analyst.repositories.OrderRepo;
-import edu.ut.sales.sales_analyst.repositories.ProductRepo;
+import edu.ut.sales.sales_analyst.repositories.*;
 import edu.ut.sales.sales_analyst.services.impl.IOrderService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 public class OrderService implements IOrderService {
 
@@ -35,64 +34,42 @@ public class OrderService implements IOrderService {
     private final ProductRepo productRepo;
 
     private final OrderItemRepo orderItemRepo;
+    private final AddressRepo addressRepo;
 
-    public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo, ProductRepo productRepo, OrderItemRepo orderItemRepo) {
+    public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo,
+                        ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
         this.userRepo = userRepo;
         this.productRepo = productRepo;
         this.orderItemRepo = orderItemRepo;
+        this.addressRepo = addressRepo;
     }
 
     @Override
+    @Transactional
     public OrderResponse createOrder(OrderCreateRequest orderCreateRequest) {
-        // 1. Kiểm tra customer tồn tại
-        User customer = userRepo.findByUserId(orderCreateRequest.getCustomerId());
-        if (customer == null) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
+        User customer = validateCustomer(orderCreateRequest.getCustomerId());
+        Address address = validateAddress(orderCreateRequest.getAddressId(), customer.getUserId());
 
-        // 2. Lấy danh sách sản phẩm từ request
-        List<OrderItemRequest> orderItems = orderCreateRequest.getOrderItems();
-        if (orderItems == null || orderItems.isEmpty()) {
-            throw new AppException(ErrorCode.ORDER_ITEM_LIST_EMPTY);
-        }
+        Map<String, Integer> quantityMap = groupAndValidateOrderItems(orderCreateRequest.getOrderItems());
 
-        BigDecimal totalAmount = BigDecimal.ZERO;
+        Map<String, Product> productMap = new HashMap<>();
+        BigDecimal totalAmount = processOrderItemsAndCalculateTotal(quantityMap, productMap);
 
-        // 3. Tính tổng tiền
-        for (OrderItemRequest itemRequest : orderItems) {
-            Product product = productRepo.findByProductId(itemRequest.getProductId());
-            if (product == null) {
-                throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-            }
-
-            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
-            totalAmount = totalAmount.add(itemTotal);
-        }
-
-        // 4. Tạo Order entity và lưu DB
         Order order = new Order();
         order.setUser(customer);
+        order.setAddress(address);
         order.setTotalAmount(totalAmount);
         order.setStatus(OrderStatus.PENDING);
-
         orderRepo.save(order);
 
-        // 5. Tạo và lưu từng OrderItem
-        for (OrderItemRequest itemRequest : orderItems) {
-            Product product = productRepo.findByProductId(itemRequest.getProductId());
+        createOrderItems(order, quantityMap, productMap);
 
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setProduct(product);
-            orderItem.setQuantity(itemRequest.getQuantity());
-            orderItemRepo.save(orderItem);
-        }
-
-        // 6. Trả về DTO
+        log.info("Created order {} for user {}", order.getOrderId(), customer.getUserId());
         return orderMapper.toOrderResponse(order);
     }
+
 
     @Override
     public OrderResponse getOrder(String orderId) {
@@ -105,10 +82,7 @@ public class OrderService implements IOrderService {
 
     @Override
     public Page<OrderResponse> getOrdersActive(Pageable pageable) {
-        Page<Order> orders = orderRepo.findAll(pageable);
-        if (orders.isEmpty()) {
-            throw new AppException(ErrorCode.ORDER_LIST_EMPTY);
-        }
+        Page<Order> orders = orderRepo.findByActiveTrue(pageable);
         return orders.map(orderMapper::toOrderResponse);
     }
 
@@ -135,46 +109,47 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @Transactional
     public OrderResponse updateOrder(String orderId, OrderCreateRequest orderCreateRequest) {
-        Order order = orderRepo.findByOrderId(orderId);
-        if (order == null) {
-            throw new AppException(ErrorCode.ORDER_NOT_FOUND);
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        // Chỉ cho sửa nếu đơn hàng đang chờ xử lý
+        if (!order.getStatus().equals(OrderStatus.PENDING)) {
+            throw new AppException(ErrorCode.ORDER_NOT_ALLOWED_UPDATE);
         }
 
         // Kiểm tra customer mới
-        User customer = userRepo.findByUserId(orderCreateRequest.getCustomerId());
-        if (customer == null) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        User newCustomer = validateCustomer(orderCreateRequest.getCustomerId());
+        order.setUser(newCustomer);
+
+        // Validate address mới
+        Address newAddress = validateAddress(orderCreateRequest.getAddressId(), newCustomer.getUserId());
+        order.setAddress(newAddress);
+
+        // Trả lại tồn kho cũ khi xóa các order item cũ trước
+        List<OrderItem> oldItems = orderItemRepo.findByOrder(order);
+        for (OrderItem item : oldItems) {
+            Product product = item.getProduct();
+            product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+            productRepo.save(product);
         }
-        order.setUser(customer);
+        orderItemRepo.deleteAll(oldItems);
 
-        // Xóa các order item cũ trước
-        orderItemRepo.deleteByOrder(order);
+        // Validate và tính lại order mới
+        Map<String, Integer> quantityMap = groupAndValidateOrderItems(orderCreateRequest.getOrderItems());
+        Map<String, Product> productMap = new HashMap<>();
+        BigDecimal totalAmount = processOrderItemsAndCalculateTotal(quantityMap, productMap);
 
-        BigDecimal totalAmount = BigDecimal.ZERO;
+//        Tạo order item mới
+        createOrderItems(order, quantityMap, productMap);
 
-        for (OrderItemRequest itemRequest : orderCreateRequest.getOrderItems()) {
-            Product product = productRepo.findByProductId(itemRequest.getProductId());
-            if (product == null) {
-                throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-            }
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setProduct(product);
-            orderItem.setQuantity(itemRequest.getQuantity());
-            orderItemRepo.save(orderItem);
-
-            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
-            totalAmount = totalAmount.add(itemTotal);
-        }
-
+//        Cập nhật tổng tiền và lưu
         order.setTotalAmount(totalAmount);
         orderRepo.save(order);
 
         return orderMapper.toOrderResponse(order);
     }
-
 
     @Override
     public OrderResponse updateOrderStatus(String orderId, OrderStatus orderStatus) {
@@ -209,4 +184,76 @@ public class OrderService implements IOrderService {
         orderRepo.save(order);
         return orderMapper.toOrderResponse(order);
     }
+
+    private User validateCustomer(String customerId) {
+        User customer = userRepo.findByUserId(customerId);
+        if (customer == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        return customer;
+    }
+
+    private Address validateAddress(String addressId, String userId) {
+        return addressRepo.findByAddressIdAndUser_UserId(addressId, userId)
+                .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
+    }
+
+    private Map<String, Integer> groupAndValidateOrderItems(List<OrderItemRequest> orderItems) {
+        if (orderItems == null || orderItems.isEmpty()) {
+            throw new AppException(ErrorCode.ORDER_ITEM_LIST_EMPTY);
+        }
+
+        Map<String, Integer> quantityMap = new HashMap<>();
+        for (OrderItemRequest item : orderItems) {
+            if (item.getQuantity() <= 0) {
+                throw new AppException(ErrorCode.PRODUCT_INVALID_QUANTITY);
+            }
+            quantityMap.merge(item.getProductId(), item.getQuantity(), Integer::sum);
+        }
+        return quantityMap;
+    }
+
+    private BigDecimal processOrderItemsAndCalculateTotal(Map<String, Integer> quantityMap, Map<String, Product> productMap) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for (Map.Entry<String, Integer> entry : quantityMap.entrySet()) {
+            String productId = entry.getKey();
+            int quantity = entry.getValue();
+
+            Product product = productRepo.findByIdForUpdate(productId)
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+            if (product.isDeleted()) {
+                throw new AppException(ErrorCode.PRODUCT_DELETED);
+            }
+
+            if (product.getStockQuantity() < quantity) {
+                throw new AppException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+            }
+
+            product.setStockQuantity(product.getStockQuantity() - quantity);
+            productRepo.save(product);
+
+            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(quantity));
+            totalAmount = totalAmount.add(itemTotal);
+
+            productMap.put(productId, product);
+        }
+
+        return totalAmount;
+    }
+
+    private void createOrderItems(Order order, Map<String, Integer> quantityMap, Map<String, Product> productMap) {
+        for (Map.Entry<String, Integer> entry : quantityMap.entrySet()) {
+            String productId = entry.getKey();
+            int quantity = entry.getValue();
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProduct(productMap.get(productId));
+            orderItem.setQuantity(quantity);
+            orderItemRepo.save(orderItem);
+        }
+    }
+
 }

@@ -8,10 +8,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface AddressRepo extends JpaRepository<Address, Integer> {
     Address findByAddressId(String addressId);
     Page<Address> findAllByUser_UserId(Pageable pageable, String userId);
+    Optional<Address> findByAddressIdAndUser_UserId(String addressId, String userId);
     Boolean existsByUser_UserIdAndAddressLineAndProvinceAndPhone(
             String userId,
             String addressLine,
