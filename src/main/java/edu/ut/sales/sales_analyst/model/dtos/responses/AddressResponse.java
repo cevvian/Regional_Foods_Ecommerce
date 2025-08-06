@@ -14,6 +14,6 @@ public class AddressResponse {
     private String addressLine;
     private String province;
     private String phone;
-    private boolean isDefault;
+    private Boolean isDefault;
 }
 

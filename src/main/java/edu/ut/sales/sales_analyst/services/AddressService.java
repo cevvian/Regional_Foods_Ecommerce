@@ -10,13 +10,14 @@ import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
 import edu.ut.sales.sales_analyst.model.entities.Address;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.repositories.AddressRepo;
-import edu.ut.sales.sales_analyst.repositories.UserRepo;
 import edu.ut.sales.sales_analyst.services.impl.IAddressService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class AddressService implements IAddressService {
 
     private final AddressRepo addressRepo;
@@ -54,6 +55,7 @@ public class AddressService implements IAddressService {
     }
 
     @Override
+    @Transactional
     public AddressResponse createAddress(AddressRequest addressRequest) {
         boolean exists = addressRepo.existsByUser_UserIdAndAddressLineAndProvinceAndPhone(
                 addressRequest.getUserId(),
@@ -65,16 +67,26 @@ public class AddressService implements IAddressService {
         if (exists) {
             throw new AppException(ErrorCode.ADDRESS_ALREADY_EXISTS);
         }
+
         UserDetailResponse userDetailResponse = userService.getUser(addressRequest.getUserId());
         User user = userMapper.toUser(userDetailResponse);
+
+        // Nếu request là default thì update các địa chỉ khác thành false trước
+        if (addressRequest.getIsDefault()) {
+            addressRepo.updateDefaultAddressToFalse(user.getUserId());
+        }
 
         Address address = new Address();
         address.setAddressLine(addressRequest.getAddressLine());
         address.setPhone(addressRequest.getPhone());
         address.setProvince(addressRequest.getProvince());
         address.setUser(user);
-        addressRepo.save(address);
-        return addressMapper.toAddressResponse(address);
+
+        address.setIsDefault(addressRequest.getIsDefault());
+
+        Address savedAddress = addressRepo.save(address);
+
+        return addressMapper.toAddressResponse(savedAddress);
     }
 
     @Override
@@ -114,13 +126,14 @@ public class AddressService implements IAddressService {
             throw new AppException(ErrorCode.ADDRESS_NOT_FOUND);
         }
 
-        addressRepo.updateIsDefaultFalseForUser(address.getUser().getUserId());
+        addressRepo.updateDefaultAddressToFalse(address.getUser().getUserId());
 
-        address.setDefault(true);
+        address.setIsDefault(true);
         addressRepo.save(address);
 
         return addressMapper.toAddressResponse(address);
     }
+
 
     @Override
     public Boolean deleteAddress(String addressId) {
@@ -129,7 +142,7 @@ public class AddressService implements IAddressService {
             throw new AppException(ErrorCode.ADDRESS_NOT_FOUND);
         }
 
-        if (address.isDefault()) {
+        if (address.getIsDefault()) {
             throw new AppException(ErrorCode.CANNOT_DELETE_DEFAULT_ADDRESS);
         }
 
