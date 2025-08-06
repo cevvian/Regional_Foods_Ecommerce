@@ -2,6 +2,7 @@ package edu.ut.sales.sales_analyst.services;
 
 import edu.ut.sales.sales_analyst.configs.VNPayConfig;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PaymentResponse;
+import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
 import edu.ut.sales.sales_analyst.util.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class PaymentService {
     private final VNPayConfig vnPayConfig;
+    private final OrderService orderService;
+
 
     public PaymentResponse.VNPayResponse createVnPayPayment(HttpServletRequest request) {
         long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
@@ -33,5 +36,21 @@ public class PaymentService {
                 .status("ok")
                 .message("success")
                 .paymentUrl(paymentUrl).build();
+    }
+
+    public PaymentResponse.VNPayResponse handleCallBack(HttpServletRequest request) {
+        String responseCode = request.getParameter("vnp_ResponseCode");
+
+        if ("00".equals(responseCode)) {
+            return PaymentResponse.VNPayResponse.builder()
+                    .status("00")
+                    .message("Giao dịch thành công")
+                    .build();
+        } else {
+            return PaymentResponse.VNPayResponse.builder()
+                    .status(responseCode)
+                    .message("Giao dịch thất bại hoặc bị hủy")
+                    .build();
+        }
     }
 }
