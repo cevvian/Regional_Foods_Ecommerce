@@ -7,6 +7,7 @@ import edu.ut.sales.sales_analyst.model.entities.Token;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.repositories.TokenRepo;
 import edu.ut.sales.sales_analyst.repositories.UserRepo;
+import edu.ut.sales.sales_analyst.security.CustomUserDetails;
 import edu.ut.sales.sales_analyst.services.impl.ITokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,7 +75,7 @@ public class TokenService implements ITokenService {
             throw new AppException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
-        UserDetails userDetails = (UserDetails) user;
+        UserDetails userDetails = new CustomUserDetails(user);
 
         // Generate new access token
         String newAccessToken = jwtTokenUtil.generateToken(userDetails);

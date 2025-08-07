@@ -1,6 +1,5 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ImageNewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ImageNewResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
@@ -30,17 +29,13 @@ public class ImageNewController {
             @RequestParam String newId,
             @RequestPart MultipartFile file
     ) {
-        try {
-            ImageNewCreateRequest request = new ImageNewCreateRequest();
-            request.setTypeContent(typeContent);
-            request.setNewId(newId);
-            request.setFile(file);
+        ImageNewCreateRequest request = new ImageNewCreateRequest();
+        request.setTypeContent(typeContent);
+        request.setNewId(newId);
+        request.setFile(file);
 
-            ImageNewResponse response = imageNewService.create(request);
-            return new ResponseAPI<>("Create image for news successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        ImageNewResponse response = imageNewService.create(request);
+        return new ResponseAPI<>("Create image for news successfully", HttpStatus.CREATED, response);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -50,37 +45,25 @@ public class ImageNewController {
             @RequestParam(required = false) String newId,
             @RequestPart(required = false) MultipartFile file
     ) {
-        try {
-            ImageNewCreateRequest request = new ImageNewCreateRequest();
-            request.setTypeContent(typeContent);
-            request.setNewId(newId);
-            request.setFile(file);
+        ImageNewCreateRequest request = new ImageNewCreateRequest();
+        request.setTypeContent(typeContent);
+        request.setNewId(newId);
+        request.setFile(file);
 
-            ImageNewResponse response = imageNewService.update(id, request);
-            return new ResponseAPI<>("Update image for news successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        ImageNewResponse response = imageNewService.update(id, request);
+        return new ResponseAPI<>("Update image for news successfully", HttpStatus.OK, response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseAPI<Boolean> deleteImageNew(@PathVariable String id) {
-        try {
-            imageNewService.delete(id);
-            return new ResponseAPI<>("Delete image successfully", HttpStatus.OK, true);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        imageNewService.delete(id);
+        return new ResponseAPI<>("Delete image successfully", HttpStatus.OK, true);
     }
 
     @GetMapping("/{id}")
     public ResponseAPI<ImageNewResponse> getImageNewById(@PathVariable String id) {
-        try {
-            ImageNewResponse response = imageNewService.getById(id);
-            return new ResponseAPI<>("Get image successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        ImageNewResponse response = imageNewService.getById(id);
+        return new ResponseAPI<>("Get image successfully", HttpStatus.OK, response);
     }
 
     @GetMapping
@@ -88,37 +71,38 @@ public class ImageNewController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<ImageNewResponse> imagePage = imageNewService.getAll(pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ImageNewResponse> imagePage = imageNewService.getAll(pageable);
 
-            PageMeta meta = PageMeta.builder()
-                    .page(imagePage.getNumber())
-                    .size(imagePage.getSize())
-                    .totalElements(imagePage.getTotalElements())
-                    .totalPages(imagePage.getTotalPages())
-                    .last(imagePage.isLast())
-                    .build();
+        PageMeta meta = PageMeta.builder()
+                .page(imagePage.getNumber())
+                .size(imagePage.getSize())
+                .totalElements(imagePage.getTotalElements())
+                .totalPages(imagePage.getTotalPages())
+                .last(imagePage.isLast())
+                .build();
 
-            return new ResponseAPI<>("Get all images successfully", HttpStatus.OK, imagePage.getContent(), meta);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        return new ResponseAPI<>("Get all images successfully", HttpStatus.OK, imagePage.getContent(), meta);
     }
 
-
     @GetMapping("/by-news")
-    public ResponseAPI<Page<ImageNewResponse>> getImagesByNewsId(
+    public ResponseAPI<List<ImageNewResponse>> getImagesByNewsId(
             @RequestParam String newsId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<ImageNewResponse> response = imageNewService.getByNewsId(newsId, pageable);
-            return new ResponseAPI<>("Get images by news ID successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ImageNewResponse> imagePage = imageNewService.getByNewsId(newsId, pageable);
+
+        PageMeta meta = PageMeta.builder()
+                .page(imagePage.getNumber())
+                .size(imagePage.getSize())
+                .totalElements(imagePage.getTotalElements())
+                .totalPages(imagePage.getTotalPages())
+                .last(imagePage.isLast())
+                .build();
+
+        return new ResponseAPI<>("Get images by news ID successfully", HttpStatus.OK, imagePage.getContent(), meta);
     }
+
 }

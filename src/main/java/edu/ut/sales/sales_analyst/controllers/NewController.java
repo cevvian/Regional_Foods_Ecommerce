@@ -1,6 +1,5 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ImageOfNewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewUpdateRequest;
@@ -35,86 +34,47 @@ public class NewController {
             @RequestParam List<String> typeContents,
             @RequestPart List<MultipartFile> files
     ) {
-        try {
-            List<ImageOfNewCreateRequest> images = new ArrayList<>();
-            for (int i = 0; i < files.size(); i++) {
-                ImageOfNewCreateRequest image = new ImageOfNewCreateRequest();
-                image.setTypeContent(typeContents.get(i));
-                image.setFile(files.get(i));
-                images.add(image);
-            }
-
-            NewCreateRequest request = new NewCreateRequest();
-            request.setTitle(title);
-            request.setContent(content);
-            request.setCategoryId(categoryId);
-            request.setImages(images);
-
-            System.out.println("🟡 Request gửi vào Service:");
-            System.out.println(request);
-
-            NewResponse response = newService.createNews(request);
-            return new ResponseAPI<>("Create news successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        List<ImageOfNewCreateRequest> images = new ArrayList<>();
+        for (int i = 0; i < files.size(); i++) {
+            ImageOfNewCreateRequest image = new ImageOfNewCreateRequest();
+            image.setTypeContent(typeContents.get(i));
+            image.setFile(files.get(i));
+            images.add(image);
         }
+
+        NewCreateRequest request = new NewCreateRequest();
+        request.setTitle(title);
+        request.setContent(content);
+        request.setCategoryId(categoryId);
+        request.setImages(images);
+
+        NewResponse response = newService.createNews(request);
+        return new ResponseAPI<>("Create news successfully", HttpStatus.CREATED, response);
     }
-
-
-//    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseAPI<NewResponse> createNews(
-//            @RequestPart("title") String title,
-//            @RequestPart("content") String content,
-//            @RequestPart("categoryId") String categoryId,
-//            @RequestPart("images") List<ImageNewCreateRequest> images
-//    ) {
-//        try {
-//            NewCreateRequest request = new NewCreateRequest();
-//            request.setTitle(title);
-//            request.setContent(content);
-//            request.setImages(images);
-//            request.setCategoryId(categoryId);
-//
-//            NewResponse response = newService.createNews(request);
-//            return new ResponseAPI<>("Create news successfully", HttpStatus.CREATED, response);
-//        } catch (AppException e) {
-//            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-//        }
-//    }
-
 
     @GetMapping
     public ResponseAPI<List<NewResponse>> getAllNews(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<NewResponse> newsPage = newService.getAllNews(pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<NewResponse> newsPage = newService.getAllNews(pageable);
 
-            PageMeta meta = PageMeta.builder()
-                    .page(newsPage.getNumber())
-                    .size(newsPage.getSize())
-                    .totalElements(newsPage.getTotalElements())
-                    .totalPages(newsPage.getTotalPages())
-                    .last(newsPage.isLast())
-                    .build();
+        PageMeta meta = PageMeta.builder()
+                .page(newsPage.getNumber())
+                .size(newsPage.getSize())
+                .totalElements(newsPage.getTotalElements())
+                .totalPages(newsPage.getTotalPages())
+                .last(newsPage.isLast())
+                .build();
 
-            return new ResponseAPI<>("Get all news successfully", HttpStatus.OK, newsPage.getContent(), meta);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        return new ResponseAPI<>("Get all news successfully", HttpStatus.OK, newsPage.getContent(), meta);
     }
-
 
     @GetMapping("/{id}")
     public ResponseAPI<NewResponse> getNews(@PathVariable String id) {
-        try {
-            NewResponse response = newService.getNews(id);
-            return new ResponseAPI<>("Get news successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        NewResponse response = newService.getNews(id);
+        return new ResponseAPI<>("Get news successfully", HttpStatus.OK, response);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -126,59 +86,55 @@ public class NewController {
             @RequestParam(required = false) List<String> typeContents,
             @RequestPart(required = false) List<MultipartFile> files
     ) {
-        try {
-            List<ImageOfNewCreateRequest> images = new ArrayList<>();
+        List<ImageOfNewCreateRequest> images = new ArrayList<>();
 
-            if (files != null && typeContents != null && files.size() == typeContents.size()) {
-                for (int i = 0; i < files.size(); i++) {
-                    ImageOfNewCreateRequest image = new ImageOfNewCreateRequest();
-                    image.setTypeContent(typeContents.get(i));
-                    image.setFile(files.get(i));
-                    images.add(image);
-                }
+        if (files != null && typeContents != null && files.size() == typeContents.size()) {
+            for (int i = 0; i < files.size(); i++) {
+                ImageOfNewCreateRequest image = new ImageOfNewCreateRequest();
+                image.setTypeContent(typeContents.get(i));
+                image.setFile(files.get(i));
+                images.add(image);
             }
-
-            NewUpdateRequest request = new NewUpdateRequest();
-            request.setTitle(title);
-            request.setContent(content);
-            request.setCategoryId(categoryId);
-            request.setImages(images);
-
-            NewResponse response = newService.updateNews(id, request);
-            return new ResponseAPI<>("Update news successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
-    }
 
+        NewUpdateRequest request = new NewUpdateRequest();
+        request.setTitle(title);
+        request.setContent(content);
+        request.setCategoryId(categoryId);
+        request.setImages(images);
+
+        NewResponse response = newService.updateNews(id, request);
+        return new ResponseAPI<>("Update news successfully", HttpStatus.OK, response);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseAPI<Boolean> deleteNews(@PathVariable String id) {
-        try {
-            boolean deleted = newService.deleteNews(id);
-            if (deleted) {
-                return new ResponseAPI<>("Delete news successfully", HttpStatus.OK, true);
-            } else {
-                return new ResponseAPI<>("Delete news failed", HttpStatus.INTERNAL_SERVER_ERROR, null);
-            }
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        boolean deleted = newService.deleteNews(id);
+        if (deleted) {
+            return new ResponseAPI<>("Delete news successfully", HttpStatus.OK, true);
+        } else {
+            throw new RuntimeException("Delete news failed");
         }
     }
 
     @GetMapping("/by-category")
-    public ResponseAPI<Page<NewResponse>> getAllNewsByCategory(
+    public ResponseAPI<List<NewResponse>> getAllNewsByCategory(
             @RequestParam String categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
-    ){
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<NewResponse> response = newService.getNewsByCategory(categoryId, pageable);
-            return new ResponseAPI<>("Get all news successfully", HttpStatus.OK, response);
-        }
-        catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<NewResponse> newsPage = newService.getNewsByCategory(categoryId, pageable);
+
+        PageMeta meta = PageMeta.builder()
+                .page(newsPage.getNumber())
+                .size(newsPage.getSize())
+                .totalElements(newsPage.getTotalElements())
+                .totalPages(newsPage.getTotalPages())
+                .last(newsPage.isLast())
+                .build();
+
+        return new ResponseAPI<>("Get news by category successfully", HttpStatus.OK, newsPage.getContent(), meta);
     }
+
 }

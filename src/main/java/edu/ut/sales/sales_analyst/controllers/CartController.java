@@ -1,6 +1,5 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.AddToCartRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.CartItemRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.CartItemResponse;
@@ -28,62 +27,38 @@ public class CartController {
 
     @GetMapping("/{userId}")
     public ResponseAPI<CartResponse> viewMyCart(@PathVariable String userId) {
-        try {
-            CartResponse cartResponse = cartService.viewCart(userId);
-            return new ResponseAPI<>("View cart successfully", HttpStatus.OK, cartResponse);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        CartResponse cartResponse = cartService.viewCart(userId);
+        return new ResponseAPI<>("View cart successfully", HttpStatus.OK, cartResponse);
     }
 
-    @PostMapping()
-    public ResponseAPI<CartResponse> addNewItem(@Valid @RequestBody AddToCartRequest cartRequest){
-        try {
-            CartResponse cartResponse = cartService.addToCard(cartRequest);
-            return new ResponseAPI<>("Add new cart item successfully", HttpStatus.CREATED, cartResponse);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    @PostMapping
+    public ResponseAPI<CartResponse> addNewItem(@Valid @RequestBody AddToCartRequest cartRequest) {
+        CartResponse cartResponse = cartService.addToCard(cartRequest);
+        return new ResponseAPI<>("Add new cart item successfully", HttpStatus.CREATED, cartResponse);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseAPI<String> deleteItem(@PathVariable String id){
-        try {
-            String response = cartService.deleteCartItem(id);
-            return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    public ResponseAPI<String> deleteItem(@PathVariable String id) {
+        String response = cartService.deleteCartItem(id);
+        return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);
     }
 
     @DeleteMapping("/cart-item")
-    public ResponseAPI<Map<String, String>> deleteItems(List<String> id){
-        try {
-            Map<String, String> response = cartService.deleteCartItemList(id);
-            return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    public ResponseAPI<Map<String, String>> deleteItems(@RequestBody List<String> ids) {
+        Map<String, String> response = cartService.deleteCartItemList(ids);
+        return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);
     }
 
     @DeleteMapping("/cart-item/{userId}")
-    public ResponseAPI<String> deleteAllItemsByUser(@PathVariable String userId){
-        try {
-            String response = cartService.deleteAllItemsByUser(userId);
-            return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+    public ResponseAPI<String> deleteAllItemsByUser(@PathVariable String userId) {
+        String response = cartService.deleteAllItemsByUser(userId);
+        return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);
     }
 
     @PutMapping("/{id}")
     public ResponseAPI<CartItemResponse> updateCartItemQuantity(@PathVariable String id,
-                                                                @Valid @RequestBody CartItemRequest request){
-        try {
-            CartItemResponse response = cartService.updateCartItemQuantity(id, request);
-            return new ResponseAPI<>("Update item quantity successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+                                                                @Valid @RequestBody CartItemRequest request) {
+        CartItemResponse response = cartService.updateCartItemQuantity(id, request);
+        return new ResponseAPI<>("Update item quantity successfully", HttpStatus.OK, response);
     }
 }

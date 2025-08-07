@@ -15,6 +15,7 @@ import edu.ut.sales.sales_analyst.services.impl.IAddressService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AddressService implements IAddressService {
@@ -108,6 +109,7 @@ public class AddressService implements IAddressService {
 
 
     @Override
+    @Transactional
     public AddressResponse changeDefaultAddress(String addressId) {
         Address address = addressRepo.findByAddressId(addressId);
         if (address == null) {
@@ -119,7 +121,8 @@ public class AddressService implements IAddressService {
         address.setDefault(true);
         addressRepo.save(address);
 
-        return addressMapper.toAddressResponse(address);
+        Address updated = addressRepo.findByAddressId(addressId);
+        return addressMapper.toAddressResponse(updated);
     }
 
     @Override

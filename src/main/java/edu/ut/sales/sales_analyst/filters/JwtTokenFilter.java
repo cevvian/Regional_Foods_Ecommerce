@@ -34,6 +34,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/auth/generate-secret-key", "GET"),
                 Pair.of("/api/v1/auth/login", "POST"),
                 Pair.of("/api/v1/users/register", "POST"),
+                Pair.of("/api/v1/users/refresh-token", "POST"),
                 Pair.of("/swagger-ui/index.html", "GET"),
                 Pair.of("/v3/api-docs", "GET"),
                 Pair.of("/v3/api-docs/swagger-config", "GET"),

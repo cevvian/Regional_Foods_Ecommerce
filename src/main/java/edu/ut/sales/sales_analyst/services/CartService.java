@@ -69,12 +69,16 @@ public class CartService implements ICartService {
 
     public CartResponse viewCart(String userId) {
         User user = userRepo.findByUserId(userId);
-        return cartMapper.toCartResponse(cartRepo.findByUser(user)
+        if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
+
+        Cart cart = cartRepo.findByUser(user)
                 .orElseGet(() -> {
-                    Cart cart = new Cart();
-                    cart.setUser(user);
-                    return cartRepo.save(cart);
-                }));
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepo.save(newCart);
+                });
+
+        return cartMapper.toCartResponse(cart);
     }
 
     public String deleteCartItem(String cartItemId){

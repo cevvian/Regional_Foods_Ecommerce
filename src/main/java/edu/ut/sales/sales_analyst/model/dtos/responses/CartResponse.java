@@ -15,6 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 public class CartResponse {
     private String cartId;
-    private User user;
-    private List<CartItem> items;
+    private UserResponse user;
+    private List<CartItemResponse> items;
 }

@@ -43,6 +43,7 @@ public class WebSecurityConfig {
                                 "/api/v1/auth/generate-secret-key",
                                 "/api/v1/auth/login",
                                 "/api/v1/users/register",
+                                "/api/v1/users/refresh-token",
                                 "/swagger-ui/index.html",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
