@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/image-news")
+@RequestMapping("${api.prefix}/image-news")
 @RequiredArgsConstructor
 public class ImageNewController {
 

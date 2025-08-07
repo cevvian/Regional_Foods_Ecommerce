@@ -79,16 +79,29 @@ public class UserController {
     }
 
     @Operation(summary = "Block user")
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/block")
     public ResponseEntity<ResponseAPI<Void>> blockUser(@PathVariable String id) {
-        userService.blockUser(id);
-        return ResponseEntity.ok(new ResponseAPI<>("User blocked successfully", HttpStatus.OK, null));
+        boolean success = userService.blockUser(id);
+        if (!success) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseAPI<>("User block failed", HttpStatus.BAD_REQUEST, null));
+        }
+        return ResponseEntity
+                .ok(new ResponseAPI<>("User blocked successfully", HttpStatus.OK, null));
     }
 
     @Operation(summary = "Unblock user")
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/unblock")
     public ResponseEntity<ResponseAPI<Void>> unblockUser(@PathVariable String id) {
-        userService.unBlockUser(id);
-        return ResponseEntity.ok(new ResponseAPI<>("User unblocked successfully", HttpStatus.OK, null));
+        boolean success = userService.unBlockUser(id);
+        if (!success) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseAPI<>("User unblock failed", HttpStatus.BAD_REQUEST, null));
+        }
+        return ResponseEntity
+                .ok(new ResponseAPI<>("User unblocked successfully", HttpStatus.OK, null));
     }
+
 }
