@@ -23,7 +23,7 @@ class PaymentTest {
         String paymentId = "PMT001";
         PaymentMethod method = PaymentMethod.CASH;
         int amount = 250000;
-        PaymentStatus status = PaymentStatus.SUCCESS;
+        PaymentStatus status = PaymentStatus.PAID;
         String transactionId = "TX123456";
         LocalDateTime paidAt = LocalDateTime.of(2025, 8, 1, 10, 0);
         LocalDateTime createdAt = LocalDateTime.of(2025, 8, 1, 9, 0);

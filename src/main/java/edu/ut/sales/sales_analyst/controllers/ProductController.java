@@ -34,8 +34,8 @@ public class ProductController {
 
     @GetMapping
     public ResponseAPI<List<ProductResponse>> getAllProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductResponse> productPage = productService.getAllProducts(pageable);

@@ -1,0 +1,18 @@
+package edu.ut.sales.sales_analyst.mappers;
+
+import edu.ut.sales.sales_analyst.model.dtos.responses.PaymentResponse;
+import edu.ut.sales.sales_analyst.model.entities.Payment;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring", uses = {OrderMapper.class})
+public interface PaymentMapper {
+    @Mapping(source = "order", target = "order")
+    PaymentResponse.PaymentInfoResponse toPaymentInfoResponse(Payment payment);
+}
+
+
+//@Mapper(componentModel = "spring")
+//public interface PaymentMapper {
+//    PaymentResponse.PaymentInfoResponse toPaymentInfoResponse(Payment payment);
+//}

@@ -53,6 +53,7 @@ public enum ErrorCode {
     ORDER_INVALID_STATUS_TRANSITION(1677, "Invalid status transition", HttpStatus.BAD_REQUEST),
     PRODUCT_DELETED(1678, "Product deleted", HttpStatus.CONFLICT),
     ORDER_NOT_ALLOWED_UPDATE(1679, "Order is not allowed update", HttpStatus.BAD_REQUEST),
+    ORDER_ALREADY_COMPLETED(1680, "Order is already completed", HttpStatus.CONFLICT),
 
     // ---------------- ORDER ITEM (1900–1999) ----------------
 
@@ -188,7 +189,38 @@ public enum ErrorCode {
     ADDRESS_CITY_REQUIRED(3271, "City is required", HttpStatus.BAD_REQUEST),
     ADDRESS_PROVINCE_REQUIRED(3272, "Province is required", HttpStatus.BAD_REQUEST),
     ADDRESS_PHONE_INVALID(3273, "Phone number is invalid", HttpStatus.BAD_REQUEST),
-    CANNOT_DELETE_DEFAULT_ADDRESS(3274, "Cannot delete default address. Please change default address first.", HttpStatus.BAD_REQUEST)
+    CANNOT_DELETE_DEFAULT_ADDRESS(3274, "Cannot delete default address. Please change default address first.", HttpStatus.BAD_REQUEST),
+
+    // ---------------- PAYMENT (3300–3499) ----------------
+
+    // Not Found (3300–3349)
+    PAYMENT_NOT_FOUND(3300, "Payment not found", HttpStatus.NOT_FOUND),
+    PAYMENT_HISTORY_NOT_FOUND(3301, "Payment history not found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (3350–3369)
+    PAYMENT_ALREADY_EXISTS(3350, "Payment already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (3370–3399)
+    PAYMENT_AMOUNT_INVALID(3370, "Payment amount must be greater than 0", HttpStatus.BAD_REQUEST),
+    PAYMENT_METHOD_REQUIRED(3371, "Payment method is required", HttpStatus.BAD_REQUEST),
+    PAYMENT_ORDER_ID_REQUIRED(3372, "Order ID is required for payment", HttpStatus.BAD_REQUEST),
+    PAYMENT_METHOD_UNSUPPORTED(3373, "Payment method is not supported", HttpStatus.BAD_REQUEST),
+    PAYMENT_CURRENCY_INVALID(3374, "Currency type is invalid", HttpStatus.BAD_REQUEST),
+
+    // Business Rule Errors (3400–3449)
+    PAYMENT_ALREADY_COMPLETED(3400, "Payment is already completed", HttpStatus.BAD_REQUEST),
+    PAYMENT_ALREADY_CANCELLED(3401, "Payment has been cancelled", HttpStatus.BAD_REQUEST),
+    PAYMENT_CANNOT_BE_REFUNDED(3402, "Payment cannot be refunded", HttpStatus.BAD_REQUEST),
+    PAYMENT_TIMEOUT(3403, "Payment request has timed out", HttpStatus.REQUEST_TIMEOUT),
+    PAYMENT_GATEWAY_ERROR(3404, "Error from payment gateway", HttpStatus.BAD_GATEWAY),
+    PAYMENT_PROCESSING_FAILED(3405, "Payment processing failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    PAYMENT_STATUS_INVALID(3406, "Invalid payment status", HttpStatus.BAD_REQUEST),
+    PAYMENT_DUPLICATE_TRANSACTION(3407, "Duplicate payment transaction", HttpStatus.CONFLICT),
+
+    // Security/Authorization (3450–3469)
+    UNAUTHORIZED_PAYMENT_ACCESS(3450, "Unauthorized access to payment", HttpStatus.UNAUTHORIZED),
+    INVALID_PAYMENT_TOKEN(3451, "Invalid or expired payment token", HttpStatus.UNAUTHORIZED),
+    PAYMENT_SIGNATURE_MISMATCH(3452, "Payment signature mismatch", HttpStatus.UNAUTHORIZED)
     ;
     private final int code;
     private final String message;

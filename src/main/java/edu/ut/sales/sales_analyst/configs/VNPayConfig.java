@@ -1,7 +1,6 @@
 package edu.ut.sales.sales_analyst.configs;
 
 import edu.ut.sales.sales_analyst.util.VNPayUtil;
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,18 +28,6 @@ public class VNPayConfig {
     private String vnp_Command;
     @Value("${payment.vnPay.orderType}")
     private String orderType;
-
-    @PostConstruct
-    public void logConfigValues() {
-        log.info("VNPayConfig loaded with the following values:");
-        log.info("vnp_PayUrl: {}", vnp_PayUrl);
-        log.info("vnp_ReturnUrl: {}", vnp_ReturnUrl);
-        log.info("vnp_TmnCode: {}", vnp_TmnCode);
-        log.info("secretKey: {}", secretKey != null ? "***** (hidden)" : "null");
-        log.info("vnp_Version: {}", vnp_Version);
-        log.info("vnp_Command: {}", vnp_Command);
-        log.info("orderType: {}", orderType);
-    }
 
     public Map<String, String> getVNPayConfig() {
         Map<String, String> vnpParamsMap = new HashMap<>();

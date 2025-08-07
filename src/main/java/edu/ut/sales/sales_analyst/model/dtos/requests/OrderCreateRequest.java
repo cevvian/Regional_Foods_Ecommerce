@@ -1,6 +1,5 @@
 package edu.ut.sales.sales_analyst.model.dtos.requests;
 
-import edu.ut.sales.sales_analyst.model.dtos.responses.OrderItemResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
