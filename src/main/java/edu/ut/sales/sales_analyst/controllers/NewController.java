@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/news")
+@RequestMapping("${api.prefix}/news")
 @RequiredArgsConstructor
 public class NewController {
 

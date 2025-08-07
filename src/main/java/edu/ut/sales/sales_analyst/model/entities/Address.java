@@ -32,8 +32,8 @@ public class Address {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "isDefault")
-    private boolean isDefault;
+    @Column(name = "is_default")
+    private Boolean isDefault;
 
     @OneToMany(mappedBy = "address")
     private List<Order> orders;

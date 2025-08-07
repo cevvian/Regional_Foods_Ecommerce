@@ -38,7 +38,7 @@ class AddressTest {
         assertEquals("123 Street", address.getAddressLine());
         assertEquals("Hanoi", address.getProvince());
         assertEquals("0123456789", address.getPhone());
-        assertTrue(address.isDefault());
+        assertTrue(address.getIsDefault());
         assertEquals(orders, address.getOrders());
     }
 
@@ -54,7 +54,7 @@ class AddressTest {
         address.setAddressLine("456 Avenue");
         address.setProvince("Ho Chi Minh");
         address.setPhone("0987654321");
-        address.setDefault(false);
+        address.setIsDefault(false);
         address.setOrders(orders);
 
         assertEquals("ADDR002", address.getAddressId());
@@ -62,7 +62,7 @@ class AddressTest {
         assertEquals("456 Avenue", address.getAddressLine());
         assertEquals("Ho Chi Minh", address.getProvince());
         assertEquals("0987654321", address.getPhone());
-        assertFalse(address.isDefault());
+        assertFalse(address.getIsDefault());
         assertEquals(orders, address.getOrders());
     }
 }
