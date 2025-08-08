@@ -7,20 +7,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderRepo extends JpaRepository<Order, String> {
     Order findByOrderId(String orderId);
     Page<Order> findByUser_UserId(String customerId, Pageable pageable);
-    Page<Order> findByActiveTrue(Pageable pageable);
+
+    @Query("SELECT o FROM Order o WHERE o.isActive = :active")
+    Page<Order> findByActive(Pageable pageable, @Param("active") Boolean active);
+
     @Query("SELECT o FROM Order o WHERE o.status = :orderStatus AND o.isActive = :active")
     Page<Order> findByOrderStatusAndActive(
             @Param("orderStatus") OrderStatus orderStatus,
             @Param("active") Boolean active,
             Pageable pageable
     );
-
 
     @Query("""
     SELECT COUNT(oi) > 0

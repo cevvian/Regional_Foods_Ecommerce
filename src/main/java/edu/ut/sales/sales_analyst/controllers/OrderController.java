@@ -1,5 +1,6 @@
 package edu.ut.sales.sales_analyst.controllers;
 
+import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
@@ -35,6 +36,13 @@ public class OrderController {
         return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
     }
 
+    @Operation(summary = "Create a new order from cart", description = "Add a new order from cart")
+    @PostMapping("/cart")
+    public ResponseAPI<OrderResponse> createOrderFromCart(@Valid @RequestBody OrderCartCreationRequest request) {
+        OrderResponse response = orderService.createOrderFromCart(request);
+        return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
+    }
+
     @Operation(summary = "Get order by ID", description = "Retrieve order details by order ID")
     @GetMapping("/{orderId}")
     public ResponseAPI<OrderResponse> getOrder(@PathVariable String orderId) {
@@ -65,9 +73,9 @@ public class OrderController {
     @Operation(summary = "Get all active orders", description = "Retrieve all active orders with pagination")
     @GetMapping("/filter")
     public ResponseAPI<List<OrderResponse>> getOrdersByStatus(
-            @RequestParam OrderStatus status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(name = "status", required = false) OrderStatus status,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderResponse> orderPage = orderService.getOrdersByStatusAndActive(pageable, status);

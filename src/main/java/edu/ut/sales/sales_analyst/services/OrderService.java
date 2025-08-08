@@ -3,6 +3,8 @@ package edu.ut.sales.sales_analyst.services;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.OrderMapper;
+import edu.ut.sales.sales_analyst.model.dtos.requests.CartItemRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderItemRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
@@ -11,6 +13,7 @@ import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
 import edu.ut.sales.sales_analyst.repositories.*;
 import edu.ut.sales.sales_analyst.services.impl.IOrderService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,13 +29,9 @@ import java.util.Map;
 public class OrderService implements IOrderService {
 
     private final OrderRepo orderRepo;
-
     private final OrderMapper orderMapper;
-
     private final UserRepo userRepo;
-
     private final ProductRepo productRepo;
-
     private final OrderItemRepo orderItemRepo;
     private final AddressRepo addressRepo;
 
@@ -71,6 +70,19 @@ public class OrderService implements IOrderService {
         return orderMapper.toOrderResponse(order);
     }
 
+    @Override
+    public OrderResponse createOrderFromCart(OrderCartCreationRequest creationRequest) {
+        List<OrderItemRequest> orderItemRequests = getOrderItemsFromCart(creationRequest.getCartItems());
+
+        OrderCreateRequest request = OrderCreateRequest.builder()
+                .customerId(creationRequest.getCustomerId())
+                .addressId(creationRequest.getAddressId())
+                .orderItems(orderItemRequests)
+                .build();
+
+        return this.createOrder(request);
+    }
+
 
     @Override
     public OrderResponse getOrder(String orderId) {
@@ -83,7 +95,7 @@ public class OrderService implements IOrderService {
 
     @Override
     public Page<OrderResponse> getOrdersActive(Pageable pageable) {
-        Page<Order> orders = orderRepo.findByActiveTrue(pageable);
+        Page<Order> orders = orderRepo.findByActive(pageable, true);
         return orders.map(orderMapper::toOrderResponse);
     }
 
@@ -253,8 +265,18 @@ public class OrderService implements IOrderService {
             orderItem.setOrder(order);
             orderItem.setProduct(productMap.get(productId));
             orderItem.setQuantity(quantity);
+            orderItem.setUnitPrice(productMap.get(productId).getPrice());
             orderItemRepo.save(orderItem);
         }
+    }
+
+    private List<OrderItemRequest> getOrderItemsFromCart(List<CartItem> cartItems) {
+        return cartItems.stream()
+                .map(cartItem -> OrderItemRequest.builder()
+                        .productId(cartItem.getProduct().getProductId())
+                        .quantity(cartItem.getQuantity())
+                        .build())
+                .toList();
     }
 
 }

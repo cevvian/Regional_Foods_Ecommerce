@@ -5,7 +5,7 @@ import edu.ut.sales.sales_analyst.model.entities.Order;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class, AddressMapper.class, OrderItemMapper.class})
 public interface OrderMapper {
     @Mapping(source = "user", target = "userResponse")
     @Mapping(source = "address", target = "addressResponse")
