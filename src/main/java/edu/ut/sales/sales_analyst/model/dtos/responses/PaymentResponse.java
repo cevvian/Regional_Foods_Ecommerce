@@ -1,11 +1,8 @@
 package edu.ut.sales.sales_analyst.model.dtos.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import edu.ut.sales.sales_analyst.model.entities.Order;
 import edu.ut.sales.sales_analyst.model.enums.PaymentMethod;
 import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.*;
 
 import java.time.LocalDateTime;

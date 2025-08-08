@@ -1,6 +1,6 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.exceptions.AppException;
+import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
@@ -32,23 +32,22 @@ public class OrderController {
     @Operation(summary = "Create a new order", description = "Add a new order")
     @PostMapping
     public ResponseAPI<OrderResponse> createOrder(@Valid @RequestBody OrderCreateRequest request) {
-        try {
-            OrderResponse response = orderService.createOrder(request);
-            return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        OrderResponse response = orderService.createOrder(request);
+        return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
+    }
+
+    @Operation(summary = "Create a new order from cart", description = "Add a new order from cart")
+    @PostMapping("/cart")
+    public ResponseAPI<OrderResponse> createOrderFromCart(@Valid @RequestBody OrderCartCreationRequest request) {
+        OrderResponse response = orderService.createOrderFromCart(request);
+        return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
     }
 
     @Operation(summary = "Get order by ID", description = "Retrieve order details by order ID")
     @GetMapping("/{orderId}")
     public ResponseAPI<OrderResponse> getOrder(@PathVariable String orderId) {
-        try {
-            OrderResponse response = orderService.getOrder(orderId);
-            return new ResponseAPI<>("Get order successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        OrderResponse response = orderService.getOrder(orderId);
+        return new ResponseAPI<>("Get order successfully", HttpStatus.OK, response);
     }
 
     @Operation(summary = "Get all active orders", description = "Retrieve all active orders with pagination")
@@ -57,47 +56,39 @@ public class OrderController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<OrderResponse> orderPage = orderService.getOrdersActive(pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OrderResponse> orderPage = orderService.getOrdersActive(pageable);
 
-            PageMeta meta = PageMeta.builder()
-                    .page(orderPage.getNumber())
-                    .size(orderPage.getSize())
-                    .totalElements(orderPage.getTotalElements())
-                    .totalPages(orderPage.getTotalPages())
-                    .last(orderPage.isLast())
-                    .build();
+        PageMeta meta = PageMeta.builder()
+                .page(orderPage.getNumber())
+                .size(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .last(orderPage.isLast())
+                .build();
 
-            return new ResponseAPI<>("Get orders successfully", HttpStatus.OK, orderPage.getContent(), meta);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        return new ResponseAPI<>("Get orders successfully", HttpStatus.OK, orderPage.getContent(), meta);
     }
 
     @Operation(summary = "Get all active orders", description = "Retrieve all active orders with pagination")
     @GetMapping("/filter")
     public ResponseAPI<List<OrderResponse>> getOrdersByStatus(
-            @RequestParam OrderStatus status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(name = "status", required = false) OrderStatus status,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
     ) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<OrderResponse> orderPage = orderService.getOrdersByStatusAndActive(pageable, status);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OrderResponse> orderPage = orderService.getOrdersByStatusAndActive(pageable, status);
 
-            PageMeta meta = PageMeta.builder()
-                    .page(orderPage.getNumber())
-                    .size(orderPage.getSize())
-                    .totalElements(orderPage.getTotalElements())
-                    .totalPages(orderPage.getTotalPages())
-                    .last(orderPage.isLast())
-                    .build();
+        PageMeta meta = PageMeta.builder()
+                .page(orderPage.getNumber())
+                .size(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .last(orderPage.isLast())
+                .build();
 
-            return new ResponseAPI<>("Get orders successfully", HttpStatus.OK, orderPage.getContent(), meta);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        return new ResponseAPI<>("Get orders successfully", HttpStatus.OK, orderPage.getContent(), meta);
     }
 
     @Operation(summary = "Get all active orders by status", description = "Retrieve all active orders with pagination")
@@ -107,22 +98,18 @@ public class OrderController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<OrderResponse> orderPage = orderService.getOrdersByCustomerId(userId, pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OrderResponse> orderPage = orderService.getOrdersByCustomerId(userId, pageable);
 
-            PageMeta meta = PageMeta.builder()
-                    .page(orderPage.getNumber())
-                    .size(orderPage.getSize())
-                    .totalElements(orderPage.getTotalElements())
-                    .totalPages(orderPage.getTotalPages())
-                    .last(orderPage.isLast())
-                    .build();
+        PageMeta meta = PageMeta.builder()
+                .page(orderPage.getNumber())
+                .size(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .last(orderPage.isLast())
+                .build();
 
-            return new ResponseAPI<>("Get orders successfully", HttpStatus.OK, orderPage.getContent(), meta);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        return new ResponseAPI<>("Get orders successfully", HttpStatus.OK, orderPage.getContent(), meta);
     }
 
     @Operation(summary = "Update order", description = "Update an existing order by order ID")
@@ -131,12 +118,8 @@ public class OrderController {
             @PathVariable String orderId,
             @Valid @RequestBody OrderCreateRequest request
     ) {
-        try {
-            OrderResponse response = orderService.updateOrder(orderId, request);
-            return new ResponseAPI<>("Update order successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        OrderResponse response = orderService.updateOrder(orderId, request);
+        return new ResponseAPI<>("Update order successfully", HttpStatus.OK, response);
     }
 
     @Operation(summary = "Update order status", description = "Update an existing order by order ID")
@@ -145,33 +128,21 @@ public class OrderController {
             @PathVariable String orderId,
             @RequestParam OrderStatus status
     ) {
-        try {
-            OrderResponse response = orderService.updateOrderStatus(orderId, status);
-            return new ResponseAPI<>("Update order successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        OrderResponse response = orderService.updateOrderStatus(orderId, status);
+        return new ResponseAPI<>("Update order successfully", HttpStatus.OK, response);
     }
 
     @Operation(summary = "Delete order", description = "Delete a order by ID")
     @DeleteMapping("/{orderId}")
     public ResponseAPI<Boolean> deleteOrder(@PathVariable String orderId) {
-        try {
-            Boolean deleted = orderService.deleteOrder(orderId);
-            return new ResponseAPI<>("Delete order successfully", HttpStatus.OK, deleted);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
-        }
+        Boolean deleted = orderService.deleteOrder(orderId);
+        return new ResponseAPI<>("Delete order successfully", HttpStatus.OK, deleted);
     }
 
     @Operation(summary = "Cancel order", description = "Cancel a order by ID")
     @PostMapping("/{orderId}/cancel")
     public ResponseAPI<OrderResponse> cancelOrder(@PathVariable String orderId) {
-        try {
-            OrderResponse response = orderService.cancelOrder(orderId);
-            return new ResponseAPI<>("Cancel order successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        OrderResponse response = orderService.cancelOrder(orderId);
+        return new ResponseAPI<>("Cancel order successfully", HttpStatus.OK, response);
     }
 }

@@ -10,9 +10,3 @@ public interface PaymentMapper {
     @Mapping(source = "order", target = "order")
     PaymentResponse.PaymentInfoResponse toPaymentInfoResponse(Payment payment);
 }
-
-
-//@Mapper(componentModel = "spring")
-//public interface PaymentMapper {
-//    PaymentResponse.PaymentInfoResponse toPaymentInfoResponse(Payment payment);
-//}
