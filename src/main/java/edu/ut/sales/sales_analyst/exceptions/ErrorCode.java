@@ -220,7 +220,12 @@ public enum ErrorCode {
     // Security/Authorization (3450–3469)
     UNAUTHORIZED_PAYMENT_ACCESS(3450, "Unauthorized access to payment", HttpStatus.UNAUTHORIZED),
     INVALID_PAYMENT_TOKEN(3451, "Invalid or expired payment token", HttpStatus.UNAUTHORIZED),
-    PAYMENT_SIGNATURE_MISMATCH(3452, "Payment signature mismatch", HttpStatus.UNAUTHORIZED)
+    PAYMENT_SIGNATURE_MISMATCH(3452, "Payment signature mismatch", HttpStatus.UNAUTHORIZED),
+
+    // ---------------- NOTIFICATION (3500–3599) ----------------
+    NOTIFICATION_NOT_FOUND(3500, "Notification not found", HttpStatus.NOT_FOUND),
+    NOTIFICATION_ALREADY_EXISTS(3501, "Notification already exists", HttpStatus.BAD_REQUEST),
+    NOTIFICATION_LIST_EMPTY(3502, "Notifications are empty", HttpStatus.BAD_REQUEST),
     ;
     private final int code;
     private final String message;

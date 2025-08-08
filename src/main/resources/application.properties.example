@@ -1,0 +1,53 @@
+# spring app name
+spring.application.name=Sales Analyst
+
+# Database
+spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ecommerce_db}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME:your_db_username}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:your_db_password}
+
+# Hibernate JPA config
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Logging
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.transaction=TRACE
+logging.level.org.springframework.transaction.interceptor=TRACE
+logging.level.org.hibernate.type.descriptor.sql=TRACE
+
+# Swagger
+open.api.title=API service document
+open.api.version=1.0.0
+open.api.description=Sale Analyst - Swagger Docs
+
+# JWT Config
+jwt.expiration-refresh-token=5184000
+jwt.secretKey=your_jwt_secret_key
+jwt.expiration=2592000
+
+# API prefix
+api.prefix=/api/v1
+
+# Cloudinary
+cloudinary.cloud_name=your_cloud_name
+cloudinary.api_key=your_api_key
+cloudinary.api_secret=your_api_secret
+
+# Upload size
+spring.servlet.multipart.max-file-size=100MB
+spring.servlet.multipart.max-request-size=100MB
+
+# Initial admin
+admin-password=your_admin_password
+
+# VNPay config
+payment.vnPay.url=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+payment.vnPay.tmnCode=your_tmn_code
+payment.vnPay.secretKey=your_vnpay_secret
+payment.vnPay.returnUrl=https://yourdomain.com/payment-return
+payment.vnPay.version=2.1.0
+payment.vnPay.command=pay
+payment.vnPay.orderType=other
