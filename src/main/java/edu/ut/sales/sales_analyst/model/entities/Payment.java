@@ -29,6 +29,10 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
+
+    @Column(name = "description")
+    private String description;
+
     private String transactionId;
 
     @CreationTimestamp

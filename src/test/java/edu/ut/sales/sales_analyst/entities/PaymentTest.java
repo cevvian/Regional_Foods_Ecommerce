@@ -21,6 +21,7 @@ class PaymentTest {
     @Test
     void testAllArgsConstructor() {
         String paymentId = "PMT001";
+        String desciption = "Description";
         PaymentMethod method = PaymentMethod.CASH;
         int amount = 250000;
         PaymentStatus status = PaymentStatus.PAID;
@@ -30,7 +31,7 @@ class PaymentTest {
         LocalDateTime updatedAt = LocalDateTime.of(2025, 8, 1, 9, 30);
         Order order = new Order();
 
-        Payment payment = new Payment(paymentId, method, amount, status, transactionId, paidAt, createdAt, updatedAt, order);
+        Payment payment = new Payment(paymentId, method, amount, status, desciption, transactionId, paidAt, createdAt, updatedAt, order);
 
         assertEquals(paymentId, payment.getPaymentId());
         assertEquals(method, payment.getMethod());

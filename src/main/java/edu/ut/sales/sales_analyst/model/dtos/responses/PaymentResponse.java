@@ -25,6 +25,7 @@ public abstract class PaymentResponse {
         private PaymentMethod method;
         private int amount;
         private PaymentStatus status;
+        private String description;
         private String transactionId;
         private LocalDateTime paidAt;
         private LocalDateTime createdAt;

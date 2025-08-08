@@ -44,6 +44,7 @@ public class WebSecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/users/register",
                                 "/api/v1/users/refresh-token",
+                                "/api/v1/payment/*",
                                 "/swagger-ui/index.html",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",

@@ -25,7 +25,7 @@ import java.util.List;
 public class PaymentController {
     private final PaymentService paymentService;
 
-    //http://localhost:8080/api/v1/payment/vn-pay?amount=237008&bankCode=NCB&method=VNPAY&orderId=a8f58809-a0eb-4183-8a31-ba18bb3afdae
+    //http://localhost:8080/api/v1/payment/vn-pay?amount=237008&bankCode=NCB&method=VNPAY&orderId=b58eb412-0e29-4c55-b5f7-d001d562536b
     //Thông tin thẻ test: https://sandbox.vnpayment.vn/apis/vnpay-demo/
     @Operation(summary = "payment order", description = "Payment an order with VNPay")
     @GetMapping("/vn-pay")

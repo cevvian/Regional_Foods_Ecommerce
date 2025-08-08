@@ -74,20 +74,22 @@ public class PaymentService {
         String transactionId = request.getParameter("vnp_TxnRef");
         Payment payment = paymentRepo.findPaymentByTransactionId(transactionId)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+        String description = getVNPayResponseDescription(responseCode);
+
         if ("00".equals(responseCode)) {
             updatePaymentStatus(PaymentStatus.PAID, payment.getPaymentId());
             orderService.updateOrderStatus(payment.getOrder().getOrderId(), OrderStatus.COMPLETED);
-            return PaymentResponse.VNPayResponse.builder()
-                    .status("00")
-                    .message("Giao dịch thành công")
-                    .build();
         } else {
             updatePaymentStatus(PaymentStatus.FAILED, payment.getPaymentId());
-            return PaymentResponse.VNPayResponse.builder()
-                    .status(responseCode)
-                    .message("Giao dịch thất bại hoặc bị hủy")
-                    .build();
         }
+
+        payment.setDescription(description);
+        paymentRepo.save(payment);
+
+        return PaymentResponse.VNPayResponse.builder()
+                .status(responseCode)
+                .message(description)
+                .build();
     }
 
     public PaymentResponse.PaymentInfoResponse createPayment(PaymentRequest request){
@@ -98,6 +100,7 @@ public class PaymentService {
         Payment payment = Payment.builder()
                 .amount(request.getAmount())
                 .order(order)
+                .description("Đang thực hiện giao dịch")
                 .method(request.getMethod())
                 .status(PaymentStatus.PROCESSING)
                 .transactionId(request.getTransactionId())
@@ -139,6 +142,25 @@ public class PaymentService {
         catch (Exception e) {
             throw new AppException(ErrorCode.PAYMENT_METHOD_UNSUPPORTED);
         }
+    }
+
+    private String getVNPayResponseDescription(String code) {
+        return switch (code) {
+            case "00" -> "Giao dịch thành công";
+            case "05" -> "Giao dịch không thành công: Tài khoản không đủ số dư";
+            case "06" -> "Giao dịch không thành công: Sai mật khẩu OTP";
+            case "07" -> "Trừ tiền thành công. Giao dịch bị nghi ngờ";
+            case "09" -> "Giao dịch không thành công: Chưa đăng ký InternetBanking";
+            case "10" -> "Giao dịch không thành công: Xác thực sai quá 3 lần";
+            case "11" -> "Giao dịch không thành công: Hết hạn chờ thanh toán";
+            case "12" -> "Giao dịch không thành công: Tài khoản bị khóa";
+            case "24" -> "Giao dịch không thành công: Khách hàng hủy giao dịch";
+            case "65" -> "Giao dịch không thành công: Vượt quá hạn mức trong ngày";
+            case "75" -> "Ngân hàng thanh toán đang bảo trì";
+            case "79" -> "Giao dịch không thành công: Nhập sai mật khẩu quá số lần quy định";
+            case "99" -> "Giao dịch không thành công: Lỗi không xác định";
+            default -> "Giao dịch thất bại không rõ nguyên do";
+        };
     }
 //
 //    public boolean verifyVNPaySignature(HttpServletRequest request) {
