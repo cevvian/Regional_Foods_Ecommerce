@@ -65,6 +65,7 @@ public class OrderService implements IOrderService {
         orderRepo.save(order);
 
         createOrderItems(order, quantityMap, productMap);
+        order.setOrderItems(orderItemRepo.findByOrder(order));
 
         log.info("Created order {} for user {}", order.getOrderId(), customer.getUserId());
         return orderMapper.toOrderResponse(order);
