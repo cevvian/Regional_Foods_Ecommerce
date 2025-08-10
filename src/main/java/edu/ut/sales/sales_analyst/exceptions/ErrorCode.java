@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 public enum ErrorCode {
 
+
     // ---------------- USER (1000–1299) ----------------
 
     // Not Found (1000–1049)
@@ -54,6 +55,7 @@ public enum ErrorCode {
     PRODUCT_DELETED(1678, "Product deleted", HttpStatus.CONFLICT),
     ORDER_NOT_ALLOWED_UPDATE(1679, "Order is not allowed update", HttpStatus.BAD_REQUEST),
     ORDER_ALREADY_COMPLETED(1680, "Order is already completed", HttpStatus.CONFLICT),
+
 
     // ---------------- ORDER ITEM (1900–1999) ----------------
 
@@ -216,6 +218,7 @@ public enum ErrorCode {
     PAYMENT_PROCESSING_FAILED(3405, "Payment processing failed", HttpStatus.INTERNAL_SERVER_ERROR),
     PAYMENT_STATUS_INVALID(3406, "Invalid payment status", HttpStatus.BAD_REQUEST),
     PAYMENT_DUPLICATE_TRANSACTION(3407, "Duplicate payment transaction", HttpStatus.CONFLICT),
+    PAYMENT_INVALID_STATUS_TRANSITION(3408, "Invalid status transition", HttpStatus.BAD_REQUEST),
 
     // Security/Authorization (3450–3469)
     UNAUTHORIZED_PAYMENT_ACCESS(3450, "Unauthorized access to payment", HttpStatus.UNAUTHORIZED),

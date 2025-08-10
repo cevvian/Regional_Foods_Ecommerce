@@ -34,12 +34,14 @@ public class OrderService implements IOrderService {
     private final ProductRepo productRepo;
     private final OrderItemRepo orderItemRepo;
     private final AddressRepo addressRepo;
+    private final CartService cartService;
 
-    public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo,
+    public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo, CartService cartService,
                         ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
         this.userRepo = userRepo;
+        this.cartService = cartService;
         this.productRepo = productRepo;
         this.orderItemRepo = orderItemRepo;
         this.addressRepo = addressRepo;
@@ -80,9 +82,10 @@ public class OrderService implements IOrderService {
                 .orderItems(orderItemRequests)
                 .build();
 
+        cartService.deleteListCartItem(creationRequest.getCartItems());
+
         return this.createOrder(request);
     }
-
 
     @Override
     public OrderResponse getOrder(String orderId) {
@@ -165,15 +168,22 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public OrderResponse updateOrderStatus(String orderId, OrderStatus orderStatus) {
+    public OrderResponse updateOrderStatus(String orderId, OrderStatus newStatus) {
         Order order = orderRepo.findByOrderId(orderId);
         if (order == null) {
             throw new AppException(ErrorCode.ORDER_NOT_FOUND);
         }
-        order.setStatus(orderStatus);
+
+        OrderStatus currentStatus = order.getStatus();
+        if (!currentStatus.canTransitionTo(newStatus)) {
+            throw new AppException(ErrorCode.ORDER_INVALID_STATUS_TRANSITION);
+        }
+
+        order.setStatus(newStatus);
         orderRepo.save(order);
         return orderMapper.toOrderResponse(order);
     }
+
 
     @Override
     public Boolean deleteOrder(String orderId) {

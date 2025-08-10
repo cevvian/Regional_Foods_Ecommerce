@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +91,29 @@ public class CartService implements ICartService {
                 ? "Successfully deleted Item"
                 : "Failed to delete Item";
     }
+
+    public void deleteListCartItem(List<CartItem> cartItemList) {
+        if (cartItemList.isEmpty()) {
+            throw new AppException(ErrorCode.CART_EMPTY);
+        }
+
+        // Lấy danh sách ID
+        List<String> ids = cartItemList.stream()
+                .map(CartItem::getCartItemId)
+                .toList();
+
+        cartItemRepo.deleteAllInBatch(cartItemList); // Nhanh hơn deleteAll
+
+        // Kiểm tra còn item nào trong DB không
+//        long remainingCount = cartItemRepo.countAllByCartItemIdIn(ids);
+
+//        if (remainingCount == 0) {
+//            return "All items deleted successfully";
+//        } else {
+//            return "Some items were not deleted (" + remainingCount + " remaining)";
+//        }
+    }
+
 
     public CartItemResponse updateCartItemQuantity(String cartItemId, CartItemRequest request){
         CartItem cartItem = cartItemRepo.findById(cartItemId)

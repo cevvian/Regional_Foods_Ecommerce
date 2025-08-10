@@ -19,4 +19,6 @@ public interface CartItemRepo extends JpaRepository<CartItem, String> {
         WHERE ci.cart.user.userId = :userId
     """)
     List<CartItem> findAllByUserId(@Param("userId") String userId);
+
+    long countAllByCartItemIdIn(List<String> ids);
 }

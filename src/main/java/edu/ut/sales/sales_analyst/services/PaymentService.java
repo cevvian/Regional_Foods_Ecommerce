@@ -113,6 +113,12 @@ public class PaymentService {
     public PaymentResponse.PaymentInfoResponse updatePaymentStatus(PaymentStatus status, String paymentId){
         Payment payment = paymentRepo.findById(paymentId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        PaymentStatus currentStatus = payment.getStatus();
+        if (!currentStatus.canTransitionTo(status)) {
+            throw new AppException(ErrorCode.PAYMENT_INVALID_STATUS_TRANSITION);
+        }
+
         payment.setStatus(status);
         paymentRepo.save(payment);
         return paymentMapper.toPaymentInfoResponse(payment);
