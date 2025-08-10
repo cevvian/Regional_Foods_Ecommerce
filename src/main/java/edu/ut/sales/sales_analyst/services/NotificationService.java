@@ -6,7 +6,9 @@ import edu.ut.sales.sales_analyst.mappers.NotificationMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NotificationRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.NotificationResponse;
 import edu.ut.sales.sales_analyst.model.entities.Notification;
+import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.repositories.NotificationRepo;
+import edu.ut.sales.sales_analyst.repositories.UserRepo;
 import edu.ut.sales.sales_analyst.services.impl.INotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,10 +21,12 @@ import java.util.List;
 public class NotificationService implements INotificationService {
     private final NotificationMapper notificationMapper;
     private final NotificationRepo notificationRepo;
+    private final UserRepo userRepo;
 
-    public NotificationService(NotificationMapper notificationMapper, NotificationRepo notificationRepo) {
+    public NotificationService(NotificationMapper notificationMapper, NotificationRepo notificationRepo, UserRepo userRepo) {
         this.notificationMapper = notificationMapper;
         this.notificationRepo = notificationRepo;
+        this.userRepo = userRepo;
     }
 
     @Override
@@ -57,9 +61,16 @@ public class NotificationService implements INotificationService {
         if (notification) {
             throw new AppException(ErrorCode.NOTIFICATION_ALREADY_EXISTS);
         }
+
+        User user = userRepo.findByUserId(request.getUserId());
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
         Notification notificationEntity = new Notification();
         notificationEntity.setTitle(request.getTitle());
         notificationEntity.setContent(request.getMessage());
+        notificationEntity.setUser(user);
         notificationRepo.save(notificationEntity);
         return notificationMapper.toNotificationResponse(notificationEntity);
     }
@@ -82,7 +93,13 @@ public class NotificationService implements INotificationService {
     @Override
     @Transactional
     public Boolean markAllIsRead(String userId) {
-        List<Notification> unreadNotifications = notificationRepo.findByUserIdAndIsReadNot(userId);
+
+        User user = userRepo.findByUserId(userId);
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        List<Notification> unreadNotifications = notificationRepo.findByUserIdAndIsReadNot(user.getUserId());
 
         if (unreadNotifications.isEmpty()) {
             throw new AppException(ErrorCode.NOTIFICATION_LIST_EMPTY);

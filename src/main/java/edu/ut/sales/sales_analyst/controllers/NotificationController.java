@@ -37,7 +37,6 @@ public class NotificationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
             Pageable pageable = PageRequest.of(page, size);
             Page<NotificationResponse> notificationPage = notificationService.getByUserIdAndIsRead(pageable, userId, isRead);
 
@@ -50,85 +49,54 @@ public class NotificationController {
                     .build();
 
             return new ResponseAPI<>("Get notifications successfully", HttpStatus.OK, notificationPage.getContent(), meta);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
     }
 
     @Operation(summary = "Get notification detail", description = "Retrieve detail of a specific notification")
     @GetMapping("/{notificationId}")
     public ResponseAPI<NotificationResponse> getDetail(@PathVariable String notificationId) {
-        try {
             NotificationResponse response = notificationService.getDetail(notificationId);
             return new ResponseAPI<>("Get notification successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
     }
 
     @Operation(summary = "Count unread notifications", description = "Count number of unread notifications of a user")
     @GetMapping("/user/{userId}/unread-count")
     public ResponseAPI<Long> countUnread(@PathVariable String userId) {
-        try {
             Long count = notificationService.countUnread(userId);
             return new ResponseAPI<>("Count unread notifications successfully", HttpStatus.OK, count);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 0L);
-        }
     }
 
     @Operation(summary = "Create notification", description = "Create a new notification")
     @PostMapping
     public ResponseAPI<NotificationResponse> createNotification(@Valid @RequestBody NotificationRequest request) {
-        try {
             NotificationResponse response = notificationService.createNotification(request);
             return new ResponseAPI<>("Create notification successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
     }
 
     @Operation(summary = "Mark a notification as read", description = "Mark a single notification as read")
     @PatchMapping("/{notificationId}/mark-read")
     public ResponseAPI<Boolean> markOneAsRead(@PathVariable String notificationId) {
-        try {
             Boolean updated = notificationService.markOneIsRead(notificationId);
             return new ResponseAPI<>("Mark notification as read successfully", HttpStatus.OK, updated);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
-        }
     }
 
     @Operation(summary = "Mark all notifications as read", description = "Mark all unread notifications of a user as read")
     @PatchMapping("/user/{userId}/mark-all-read")
     public ResponseAPI<Boolean> markAllAsRead(@PathVariable String userId) {
-        try {
             Boolean updated = notificationService.markAllIsRead(userId);
             return new ResponseAPI<>("Mark all notifications as read successfully", HttpStatus.OK, updated);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
-        }
     }
 
     @Operation(summary = "Delete a notification", description = "Delete a single notification by ID")
     @DeleteMapping("/{notificationId}")
     public ResponseAPI<Boolean> deleteNotification(@PathVariable String notificationId) {
-        try {
             Boolean deleted = notificationService.deleteNotification(notificationId);
             return new ResponseAPI<>("Delete notification successfully", HttpStatus.OK, deleted);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
-        }
     }
 
     @Operation(summary = "Delete all notifications of a user", description = "Delete all notifications belonging to a user")
     @DeleteMapping("/user/{userId}")
     public ResponseAPI<Boolean> deleteAllByUser(@PathVariable String userId) {
-        try {
             Boolean deleted = notificationService.deleteAllByUser(userId);
             return new ResponseAPI<>("Delete all notifications successfully", HttpStatus.OK, deleted);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
-        }
     }
 }

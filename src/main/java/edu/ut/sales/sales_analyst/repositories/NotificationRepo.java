@@ -14,7 +14,7 @@ import java.util.List;
 public interface NotificationRepo extends JpaRepository<Notification, String> {
     @Query("""
     SELECT n FROM Notification n
-    WHERE n.user = :userId
+    WHERE n.user.userId = :userId
       AND (:isRead IS NULL OR n.isRead = :isRead)
     """)
     Page<Notification> findByUserIdAndIsReadOptional(
@@ -25,7 +25,7 @@ public interface NotificationRepo extends JpaRepository<Notification, String> {
 
     @Query("""
     SELECT n FROM Notification n
-    WHERE n.user = :userId
+    WHERE n.user.userId = :userId
       AND (n.isRead = FALSE)
     """)
     List<Notification> findByUserIdAndIsReadNot(
@@ -34,7 +34,7 @@ public interface NotificationRepo extends JpaRepository<Notification, String> {
 
     @Query("""
     SELECT n FROM Notification n
-    WHERE n.user = :userId
+    WHERE n.user.userId = :userId
     """)
     List<Notification> findByUserId(
             @Param("userId") String userId
@@ -42,10 +42,17 @@ public interface NotificationRepo extends JpaRepository<Notification, String> {
 
     @Query("""
     SELECT COUNT(n) FROM Notification n
-    WHERE n.user = :userId
-      AND (:isRead IS NULL OR n.isRead = FALSE)
+    WHERE n.user.userId = :userId
+      AND (n.isRead = FALSE)
     """)
     Long countByUserIdAndIsReadNot(@Param("userId") String userId);
+
+//    @Query("""
+//    SELECT COUNT(n) FROM Notification n
+//    WHERE n.user.userId = :userId
+//      AND (:isRead IS NULL OR n.isRead = FALSE)
+//    """)
+//    Long countByUserIdAndIsReadNot(@Param("userId") String userId);
 
     @Query("""
     SELECT CASE WHEN COUNT(n) > 0 THEN true ELSE false END

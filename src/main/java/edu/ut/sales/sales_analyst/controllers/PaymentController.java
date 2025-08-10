@@ -30,57 +30,37 @@ public class PaymentController {
     @Operation(summary = "payment order", description = "Payment an order with VNPay")
     @GetMapping("/vn-pay")
     public ResponseAPI<PaymentResponse.VNPayResponse> pay(HttpServletRequest request) {
-        try {
             PaymentResponse.VNPayResponse response = paymentService.createVnPayPayment(request);
             return new ResponseAPI<>("Payment successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
     }
 
     @Operation(summary = "handle VNPay call back", description = "Handle VNPay call back after make a transaction")
     @GetMapping("/vn-pay-callback")
     public ResponseAPI<PaymentResponse.VNPayResponse> payCallbackHandler(HttpServletRequest request) {
-        try {
             PaymentResponse.VNPayResponse response = paymentService.handleCallBack(request);
             return new ResponseAPI<>("Handle successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
     }
 
     @Operation(summary = "create payment", description = "Create a new payment")
     @PostMapping
     public ResponseAPI<PaymentResponse.PaymentInfoResponse> createPayment(@Valid @RequestBody PaymentRequest request) {
-        try {
             PaymentResponse.PaymentInfoResponse response = paymentService.createPayment(request);
             return new ResponseAPI<>("Create payment successfully", HttpStatus.CREATED, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
     }
 
     @Operation(summary = "update payment status", description = "Update a existing payment status")
     @PutMapping("/status/{paymentId}")
     public ResponseAPI<PaymentResponse.PaymentInfoResponse> updatePayment(@PathVariable String paymentId,
                                                                           @RequestParam PaymentStatus status) {
-        try {
             PaymentResponse.PaymentInfoResponse response = paymentService.updatePaymentStatus(status, paymentId);
             return new ResponseAPI<>("Update payment successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
     }
 
     @Operation(summary = "get payment by id", description = "Get an existing payment by id")
     @GetMapping("/{paymentId}")
     public ResponseAPI<PaymentResponse.PaymentInfoResponse> getPaymentById(@PathVariable String paymentId) {
-        try {
             PaymentResponse.PaymentInfoResponse response = paymentService.getPaymentById(paymentId);
             return new ResponseAPI<>("Get payment successfully", HttpStatus.OK, response);
-        } catch (AppException e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
     }
 
     @Operation(summary = "Get all payments by orderId")

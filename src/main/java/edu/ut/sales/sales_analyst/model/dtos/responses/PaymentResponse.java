@@ -6,6 +6,7 @@ import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public abstract class PaymentResponse {
     @Builder
@@ -27,9 +28,9 @@ public abstract class PaymentResponse {
         private PaymentStatus status;
         private String description;
         private String transactionId;
-        private LocalDateTime paidAt;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+        private Date paidAt;
+        private Date createdAt;
+        private Date updatedAt;
         private OrderResponse order;
     }
 }
