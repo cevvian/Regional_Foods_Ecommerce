@@ -1,5 +1,6 @@
 package edu.ut.sales.sales_analyst.controllers;
 
+import edu.ut.sales.sales_analyst.model.dtos.requests.ResetPasswordRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
@@ -102,6 +103,24 @@ public class UserController {
         }
         return ResponseEntity
                 .ok(new ResponseAPI<>("User unblocked successfully", HttpStatus.OK, null));
+    }
+
+    @Operation(summary = "Reset user password")
+    @PostMapping("/reset-password/{id}")
+    public ResponseEntity<ResponseAPI<Boolean>> resetPassword(
+            @PathVariable String id,
+            @RequestBody ResetPasswordRequest request) {
+
+        Boolean result = userService.resetPassword(id, request);
+
+        if (!result) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseAPI<>("Password reset failed", HttpStatus.BAD_REQUEST, false));
+        }
+
+        return ResponseEntity
+                .ok(new ResponseAPI<>("Password reset successfully", HttpStatus.OK, true));
     }
 
 }

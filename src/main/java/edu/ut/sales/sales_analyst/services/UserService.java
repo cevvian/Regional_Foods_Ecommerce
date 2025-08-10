@@ -4,13 +4,16 @@ import edu.ut.sales.sales_analyst.components.JwtTokenUtils;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.UserMapper;
-import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.events.PasswordChangedEvent;
+import edu.ut.sales.sales_analyst.model.dtos.requests.*;
+import edu.ut.sales.sales_analyst.model.dtos.responses.NotificationResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
+import edu.ut.sales.sales_analyst.model.entities.Notification;
 import edu.ut.sales.sales_analyst.model.entities.Token;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.model.enums.Role;
+import edu.ut.sales.sales_analyst.producer.EventProducer;
 import edu.ut.sales.sales_analyst.repositories.TokenRepo;
 import edu.ut.sales.sales_analyst.repositories.UserRepo;
 import edu.ut.sales.sales_analyst.security.CustomUserDetails;
@@ -43,13 +46,17 @@ public class UserService implements IUserService {
 
     private final AuthenticationManager authenticationManager;
 
-    public UserService(UserRepo userRepo, TokenRepo tokenRepo, UserMapper userMapper, PasswordEncoder passwordEncoder, JwtTokenUtils jwtTokenUtils, AuthenticationManager authenticationManager) {
+    private final EventProducer  eventProducer;
+
+
+    public UserService(UserRepo userRepo, TokenRepo tokenRepo, UserMapper userMapper, PasswordEncoder passwordEncoder, JwtTokenUtils jwtTokenUtils, AuthenticationManager authenticationManager, EventProducer eventProducer) {
         this.userRepo = userRepo;
         this.tokenRepo = tokenRepo;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenUtils = jwtTokenUtils;
         this.authenticationManager = authenticationManager;
+        this.eventProducer = eventProducer;
     }
 
     @Override
@@ -149,7 +156,6 @@ public class UserService implements IUserService {
             authenticationManager.authenticate(authenticationToken);
 
             // Load CustomUserDetails and generate token
-//            UserDetails userDetails = (UserDetails) userRepo.findByEmail(accountLoginRequest.getEmail());
             UserDetails userDetails = new CustomUserDetails(existingUser);
             return jwtTokenUtils.generateToken(userDetails);
 
@@ -159,6 +165,44 @@ public class UserService implements IUserService {
         }
     }
 
+    @Override
+    public Boolean resetPassword(String userId, ResetPasswordRequest resetPasswordRequest) {
+        User user = userRepo.findByUserId(userId);
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        if (!passwordEncoder.matches(resetPasswordRequest.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Wrong old password");
+        }
+        if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword())) {
+            throw new BadCredentialsException("New password and confirm password do not match");
+        }
+        user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
+        userRepo.save(user);
+        log.info("[PW] about to send event for user={}", user.getUserId());
+        log.info("[PW] eventProducer bean = {}", eventProducer.getClass().getName());
+
+        eventProducer.sendPasswordChangedEvent(
+                new PasswordChangedEvent(user.getUserId(), LocalDateTime.now())
+        );
+
+        log.info("[PW] sent() invoked");
+        return true;
+    }
+
+    @Override
+    public Boolean forgetPassword(ForgotPasswordRequest forgotPasswordsRequest) {
+        User user = userRepo.findByEmail(forgotPasswordsRequest.getEmail());
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        if (!forgotPasswordsRequest.getPassword().equals(forgotPasswordsRequest.getConfirmPassword())) {
+            throw new BadCredentialsException("New password and confirm password do not match");
+        }
+        user.setPassword(passwordEncoder.encode(forgotPasswordsRequest.getPassword()));
+        userRepo.save(user);
+        return true;
+    }
 
     @Override
     public User getUserDetailsFromToken(String token) {
