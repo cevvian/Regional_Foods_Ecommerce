@@ -367,9 +367,9 @@
                         <div class="tagline">Hương vị truyền thống - Chất lượng tự nhiên</div>
                     </td>
                     <td class="contact-cell">
-                        <div class="contact-item">📞 031 333 666 9999</div>
-                        <div class="contact-item">✉️ dansanViet@gmail.com</div>
-                        <div class="contact-item">📍 2 Võ Oanh, Bình Thạnh, TP.HCM</div>
+                        <div class="contact-item">031 333 666 9999</div>
+                        <div class="contact-item">dansanViet@gmail.com</div>
+                        <div class="contact-item">2 Võ Oanh, Bình Thạnh, TP.HCM</div>
                     </td>
                 </tr>
             </table>
@@ -378,9 +378,9 @@
             <div class="title-section">
                 <div class="invoice-title">HÓA ĐƠN</div>
                 <div class="invoice-info">
-                    <span class="info-item">Hóa đơn Số. <strong>#17271160</strong></span>
-                    <span class="info-item">Ngày. <strong>01 tháng 3 2023</strong></span>
-                    <span class="info-item">Hết hạn. <strong>10 tháng 3 2023</strong></span>
+                    <span class="info-item">Hóa đơn Số. <strong th:text="${orderId}">#17271160</strong></span>
+                    <span class="info-item">Ngày. <strong th:text="${date}">01 tháng 3 2023</strong></span>
+                    <span class="info-item">Hết hạn. <strong th:text="${dueDate}">10 tháng 3 2023</strong></span>
                 </div>
             </div>
 
@@ -390,18 +390,18 @@
                     <!-- Left Column -->
                     <td class="left-column">
                         <!-- To Section -->
-                        <div class="section-title">To.</div>
+                        <div class="section-title">Đến.</div>
                         <div class="client-info">
-                            <div class="client-name">Phạm Huỳnh Anh Thư</div>
-                            <div class="client-detail">095 4862 547</div>
-                            <div class="client-detail">decinessmith@gmail.com</div>
-                            <div class="client-detail">3639 Ung Văn Khiêm, Bình Thạnh, HCM</div>
+                            <div class="client-name" th:text="${customerName}"></div>
+                            <div class="client-detail" th:text="${phone}"></div>
+                            <div class="client-detail" th:text="${email}">decinessmith@gmail.com</div>
+                            <div class="client-detail" th:text="${address}">3639 Ung Văn Khiêm, Bình Thạnh, HCM</div>
                         </div>
 
                         <!-- Payment Method -->
                         <div class="section-title">Phương thức thanh toán.</div>
                         <div class="client-info">
-                            <div class="client-detail">VNPAY</div>
+                            <div class="client-detail" th:text="${paymentMethod}">VNPAY</div>
                         </div>
 
                         <!-- Terms & Condition -->
@@ -423,43 +423,54 @@
                                 <td class="header-cell desc-col">Sản phẩm</td>
                                 <td class="header-cell price-col">Giá</td>
                                 <td class="header-cell total-col">Thành tiền</td>
+
+                                <!-- Lặp qua danh sách orderItems -->
+                            <tr th:each="item, stat : ${orderItems}" th:class="${stat.index % 2 == 0} ? 'item-row even' : 'item-row odd'">
+                                <td class="item-cell" th:text="${item.quantity}"></td>
+                                <td class="item-cell item-desc" th:text="${item.product.productName}"></td>
+                                <td class="item-cell item-price"
+                                    th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'POINT', 2, 'COMMA')}"></td>
+                                <td class="item-cell item-total"
+                                    th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity, 1, 'POINT', 2, 'COMMA')}"></td>
                             </tr>
-                            <tr class="item-row odd">
-                                <td class="item-cell">1</td>
-                                <td class="item-cell item-desc">Invoice Design</td>
-                                <td class="item-cell item-price">$230.00</td>
-                                <td class="item-cell item-total">$230.00</td>
-                            </tr>
-                            <tr class="item-row even">
-                                <td class="item-cell">3</td>
-                                <td class="item-cell item-desc">UI/UX Design</td>
-                                <td class="item-cell item-price">$180.00</td>
-                                <td class="item-cell item-total">$540.00</td>
-                            </tr>
-                            <tr class="item-row odd">
-                                <td class="item-cell">5</td>
-                                <td class="item-cell item-desc">Logo Design</td>
-                                <td class="item-cell item-price">$130.00</td>
-                                <td class="item-cell item-total">$650.00</td>
-                            </tr>
-                            <tr class="item-row even">
-                                <td class="item-cell">2</td>
-                                <td class="item-cell item-desc">Web Design</td>
-                                <td class="item-cell item-price">$340.00</td>
-                                <td class="item-cell item-total">$680.00</td>
-                            </tr>
-                            <tr class="item-row odd">
-                                <td class="item-cell">3</td>
-                                <td class="item-cell item-desc">Brochure Design</td>
-                                <td class="item-cell item-price">$240.00</td>
-                                <td class="item-cell item-total">$720.00</td>
-                            </tr>
-                            <tr class="item-row even">
-                                <td class="item-cell">4</td>
-                                <td class="item-cell item-desc">Namecard Design</td>
-                                <td class="item-cell item-price">$160.00</td>
-                                <td class="item-cell item-total">$640.00</td>
-                            </tr>
+
+<!--                            </tr>-->
+<!--                            <tr class="item-row odd">-->
+<!--                                <td class="item-cell">1</td>-->
+<!--                                <td class="item-cell item-desc">Invoice Design</td>-->
+<!--                                <td class="item-cell item-price">$230.00</td>-->
+<!--                                <td class="item-cell item-total">$230.00</td>-->
+<!--                            </tr>-->
+<!--                            <tr class="item-row even">-->
+<!--                                <td class="item-cell">3</td>-->
+<!--                                <td class="item-cell item-desc">UI/UX Design</td>-->
+<!--                                <td class="item-cell item-price">$180.00</td>-->
+<!--                                <td class="item-cell item-total">$540.00</td>-->
+<!--                            </tr>-->
+<!--                            <tr class="item-row odd">-->
+<!--                                <td class="item-cell">5</td>-->
+<!--                                <td class="item-cell item-desc">Logo Design</td>-->
+<!--                                <td class="item-cell item-price">$130.00</td>-->
+<!--                                <td class="item-cell item-total">$650.00</td>-->
+<!--                            </tr>-->
+<!--                            <tr class="item-row even">-->
+<!--                                <td class="item-cell">2</td>-->
+<!--                                <td class="item-cell item-desc">Web Design</td>-->
+<!--                                <td class="item-cell item-price">$340.00</td>-->
+<!--                                <td class="item-cell item-total">$680.00</td>-->
+<!--                            </tr>-->
+<!--                            <tr class="item-row odd">-->
+<!--                                <td class="item-cell">3</td>-->
+<!--                                <td class="item-cell item-desc">Brochure Design</td>-->
+<!--                                <td class="item-cell item-price">$240.00</td>-->
+<!--                                <td class="item-cell item-total">$720.00</td>-->
+<!--                            </tr>-->
+<!--                            <tr class="item-row even">-->
+<!--                                <td class="item-cell">4</td>-->
+<!--                                <td class="item-cell item-desc">Namecard Design</td>-->
+<!--                                <td class="item-cell item-price">$160.00</td>-->
+<!--                                <td class="item-cell item-total">$640.00</td>-->
+<!--                            </tr>-->
                         </table>
 
                         <!-- Totals -->
@@ -467,17 +478,17 @@
                             <table class="totals-table" cellpadding="0" cellspacing="0">
                                 <tr class="total-row">
                                     <td class="total-label">Tạm tính:</td>
-                                    <td class="total-value">$3460.00</td>
+                                    <td class="total-value" th:text="${total}">$3460.00</td>
                                 </tr>
-                                <tr class="total-row">
-                                    <td class="total-label">Phí vận chuyển:</td>
-                                    <td class="total-value">$519.00</td>
-                                </tr>
+<!--                                <tr class="total-row">-->
+<!--                                    <td class="total-label">Phí vận chuyển:</td>-->
+<!--                                    <td class="total-value">$519.00</td>-->
+<!--                                </tr>-->
                             </table>
                             <table class="final-total" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td class="final-total-cell total-label">Tổng cộng:</td>
-                                    <td class="final-total-cell total-value">$3979.00</td>
+                                    <td class="final-total-cell total-value" th:text="${total}">$3979.00</td>
                                 </tr>
                             </table>
                         </div>

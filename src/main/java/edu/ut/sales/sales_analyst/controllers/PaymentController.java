@@ -12,6 +12,7 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,9 +38,11 @@ public class PaymentController {
             return new ResponseAPI<>("Payment successfully", HttpStatus.OK, response);
     }
 
-    @GetMapping("/send-email")
-    public void sendEmail(@RequestParam(name = "name") String name) throws MessagingException {
-//        emailService.sendInvoiceEmail(name);
+    //test
+    @PostMapping("/send-email")
+    public void sendEmail(@RequestParam(name = "email") String email,
+                          @RequestBody @Valid PaymentRequest request) throws MessagingException {
+        emailService.sendInvoiceEmail(email, request);
     }
 
     @Operation(summary = "handle VNPay call back", description = "Handle VNPay call back after make a transaction")
