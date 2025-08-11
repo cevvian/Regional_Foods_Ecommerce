@@ -55,6 +55,8 @@ public enum ErrorCode {
     PRODUCT_DELETED(1678, "Product deleted", HttpStatus.CONFLICT),
     ORDER_NOT_ALLOWED_UPDATE(1679, "Order is not allowed update", HttpStatus.BAD_REQUEST),
     ORDER_ALREADY_COMPLETED(1680, "Order is already completed", HttpStatus.CONFLICT),
+    INVALID_EMAIL(1681, "Invalid email format", HttpStatus.BAD_REQUEST),
+    FAILED_TO_SENT_EMAIL(1682, "Failed to sent email" , HttpStatus.INTERNAL_SERVER_ERROR ),
 
 
     // ---------------- ORDER ITEM (1900–1999) ----------------
@@ -228,8 +230,7 @@ public enum ErrorCode {
     // ---------------- NOTIFICATION (3500–3599) ----------------
     NOTIFICATION_NOT_FOUND(3500, "Notification not found", HttpStatus.NOT_FOUND),
     NOTIFICATION_ALREADY_EXISTS(3501, "Notification already exists", HttpStatus.BAD_REQUEST),
-    NOTIFICATION_LIST_EMPTY(3502, "Notifications are empty", HttpStatus.BAD_REQUEST),
-    ;
+    NOTIFICATION_LIST_EMPTY(3502, "Notifications are empty", HttpStatus.BAD_REQUEST);
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;
