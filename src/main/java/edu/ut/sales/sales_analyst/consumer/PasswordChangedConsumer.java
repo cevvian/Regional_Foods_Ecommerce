@@ -1,6 +1,5 @@
 package edu.ut.sales.sales_analyst.consumer;
 
-import edu.ut.sales.sales_analyst.mappers.NotificationMapper;
 import edu.ut.sales.sales_analyst.model.dtos.events.PasswordChangedEvent;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NotificationRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.NotificationResponse;
