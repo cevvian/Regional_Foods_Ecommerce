@@ -1,6 +1,8 @@
 package edu.ut.sales.sales_analyst.services.impl;
 
+import edu.ut.sales.sales_analyst.model.dtos.requests.ForgotPasswordRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.ResetPasswordRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
@@ -23,6 +25,10 @@ public interface IUserService {
     Boolean unBlockUser(String userId);
 
     String login(LoginRequest accountLoginRequest) throws Exception;
+
+    Boolean resetPassword(String userId, ResetPasswordRequest resetPasswordRequest);
+
+    Boolean forgetPassword(ForgotPasswordRequest forgotPasswordsRequest);
 
     User getUserDetailsFromToken(String token);
 

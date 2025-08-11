@@ -1,6 +1,7 @@
 package edu.ut.sales.sales_analyst.controllers;
 
 import edu.ut.sales.sales_analyst.components.JwtTokenUtils;
+import edu.ut.sales.sales_analyst.model.dtos.requests.ForgotPasswordRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.RefreshTokenRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
@@ -17,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -112,4 +114,22 @@ public class AuthController {
             return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
         }
     }
+
+    @Operation(summary = "Forgot password")
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseAPI<Boolean>> forgotPassword(
+            @RequestBody ForgotPasswordRequest request) {
+
+        Boolean result = userService.forgetPassword(request);
+
+        if (!result) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseAPI<>("Password reset failed", HttpStatus.BAD_REQUEST, false));
+        }
+
+        return ResponseEntity
+                .ok(new ResponseAPI<>("Password updated successfully", HttpStatus.OK, true));
+    }
+
 }
