@@ -2,6 +2,7 @@ package edu.ut.sales.sales_analyst.services;
 
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
+import edu.ut.sales.sales_analyst.mappers.CartItemMapper;
 import edu.ut.sales.sales_analyst.mappers.OrderMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.CartItemRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
@@ -35,9 +36,11 @@ public class OrderService implements IOrderService {
     private final OrderItemRepo orderItemRepo;
     private final AddressRepo addressRepo;
     private final CartService cartService;
+    private final CartItemMapper cartItemMapper;
 
     public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo, CartService cartService,
-                        ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo) {
+                        ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo,
+                        CartItemMapper cartItemMapper) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
         this.userRepo = userRepo;
@@ -45,6 +48,7 @@ public class OrderService implements IOrderService {
         this.productRepo = productRepo;
         this.orderItemRepo = orderItemRepo;
         this.addressRepo = addressRepo;
+        this.cartItemMapper = cartItemMapper;
     }
 
     @Override
@@ -74,7 +78,8 @@ public class OrderService implements IOrderService {
 
     @Override
     public OrderResponse createOrderFromCart(OrderCartCreationRequest creationRequest) {
-        List<OrderItemRequest> orderItemRequests = getOrderItemsFromCart(creationRequest.getCartItems());
+        List<CartItem> cartItems = cartItemMapper.toCartItem(creationRequest.getCartItems());
+        List<OrderItemRequest> orderItemRequests = getOrderItemsFromCart(cartItems);
 
         OrderCreateRequest request = OrderCreateRequest.builder()
                 .customerId(creationRequest.getCustomerId())
@@ -82,7 +87,7 @@ public class OrderService implements IOrderService {
                 .orderItems(orderItemRequests)
                 .build();
 
-        cartService.deleteListCartItem(creationRequest.getCartItems());
+        cartService.deleteListCartItem(cartItems);
 
         return this.createOrder(request);
     }

@@ -4,9 +4,11 @@ import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.PaymentRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.*;
 import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
+import edu.ut.sales.sales_analyst.services.EmailService;
 import edu.ut.sales.sales_analyst.services.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import java.util.List;
 @Tag(name = "Payment", description = "APIs for user payment order")
 public class PaymentController {
     private final PaymentService paymentService;
+    private final EmailService emailService;
 
     //http://localhost:8080/api/v1/payment/vn-pay?amount=237008&bankCode=NCB&method=VNPAY&orderId=b58eb412-0e29-4c55-b5f7-d001d562536b
     //Thông tin thẻ test: https://sandbox.vnpayment.vn/apis/vnpay-demo/
@@ -32,6 +35,11 @@ public class PaymentController {
     public ResponseAPI<PaymentResponse.VNPayResponse> pay(HttpServletRequest request) {
             PaymentResponse.VNPayResponse response = paymentService.createVnPayPayment(request);
             return new ResponseAPI<>("Payment successfully", HttpStatus.OK, response);
+    }
+
+    @GetMapping("/send-email")
+    public void sendEmail(@RequestParam(name = "name") String name) throws MessagingException {
+        emailService.sendInvoiceEmail(name);
     }
 
     @Operation(summary = "handle VNPay call back", description = "Handle VNPay call back after make a transaction")

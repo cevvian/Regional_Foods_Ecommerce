@@ -22,5 +22,5 @@ public class OrderCartCreationRequest {
     String addressId;
 
     @NotEmpty(message = "Order must contain at least one item")
-    List<CartItem> cartItems;
+    List<CartItemRequest> cartItems;
 }
