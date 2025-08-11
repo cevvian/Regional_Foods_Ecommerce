@@ -39,7 +39,7 @@ public class PaymentController {
 
     @GetMapping("/send-email")
     public void sendEmail(@RequestParam(name = "name") String name) throws MessagingException {
-        emailService.sendInvoiceEmail(name);
+//        emailService.sendInvoiceEmail(name);
     }
 
     @Operation(summary = "handle VNPay call back", description = "Handle VNPay call back after make a transaction")
