@@ -8,6 +8,11 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class PasswordChangedConsumer {
 
@@ -30,7 +35,16 @@ public class PasswordChangedConsumer {
         NotificationRequest notificationRequest = new NotificationRequest();
         notificationRequest.setUserId(event.getUserId());
         notificationRequest.setTitle("Reset Password");
-        notificationRequest.setMessage("Your password has been reset at " + event.getChangedAt());
+        LocalDateTime changedAt = event.getChangedAt();
+
+        ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        ZonedDateTime vietnamTime = changedAt.atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(vietnamZone);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String formattedDateTime = vietnamTime.format(formatter);
+
+        notificationRequest.setMessage("Your password has been reset at " + formattedDateTime);
         NotificationResponse notification = notificationService.createNotification(notificationRequest);
 
         messagingTemplate.convertAndSend("/queue/notifications-" + event.getUserId(), notification);

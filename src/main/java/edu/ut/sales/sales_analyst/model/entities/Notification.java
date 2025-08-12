@@ -25,7 +25,7 @@ public class Notification {
 
     private String content;
 
-    private Boolean isRead;
+    private Boolean isRead = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }
