@@ -57,7 +57,7 @@ public enum ErrorCode {
     ORDER_ALREADY_COMPLETED(1680, "Order is already completed", HttpStatus.CONFLICT),
     INVALID_EMAIL(1681, "Invalid email format", HttpStatus.BAD_REQUEST),
     FAILED_TO_SENT_EMAIL(1682, "Failed to sent email" , HttpStatus.INTERNAL_SERVER_ERROR ),
-
+    ORDER_AMOUNT_REQUIRED(1683, "Order amount is required", HttpStatus.BAD_REQUEST),
 
     // ---------------- ORDER ITEM (1900–1999) ----------------
 
@@ -232,19 +232,19 @@ public enum ErrorCode {
     NOTIFICATION_ALREADY_EXISTS(3501, "Notification already exists", HttpStatus.BAD_REQUEST),
     NOTIFICATION_LIST_EMPTY(3502, "Notifications are empty", HttpStatus.BAD_REQUEST),
 
-    // ---------------- IMAGE NEWS (2900–2999) ----------------
+    // ---------------- IMAGE PRODUCT (3600 - 3699) ----------------
 
-    // Not Found (2900–2949)
-    IMAGE_PRODUCT_NOT_FOUND(2900, "Image not found", HttpStatus.NOT_FOUND),
-    IMAGE_PRODUCT_LIST_EMPTY(2901, "No images found", HttpStatus.NOT_FOUND),
+    // Not Found (3600 - 3649)
+    IMAGE_PRODUCT_NOT_FOUND(3600, "Image not found", HttpStatus.NOT_FOUND),
+    IMAGE_PRODUCT_LIST_EMPTY(3601, "No images found", HttpStatus.NOT_FOUND),
 
-    // Already Exists (2950–2969)
-    IMAGE_PRODUCT_ALREADY_EXISTS(2950, "Image already exists", HttpStatus.CONFLICT),
+    // Already Exists (3650–3669)
+    IMAGE_PRODUCT_ALREADY_EXISTS(3650, "Image already exists", HttpStatus.CONFLICT),
 
-    // Validation Errors (2970–2999)
-    IMAGE_PRODUCT_URL_REQUIRED(2971, "Image URL is required", HttpStatus.BAD_REQUEST),
-    IMAGE_PRODUCT_ID_REQUIRED(2972, "News ID for the image is required", HttpStatus.BAD_REQUEST),
-    IMAGE_PRODUCT_INVALID_FILE(2973, "Invalid image file", HttpStatus.BAD_REQUEST),
+    // Validation Errors (3670–3699)
+    IMAGE_PRODUCT_URL_REQUIRED(3670, "Image URL is required", HttpStatus.BAD_REQUEST),
+    IMAGE_PRODUCT_ID_REQUIRED(3671, "News ID for the image is required", HttpStatus.BAD_REQUEST),
+    IMAGE_PRODUCT_INVALID_FILE(3672, "Invalid image file", HttpStatus.BAD_REQUEST),
     ;
     private final int code;
     private final String message;

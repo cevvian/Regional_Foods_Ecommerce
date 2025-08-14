@@ -1,7 +1,9 @@
 package edu.ut.sales.sales_analyst.controllers;
 
+import edu.ut.sales.sales_analyst.model.dtos.requests.OrderAndPaymentRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.PaymentRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
@@ -31,17 +33,18 @@ public class OrderController {
 
     @Operation(summary = "Create a new order", description = "Add a new order")
     @PostMapping
-    public ResponseAPI<OrderResponse> createOrder(@Valid @RequestBody OrderCreateRequest request) {
+    public ResponseAPI<OrderResponse> createOrder(@Valid @RequestBody OrderAndPaymentRequest request) {
         OrderResponse response = orderService.createOrder(request);
         return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
     }
 
-    @Operation(summary = "Create a new order from cart", description = "Add a new order from cart")
-    @PostMapping("/cart")
-    public ResponseAPI<OrderResponse> createOrderFromCart(@Valid @RequestBody OrderCartCreationRequest request) {
-        OrderResponse response = orderService.createOrderFromCart(request);
-        return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
-    }
+//    @Operation(summary = "Create a new order from cart", description = "Add a new order from cart")
+//    @PostMapping("/cart")
+//    public ResponseAPI<OrderResponse> createOrderFromCart(@Valid @RequestBody OrderCartCreationRequest request,
+//                                                          @Valid @RequestBody PaymentRequest paymentRequest) {
+//        OrderResponse response = orderService.createOrderFromCart(request, paymentRequest);
+//        return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
+//    }
 
     @Operation(summary = "Get order by ID", description = "Retrieve order details by order ID")
     @GetMapping("/{orderId}")

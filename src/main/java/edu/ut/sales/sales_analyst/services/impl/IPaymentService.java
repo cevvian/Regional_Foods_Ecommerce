@@ -15,4 +15,5 @@ public interface IPaymentService {
     PaymentResponse.PaymentInfoResponse createPayment(PaymentRequest request);
     PaymentResponse.VNPayResponse handleCallBack(HttpServletRequest request);
     PaymentResponse.VNPayResponse createVnPayPayment(HttpServletRequest request);
+    PaymentResponse.PaymentInfoResponse getPaymentsByOrderIdAndPaid(String orderId);
 }
