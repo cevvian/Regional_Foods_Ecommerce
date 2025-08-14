@@ -33,4 +33,6 @@ public interface IUserService {
     User getUserDetailsFromToken(String token);
 
     User getUserFromRefreshToken(String refreshToken);
+
+    UserResponse getUserFromEmail(String email);
 }

@@ -159,4 +159,12 @@ public class ProductService implements IProductService {
         return products.map(productMapper::toProductDTO);
     }
 
+    @Override
+    public void increaseStock(String productId, int quantity) {
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        product.setStockQuantity(product.getStockQuantity() + quantity);
+        productRepo.save(product);
+    }
+
 }

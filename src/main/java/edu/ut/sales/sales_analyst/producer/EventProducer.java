@@ -1,5 +1,6 @@
 package edu.ut.sales.sales_analyst.producer;
 
+import edu.ut.sales.sales_analyst.model.dtos.events.OrderCancelledEvent;
 import edu.ut.sales.sales_analyst.model.dtos.events.OrderChangedStatusEvent;
 import edu.ut.sales.sales_analyst.model.dtos.events.OrderCreatedEvent;
 import edu.ut.sales.sales_analyst.model.dtos.events.PasswordChangedEvent;
@@ -31,5 +32,9 @@ public class EventProducer {
 
     public void sendOrderChangedStatusEvent(OrderChangedStatusEvent event) {
         kafkaTemplate.send("order.changed.status", event);
+    }
+
+    public void sendOrderCancelledEvent(OrderCancelledEvent event) {
+        kafkaTemplate.send("order.cancelled", event);
     }
 }

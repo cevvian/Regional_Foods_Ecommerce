@@ -6,10 +6,8 @@ import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.UserMapper;
 import edu.ut.sales.sales_analyst.model.dtos.events.PasswordChangedEvent;
 import edu.ut.sales.sales_analyst.model.dtos.requests.*;
-import edu.ut.sales.sales_analyst.model.dtos.responses.NotificationResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
-import edu.ut.sales.sales_analyst.model.entities.Notification;
 import edu.ut.sales.sales_analyst.model.entities.Token;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import edu.ut.sales.sales_analyst.model.enums.Role;
@@ -228,5 +226,14 @@ public class UserService implements IUserService {
         }
 
         return tokenEntity.getUser();
+    }
+
+    @Override
+    public UserResponse getUserFromEmail(String email) {
+        User user = userRepo.findByEmail(email);
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        return userMapper.toUserResponse(user);
     }
 }

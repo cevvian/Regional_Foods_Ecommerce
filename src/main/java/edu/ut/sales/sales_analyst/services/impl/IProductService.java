@@ -22,4 +22,6 @@ public interface IProductService {
             ProductFilterRequest filterRequest,
             Pageable pageable
     );
+
+    void increaseStock(String productId, int quantity);
 }

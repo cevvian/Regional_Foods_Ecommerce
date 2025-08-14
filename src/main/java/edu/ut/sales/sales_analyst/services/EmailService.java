@@ -42,17 +42,6 @@ public class EmailService implements IEmailService {
         this.templateEngine = templateEngine;
     }
 
-
-    @Override
-    public void sendOrderConfirmationEmail(String email, Order order) {
-
-    }
-
-    @Override
-    public void sendPaymentConfirmationEmail(String email, Payment payment) {
-
-    }
-
     @Override
     public void sendInvoiceEmail(String email, PaymentRequest paymentRequest) throws MessagingException {
         String htmlContent = templateEngine.process("invoice.html",
