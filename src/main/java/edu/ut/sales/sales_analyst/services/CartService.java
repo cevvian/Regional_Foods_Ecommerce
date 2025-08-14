@@ -38,6 +38,7 @@ public class CartService implements ICartService {
     UserRepo userRepo;
     ProductRepo productRepo;
 
+    @Override
     public CartResponse addToCard(AddToCartRequest request){
         User user = userRepo.findByUserId(request.getUserId());
         if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
@@ -68,6 +69,7 @@ public class CartService implements ICartService {
         return cartMapper.toCartResponse(cart);
     }
 
+    @Override
     public CartResponse viewCart(String userId) {
         User user = userRepo.findByUserId(userId);
         if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
@@ -82,6 +84,7 @@ public class CartService implements ICartService {
         return cartMapper.toCartResponse(cart);
     }
 
+    @Override
     public String deleteCartItem(String cartItemId){
         CartItem cartItem = cartItemRepo.findById(cartItemId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
@@ -92,6 +95,7 @@ public class CartService implements ICartService {
                 : "Failed to delete Item";
     }
 
+    @Override
     public void deleteListCartItem(List<CartItem> cartItemList) {
         if (cartItemList.isEmpty()) {
             throw new AppException(ErrorCode.CART_EMPTY);
@@ -114,7 +118,7 @@ public class CartService implements ICartService {
 //        }
     }
 
-
+    @Override
     public CartItemResponse updateCartItemQuantity(String cartItemId, CartItemRequest request){
         CartItem cartItem = cartItemRepo.findById(cartItemId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
@@ -123,6 +127,7 @@ public class CartService implements ICartService {
         return cartItemMapper.toCartItemResponse(cartItem);
     }
 
+    @Override
     public Map<String, String> deleteCartItemList(List<String> cartItemIds) {
         Map<String, String> result = new HashMap<>();
 
@@ -142,6 +147,7 @@ public class CartService implements ICartService {
         return result;
     }
 
+    @Override
     public String deleteAllItemsByUser(String userId) {
         Cart cart = cartRepo.findByUser_UserId(userId);
         if (cart == null) throw new AppException(ErrorCode.CART_NOT_FOUND);

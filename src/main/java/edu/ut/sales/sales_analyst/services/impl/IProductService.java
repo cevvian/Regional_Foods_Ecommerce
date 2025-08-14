@@ -5,6 +5,7 @@ import edu.ut.sales.sales_analyst.model.dtos.requests.ProductFilterRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
+import edu.ut.sales.sales_analyst.model.entities.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,6 +23,6 @@ public interface IProductService {
             ProductFilterRequest filterRequest,
             Pageable pageable
     );
-
+    List<Product> createProductList(List<ProductCreateRequest> requests);
     void increaseStock(String productId, int quantity);
 }

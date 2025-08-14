@@ -3,17 +3,15 @@ package edu.ut.sales.sales_analyst.services;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.ProductMapper;
-import edu.ut.sales.sales_analyst.model.dtos.requests.ProductCreateRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.ProductFilterRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
+import edu.ut.sales.sales_analyst.model.dtos.requests.*;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
-import edu.ut.sales.sales_analyst.model.entities.Category;
-import edu.ut.sales.sales_analyst.model.entities.Product;
-import edu.ut.sales.sales_analyst.model.entities.Region;
+import edu.ut.sales.sales_analyst.model.entities.*;
 import edu.ut.sales.sales_analyst.repositories.CategoryRepo;
+import edu.ut.sales.sales_analyst.repositories.ImageProductRepo;
 import edu.ut.sales.sales_analyst.repositories.ProductRepo;
 import edu.ut.sales.sales_analyst.repositories.RegionRepo;
+import edu.ut.sales.sales_analyst.services.cloundinary.ImageUploadService;
 import edu.ut.sales.sales_analyst.services.impl.IProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +23,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,10 @@ public class ProductService implements IProductService {
     CategoryRepo categoryRepo;
     ProductMapper productMapper;
     RegionRepo regionRepo;
+    ImageUploadService imageUploadService;
+    ImageProductRepo imageProductRepo;
 
+    @Override
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
         if(productRepo.findByProductName(productCreateRequest.getProductName()) != null) {
             throw new AppException(ErrorCode.PRODUCT_ALREADY_EXISTS);
@@ -56,9 +59,13 @@ public class ProductService implements IProductService {
         product.setCategory(category);
         product.setRegion(region);
         product = productRepo.save(product);
+
+        handleImageUploadAndAttachToProduct(product, productCreateRequest.getImages());
+
         return productMapper.toProductDTO(product);
     }
 
+    @Override
     public ProductResponse getProduct(String productId) {
         Product product = productRepo.findByProductId(productId);
         if(product == null) {
@@ -67,11 +74,13 @@ public class ProductService implements IProductService {
         return productMapper.toProductDTO(product);
     }
 
+    @Override
     public Page<ProductResponse> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepo.findAll(pageable);
         return products.map(productMapper::toProductDTO);
     }
 
+    @Override
     public List<Product> createProductList(List<ProductCreateRequest> requests) {
         List<Product> savedProducts = new ArrayList<>();
 
@@ -98,7 +107,7 @@ public class ProductService implements IProductService {
         return savedProducts;
     }
 
-
+    @Override
     public ProductResponse updateProduct(String productId, ProductCreateRequest productCreateRequest) {
         Product product = productRepo.findByProductId(productId);
         if(product == null) {
@@ -121,6 +130,7 @@ public class ProductService implements IProductService {
         return productMapper.toProductDTO(product);
     }
 
+    @Override
     public Boolean deleteProduct(String productId) {
         Product product = productRepo.findByProductId(productId);
         if(product == null) {
@@ -167,4 +177,34 @@ public class ProductService implements IProductService {
         productRepo.save(product);
     }
 
+    private void handleImageUploadAndAttachToProduct(Product product, List<ImageProductCreationRequest> imageRequests) {
+        if (imageRequests == null || imageRequests.isEmpty()) {
+            throw new AppException(ErrorCode.FILE_UPLOAD_NOT_FOUND);
+        }
+
+        List<MultipartFile> files = imageRequests.stream()
+                .map(ImageProductCreationRequest::getImage)
+                .collect(Collectors.toList());
+
+        List<String> imageUrls;
+        try {
+            imageUrls = imageUploadService.uploadNewsImages(files, product.getProductId());
+        } catch (IOException e) {
+            throw new AppException(ErrorCode.FILE_UPLOAD_FAILED);
+        }
+
+        List<ImageProduct> imageEntities = new ArrayList<>();
+        for (int i = 0; i < imageRequests.size(); i++) {
+            String imageUrl = imageUrls.get(i);
+
+            ImageProduct imageEntity = ImageProduct.builder()
+                    .product(product)
+                    .imageUrl(imageUrl)
+                    .build();
+
+            imageEntities.add(imageEntity);
+        }
+        imageProductRepo.saveAll(imageEntities);
+        product.setImages(imageEntities);
+    }
 }
