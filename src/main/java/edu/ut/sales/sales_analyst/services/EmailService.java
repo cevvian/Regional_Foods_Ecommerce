@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Serviceg
+@Service
 public class EmailService implements IEmailService {
 
     private final OrderRepo orderRepo;
