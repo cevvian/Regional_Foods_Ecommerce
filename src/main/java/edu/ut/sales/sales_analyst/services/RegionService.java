@@ -27,6 +27,7 @@ public class RegionService implements IRegionService {
     RegionRepo regionRepo;
     RegionMapper regionMapper;
 
+    @Override
     public RegionResponse createRegion(RegionRequest regionRequest) {
         Region region = regionRepo.findByRegionName(regionRequest.getRegionName());
         if (region != null) {
@@ -36,23 +37,27 @@ public class RegionService implements IRegionService {
         return regionMapper.toResponse(region);
     }
 
+    @Override
     public RegionResponse getRegionById(String id){
         Region region = regionRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.REGION_NOT_FOUND));
         return regionMapper.toResponse(region);
     }
 
+    @Override
     public Page<RegionResponse> getAllRegions(Pageable pageable){
         Page<Region> regions = regionRepo.findAll(pageable);
         return regions.map(regionMapper::toResponse);
     }
 
+    @Override
     public RegionResponse updateRegion(String id, RegionRequest regionRequest) {
         Region region = regionRepo.findById(id).orElseThrow(() -> new AppException(ErrorCode.REGION_NOT_FOUND));
         region.setRegionName(regionRequest.getRegionName());
         return regionMapper.toResponse(regionRepo.save(region));
     }
 
+    @Override
     public String deleteRegion(String id) {
         Region region = regionRepo.findById(id).orElseThrow(() -> new AppException(ErrorCode.REGION_NOT_FOUND));
         regionRepo.delete(region);
@@ -62,6 +67,7 @@ public class RegionService implements IRegionService {
                 : "Failed to delete Region";
     }
 
+    @Override
     public List<Region> addRegions(List<RegionRequest> regionRequests) {
         List<Region> regions = regionRequests.stream()
                 .map(req -> Region.builder()

@@ -230,7 +230,22 @@ public enum ErrorCode {
     // ---------------- NOTIFICATION (3500–3599) ----------------
     NOTIFICATION_NOT_FOUND(3500, "Notification not found", HttpStatus.NOT_FOUND),
     NOTIFICATION_ALREADY_EXISTS(3501, "Notification already exists", HttpStatus.BAD_REQUEST),
-    NOTIFICATION_LIST_EMPTY(3502, "Notifications are empty", HttpStatus.BAD_REQUEST);
+    NOTIFICATION_LIST_EMPTY(3502, "Notifications are empty", HttpStatus.BAD_REQUEST),
+
+    // ---------------- IMAGE NEWS (2900–2999) ----------------
+
+    // Not Found (2900–2949)
+    IMAGE_PRODUCT_NOT_FOUND(2900, "Image not found", HttpStatus.NOT_FOUND),
+    IMAGE_PRODUCT_LIST_EMPTY(2901, "No images found", HttpStatus.NOT_FOUND),
+
+    // Already Exists (2950–2969)
+    IMAGE_PRODUCT_ALREADY_EXISTS(2950, "Image already exists", HttpStatus.CONFLICT),
+
+    // Validation Errors (2970–2999)
+    IMAGE_PRODUCT_URL_REQUIRED(2971, "Image URL is required", HttpStatus.BAD_REQUEST),
+    IMAGE_PRODUCT_ID_REQUIRED(2972, "News ID for the image is required", HttpStatus.BAD_REQUEST),
+    IMAGE_PRODUCT_INVALID_FILE(2973, "Invalid image file", HttpStatus.BAD_REQUEST),
+    ;
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;

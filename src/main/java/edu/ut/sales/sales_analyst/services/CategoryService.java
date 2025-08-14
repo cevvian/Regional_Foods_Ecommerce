@@ -24,6 +24,7 @@ public class CategoryService implements ICategoryService {
     CategoryRepo categoryRepo;
     CategoryMapper categoryMapper;
 
+    @Override
     public Page<CategoryResponse> getAllCategories(Pageable pageable){
         Page<Category> categories = categoryRepo.findAll(pageable);
         if (categories.isEmpty()) {
@@ -32,12 +33,14 @@ public class CategoryService implements ICategoryService {
         return categories.map(categoryMapper::toResponse);
     }
 
+    @Override
     public CategoryResponse getCategoryById(String id){
         Category category = categoryRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
         return categoryMapper.toResponse(category);
     }
 
+    @Override
     public CategoryResponse createCategory(CategoryRequest categoryRequest){
         Category category = categoryRepo.findByCategoryName(categoryRequest.getCategoryName());
         if (category != null) {
@@ -47,6 +50,7 @@ public class CategoryService implements ICategoryService {
         return categoryMapper.toResponse(category);
     }
 
+    @Override
     public CategoryResponse updateCategory(String categoryId,CategoryRequest categoryRequest){
         Category category = categoryRepo.findById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -55,6 +59,7 @@ public class CategoryService implements ICategoryService {
         return categoryMapper.toResponse(categoryRepo.save(category));
     }
 
+    @Override
     public String deleteCategory(String categoryId) {
         Category category = categoryRepo.findById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));

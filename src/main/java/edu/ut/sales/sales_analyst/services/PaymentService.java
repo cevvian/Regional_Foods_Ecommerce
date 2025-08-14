@@ -13,6 +13,7 @@ import edu.ut.sales.sales_analyst.model.enums.PaymentMethod;
 import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
 import edu.ut.sales.sales_analyst.repositories.OrderRepo;
 import edu.ut.sales.sales_analyst.repositories.PaymentRepo;
+import edu.ut.sales.sales_analyst.services.impl.IPaymentService;
 import edu.ut.sales.sales_analyst.util.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,14 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PaymentService {
+public class PaymentService implements IPaymentService {
     private final VNPayConfig vnPayConfig;
     private final OrderService orderService;
     private final PaymentMapper paymentMapper;
     private final OrderRepo orderRepo;
     private final PaymentRepo paymentRepo;
 
+    @Override
     public PaymentResponse.VNPayResponse createVnPayPayment(HttpServletRequest request) {
         String orderId = request.getParameter("orderId");
         Order order = orderRepo.findById(orderId)
@@ -69,6 +71,7 @@ public class PaymentService {
                 .paymentUrl(paymentUrl).build();
     }
 
+    @Override
     public PaymentResponse.VNPayResponse handleCallBack(HttpServletRequest request) {
         String responseCode = request.getParameter("vnp_ResponseCode");
         String transactionId = request.getParameter("vnp_TxnRef");
@@ -92,6 +95,7 @@ public class PaymentService {
                 .build();
     }
 
+    @Override
     public PaymentResponse.PaymentInfoResponse createPayment(PaymentRequest request){
         Order order = orderRepo.findById(request.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
@@ -110,6 +114,7 @@ public class PaymentService {
         return paymentMapper.toPaymentInfoResponse(payment);
     }
 
+    @Override
     public PaymentResponse.PaymentInfoResponse updatePaymentStatus(PaymentStatus status, String paymentId){
         Payment payment = paymentRepo.findById(paymentId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
@@ -124,17 +129,20 @@ public class PaymentService {
         return paymentMapper.toPaymentInfoResponse(payment);
     }
 
+    @Override
     public PaymentResponse.PaymentInfoResponse getPaymentById(String paymentId) {
         Payment payment = paymentRepo.findById(paymentId)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
         return paymentMapper.toPaymentInfoResponse(payment);
     }
 
+    @Override
     public Page<PaymentResponse.PaymentInfoResponse> getPaymentsByOrderId(String orderId, Pageable pageable) {
         Page<Payment> payments = paymentRepo.findByOrder_OrderId(orderId, pageable);
         return payments.map(paymentMapper::toPaymentInfoResponse);
     }
 
+    @Override
     public Page<PaymentResponse.PaymentInfoResponse> getAllPayments(Pageable pageable) {
         Page<Payment> payments = paymentRepo.findAll(pageable);
         return payments.map(paymentMapper::toPaymentInfoResponse);

@@ -1,15 +1,15 @@
 package edu.ut.sales.sales_analyst.model.dtos.requests;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -34,4 +34,9 @@ public class ProductCreateRequest {
 
     @Min(value = 0, message = "Stock quantity cannot be negative")
     private int stockQuantity;
+
+    @NotEmpty(message = "Please upload at least one image")
+    @Size(max = 5, message = "You can upload up to 5 images")
+    @Schema(description = "Upload up to 5 images", type = "array", implementation = MultipartFile.class)
+    private List<ImageProductCreationRequest> images;
 }
