@@ -37,22 +37,15 @@ public class OrderService implements IOrderService {
     private final ProductRepo productRepo;
     private final OrderItemRepo orderItemRepo;
     private final AddressRepo addressRepo;
-    private final CartService cartService;
-    private final CartItemMapper cartItemMapper;
-    private final PaymentService paymentService;
 
     public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo, CartService cartService,
-                        ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo,
-                        CartItemMapper cartItemMapper, PaymentService paymentService) {
+                        ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
         this.userRepo = userRepo;
-        this.cartService = cartService;
         this.productRepo = productRepo;
         this.orderItemRepo = orderItemRepo;
         this.addressRepo = addressRepo;
-        this.cartItemMapper = cartItemMapper;
-        this.paymentService = paymentService;
     }
 
     @Override
