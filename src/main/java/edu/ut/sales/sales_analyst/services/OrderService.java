@@ -4,23 +4,25 @@ import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.CartItemMapper;
 import edu.ut.sales.sales_analyst.mappers.OrderMapper;
-import edu.ut.sales.sales_analyst.model.dtos.requests.CartItemRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.OrderItemRequest;
+import edu.ut.sales.sales_analyst.model.dtos.requests.*;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
 import edu.ut.sales.sales_analyst.model.entities.*;
 import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
+import edu.ut.sales.sales_analyst.model.enums.PaymentMethod;
 import edu.ut.sales.sales_analyst.repositories.*;
 import edu.ut.sales.sales_analyst.services.impl.IOrderService;
+import edu.ut.sales.sales_analyst.util.ParameterRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,10 +39,11 @@ public class OrderService implements IOrderService {
     private final AddressRepo addressRepo;
     private final CartService cartService;
     private final CartItemMapper cartItemMapper;
+    private final PaymentService paymentService;
 
     public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo, CartService cartService,
                         ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo,
-                        CartItemMapper cartItemMapper) {
+                        CartItemMapper cartItemMapper, PaymentService paymentService) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
         this.userRepo = userRepo;
@@ -49,15 +52,16 @@ public class OrderService implements IOrderService {
         this.orderItemRepo = orderItemRepo;
         this.addressRepo = addressRepo;
         this.cartItemMapper = cartItemMapper;
+        this.paymentService = paymentService;
     }
 
     @Override
     @Transactional
-    public OrderResponse createOrder(OrderCreateRequest orderCreateRequest) {
-        User customer = validateCustomer(orderCreateRequest.getCustomerId());
-        Address address = validateAddress(orderCreateRequest.getAddressId(), customer.getUserId());
+    public OrderResponse createOrder(OrderAndPaymentRequest request) {
+        User customer = validateCustomer(request.getCustomerId());
+        Address address = validateAddress(request.getAddressId(), customer.getUserId());
 
-        Map<String, Integer> quantityMap = groupAndValidateOrderItems(orderCreateRequest.getOrderItems());
+        Map<String, Integer> quantityMap = groupAndValidateOrderItems(request.getOrderItems());
 
         Map<String, Product> productMap = new HashMap<>();
         BigDecimal totalAmount = processOrderItemsAndCalculateTotal(quantityMap, productMap);
@@ -72,25 +76,48 @@ public class OrderService implements IOrderService {
         createOrderItems(order, quantityMap, productMap);
         order.setOrderItems(orderItemRepo.findByOrder(order));
 
+        log.info("Method: {}", request.getMethod());
+        if(request.getMethod().equals(PaymentMethod.CASH)) {
+            PaymentRequest paymentRequest = PaymentRequest.builder() //tạo payment với transactionId và method null
+                    .orderId(order.getOrderId())
+                    .method(request.getMethod())
+                    .amount(toInt(order.getTotalAmount(), RoundingMode.HALF_UP))
+                    .build();
+//            paymentService.createPayment(request);
+        } else if (request.getMethod().equals(PaymentMethod.VNPAY)) {
+            HttpServletRequest originalRequest =
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+            ParameterRequestWrapper wrappedRequest = new ParameterRequestWrapper(originalRequest);
+            wrappedRequest.addParameter("amount", String.valueOf(order.getTotalAmount()));
+            wrappedRequest.addParameter("bankCode", "NCB");
+            wrappedRequest.addParameter("method", request.getMethod().toString());
+            wrappedRequest.addParameter("orderId", order.getOrderId().toString());
+
+            log.info("Request VNPAY: {}", originalRequest);
+//            paymentService.createVnPayPayment(currentRequest);
+        }
+        else throw new AppException(ErrorCode.PAYMENT_METHOD_UNSUPPORTED);
+
         log.info("Created order {} for user {}", order.getOrderId(), customer.getUserId());
         return orderMapper.toOrderResponse(order);
     }
 
-    @Override
-    public OrderResponse createOrderFromCart(OrderCartCreationRequest creationRequest) {
-        List<CartItem> cartItems = cartItemMapper.toCartItem(creationRequest.getCartItems());
-        List<OrderItemRequest> orderItemRequests = getOrderItemsFromCart(cartItems);
-
-        OrderCreateRequest request = OrderCreateRequest.builder()
-                .customerId(creationRequest.getCustomerId())
-                .addressId(creationRequest.getAddressId())
-                .orderItems(orderItemRequests)
-                .build();
-
-        cartService.deleteListCartItem(cartItems);
-
-        return this.createOrder(request);
-    }
+//    @Override
+//    public OrderResponse createOrderFromCart(OrderCartCreationRequest creationRequest, PaymentRequest paymentRequest) {
+//        List<CartItem> cartItems = cartItemMapper.toCartItem(creationRequest.getCartItems());
+//        List<OrderItemRequest> orderItemRequests = getOrderItemsFromCart(cartItems);
+//
+//        OrderCreateRequest request = OrderCreateRequest.builder()
+//                .customerId(creationRequest.getCustomerId())
+//                .addressId(creationRequest.getAddressId())
+//                .orderItems(orderItemRequests)
+//                .build();
+//
+//        cartService.deleteListCartItem(cartItems);
+//
+//        return this.createOrder(request, paymentRequest);
+//    }
 
     @Override
     public OrderResponse getOrder(String orderId) {
@@ -211,6 +238,14 @@ public class OrderService implements IOrderService {
         order.setStatus(OrderStatus.CANCELLED);
         orderRepo.save(order);
         return orderMapper.toOrderResponse(order);
+    }
+
+    public int toInt(BigDecimal value, RoundingMode roundingMode) {
+        if (value == null) {
+            throw new AppException(ErrorCode.ORDER_AMOUNT_REQUIRED);
+        }
+        BigDecimal rounded = value.setScale(0, roundingMode); // làm tròn
+        return rounded.intValueExact(); // ép kiểu và kiểm tra tràn
     }
 
     private User validateCustomer(String customerId) {

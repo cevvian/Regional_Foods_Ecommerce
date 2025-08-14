@@ -29,7 +29,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class PaymentService implements IPaymentService {
     private final VNPayConfig vnPayConfig;
-    private final OrderService orderService;
     private final PaymentMapper paymentMapper;
     private final OrderRepo orderRepo;
     private final PaymentRepo paymentRepo;
@@ -81,7 +80,14 @@ public class PaymentService implements IPaymentService {
 
         if ("00".equals(responseCode)) {
             updatePaymentStatus(PaymentStatus.PAID, payment.getPaymentId());
-            orderService.updateOrderStatus(payment.getOrder().getOrderId(), OrderStatus.COMPLETED);
+            Order order = payment.getOrder();
+            OrderStatus currentStatus = order.getStatus();
+            if (!currentStatus.canTransitionTo(OrderStatus.COMPLETED)) {
+                throw new AppException(ErrorCode.ORDER_INVALID_STATUS_TRANSITION);
+            }
+
+            order.setStatus(OrderStatus.COMPLETED);
+            orderRepo.save(order);
         } else {
             updatePaymentStatus(PaymentStatus.FAILED, payment.getPaymentId());
         }
