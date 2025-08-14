@@ -135,6 +135,14 @@ public class PaymentService {
         return payments.map(paymentMapper::toPaymentInfoResponse);
     }
 
+    public PaymentResponse.PaymentInfoResponse getPaymentsByOrderIdAndPaid(String orderId) {
+        Payment payment = paymentRepo.findPaymentByOrderIdAndPaid(orderId);
+        if (payment == null) {
+            throw new AppException(ErrorCode.PAYMENT_NOT_FOUND);
+        }
+        return paymentMapper.toPaymentInfoResponse(payment);
+    }
+
     public Page<PaymentResponse.PaymentInfoResponse> getAllPayments(Pageable pageable) {
         Page<Payment> payments = paymentRepo.findAll(pageable);
         return payments.map(paymentMapper::toPaymentInfoResponse);

@@ -4,17 +4,19 @@ import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.CartItemMapper;
 import edu.ut.sales.sales_analyst.mappers.OrderMapper;
-import edu.ut.sales.sales_analyst.model.dtos.requests.CartItemRequest;
+import edu.ut.sales.sales_analyst.model.dtos.events.OrderCancelledEvent;
+import edu.ut.sales.sales_analyst.model.dtos.events.OrderChangedStatusEvent;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderItemRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.PaymentResponse;
 import edu.ut.sales.sales_analyst.model.entities.*;
 import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
+import edu.ut.sales.sales_analyst.producer.EventProducer;
 import edu.ut.sales.sales_analyst.repositories.*;
 import edu.ut.sales.sales_analyst.services.impl.IOrderService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,10 +39,12 @@ public class OrderService implements IOrderService {
     private final AddressRepo addressRepo;
     private final CartService cartService;
     private final CartItemMapper cartItemMapper;
+    private final EventProducer eventProducer;
+    private final PaymentService paymentService;
 
     public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo, CartService cartService,
                         ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo,
-                        CartItemMapper cartItemMapper) {
+                        CartItemMapper cartItemMapper, EventProducer eventProducer, PaymentService paymentService) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
         this.userRepo = userRepo;
@@ -49,6 +53,8 @@ public class OrderService implements IOrderService {
         this.orderItemRepo = orderItemRepo;
         this.addressRepo = addressRepo;
         this.cartItemMapper = cartItemMapper;
+        this.eventProducer = eventProducer;
+        this.paymentService = paymentService;
     }
 
     @Override
@@ -186,6 +192,15 @@ public class OrderService implements IOrderService {
 
         order.setStatus(newStatus);
         orderRepo.save(order);
+        if (newStatus == OrderStatus.CANCELLED) {
+            PaymentResponse.PaymentInfoResponse paymentResponse = paymentService.getPaymentsByOrderIdAndPaid(orderId);
+            OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(orderId, paymentResponse.getPaymentId());
+            eventProducer.sendOrderCancelledEvent(orderCancelledEvent);
+            return orderMapper.toOrderResponse(order);
+        }
+        OrderChangedStatusEvent orderChangedStatusEvent =
+                new OrderChangedStatusEvent(orderId, newStatus);
+        eventProducer.sendOrderChangedStatusEvent(orderChangedStatusEvent);
         return orderMapper.toOrderResponse(order);
     }
 
@@ -199,6 +214,9 @@ public class OrderService implements IOrderService {
         order.setStatus(OrderStatus.CANCELLED);
         order.setActive(false);
         orderRepo.save(order);
+        PaymentResponse.PaymentInfoResponse paymentResponse = paymentService.getPaymentsByOrderIdAndPaid(orderId);
+        OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(orderId, paymentResponse.getPaymentId());
+        eventProducer.sendOrderCancelledEvent(orderCancelledEvent);
         return true;
     }
 
@@ -210,6 +228,9 @@ public class OrderService implements IOrderService {
         }
         order.setStatus(OrderStatus.CANCELLED);
         orderRepo.save(order);
+        PaymentResponse.PaymentInfoResponse paymentResponse = paymentService.getPaymentsByOrderIdAndPaid(orderId);
+        OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(orderId, paymentResponse.getPaymentId());
+        eventProducer.sendOrderCancelledEvent(orderCancelledEvent);
         return orderMapper.toOrderResponse(order);
     }
 
