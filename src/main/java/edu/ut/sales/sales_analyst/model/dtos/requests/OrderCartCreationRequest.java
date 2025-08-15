@@ -1,6 +1,6 @@
 package edu.ut.sales.sales_analyst.model.dtos.requests;
 
-import edu.ut.sales.sales_analyst.model.entities.CartItem;
+import edu.ut.sales.sales_analyst.model.enums.PaymentMethod;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -23,4 +23,6 @@ public class OrderCartCreationRequest {
 
     @NotEmpty(message = "Order must contain at least one item")
     List<CartItemRequest> cartItems;
+
+    PaymentMethod method;
 }

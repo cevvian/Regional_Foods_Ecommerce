@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface IOrderService {
     OrderResponse createOrder(OrderAndPaymentRequest request);
-//    OrderResponse createOrderFromCart(OrderCartCreationRequest creationRequest, PaymentRequest paymentRequest);
+    OrderResponse createOrderFromCart(OrderCartCreationRequest creationRequest);
     OrderResponse getOrder(String orderId);
     Page<OrderResponse> getOrdersActive(Pageable pageable);
     Page<OrderResponse> getOrdersByStatusAndActive(Pageable pageable, OrderStatus orderStatus);
