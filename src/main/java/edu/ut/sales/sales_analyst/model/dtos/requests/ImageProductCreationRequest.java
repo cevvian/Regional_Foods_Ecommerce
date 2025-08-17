@@ -1,6 +1,7 @@
 package edu.ut.sales.sales_analyst.model.dtos.requests;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ImageProductCreationRequest {
-    @NotBlank
+    @NotNull(message = "Image file is required")
     private MultipartFile image;
     @NotBlank
     private String productId;

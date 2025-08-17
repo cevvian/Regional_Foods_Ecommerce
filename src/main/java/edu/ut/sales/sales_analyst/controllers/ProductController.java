@@ -1,8 +1,6 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.model.dtos.requests.ProductCreateRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.ProductFilterRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
+import edu.ut.sales.sales_analyst.model.dtos.requests.*;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
@@ -15,8 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -26,8 +28,30 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping
-    public ResponseAPI<ProductResponse> createProduct(@Valid @RequestBody ProductCreateRequest productCreateRequest) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseAPI<ProductResponse> createProduct(
+            @RequestParam String productName,
+            @RequestParam String categoryId,
+            @RequestParam String regionId,
+            @RequestParam String description,
+            @RequestParam BigDecimal price,
+            @RequestParam int stockQuantity,
+            @RequestPart List<MultipartFile> images
+    ) {
+        List<ImageProductCreationRequest> imageList = new ArrayList<>();
+        for (MultipartFile multipartFile : images) {
+            ImageProductCreationRequest image = new ImageProductCreationRequest();
+            image.setImage(multipartFile);
+            imageList.add(image);
+        }
+        ProductCreateRequest productCreateRequest = new ProductCreateRequest();
+        productCreateRequest.setProductName(productName);
+        productCreateRequest.setCategoryId(categoryId);
+        productCreateRequest.setRegionId(regionId);
+        productCreateRequest.setDescription(description);
+        productCreateRequest.setPrice(price);
+        productCreateRequest.setStockQuantity(stockQuantity);
+        productCreateRequest.setImages(imageList);
         ProductResponse productResponse = productService.createProduct(productCreateRequest);
         return new ResponseAPI<>("Create product successfully", HttpStatus.CREATED, productResponse);
     }

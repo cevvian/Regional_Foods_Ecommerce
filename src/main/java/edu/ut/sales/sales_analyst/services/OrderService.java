@@ -2,11 +2,10 @@ package edu.ut.sales.sales_analyst.services;
 
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
-import edu.ut.sales.sales_analyst.mappers.CartItemMapper;
 import edu.ut.sales.sales_analyst.mappers.OrderMapper;
 import edu.ut.sales.sales_analyst.model.dtos.events.OrderCancelledEvent;
 import edu.ut.sales.sales_analyst.model.dtos.events.OrderChangedStatusEvent;
-import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
+import edu.ut.sales.sales_analyst.model.dtos.events.OrderCreatedEvent;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderItemRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.*;
@@ -88,7 +87,8 @@ public class OrderService implements IOrderService {
                         .method(request.getMethod())
                         .amount(toInt(order.getTotalAmount(), RoundingMode.HALF_UP))
                         .build();
-//            paymentService.createPayment(request);
+                PaymentResponse.PaymentInfoResponse payment = paymentService.createPayment(paymentRequest);
+//                OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(order.getOrderId(), payment.getPaymentId());
             } else if (request.getMethod().equals(PaymentMethod.VNPAY)) {
                 HttpServletRequest originalRequest =
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
