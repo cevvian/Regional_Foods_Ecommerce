@@ -46,6 +46,7 @@ public class OrderConsumer {
             containerFactory = "orderCreatedKafkaListenerContainerFactory"
     )
     public void handleOrderCreated(OrderCreatedEvent event) throws MessagingException {
+        System.out.println("📩 Received order.created event: " + event);
         OrderResponse order = orderService.getOrder(event.getOrderId());
 
         // Xoá cart

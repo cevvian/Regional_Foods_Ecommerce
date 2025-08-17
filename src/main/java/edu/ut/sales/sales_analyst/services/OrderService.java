@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,20 +64,17 @@ public class OrderService implements IOrderService {
     @Override
     @Transactional
     public OrderResponse createOrder(OrderCartCreationRequest request) {
-        OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
         User customer = validateCustomer(request.getCustomerId());
         Address address = validateAddress(request.getAddressId(), customer.getUserId());
 
         List<CartItem> cartItemList = customer.getCart().getItems();
-
-        // Nếu có cartItems truyền vào thì convert sang orderItems
-        List<OrderItemRequest> orderItemRequests;
-        if (cartItemList != null && !cartItemList.isEmpty()) {
-            orderItemRequests = getOrderItemsFromCart(cartItemList);
-            orderCreateRequest.setOrderItems(orderItemRequests);
+        if (cartItemList == null || cartItemList.isEmpty()) {
+            throw new AppException(ErrorCode.CART_EMPTY);
         }
 
-        Map<String, Integer> quantityMap = groupAndValidateOrderItems(orderCreateRequest.getOrderItems());
+        // Convert cart -> orderItems
+        List<OrderItemRequest> orderItemRequests = getOrderItemsFromCart(cartItemList);
+        Map<String, Integer> quantityMap = groupAndValidateOrderItems(orderItemRequests);
         Map<String, Product> productMap = new HashMap<>();
         BigDecimal totalAmount = processOrderItemsAndCalculateTotal(quantityMap, productMap);
 
@@ -87,19 +85,22 @@ public class OrderService implements IOrderService {
         order.setStatus(OrderStatus.PENDING);
         orderRepo.save(order);
 
-        createOrderItems(order, quantityMap, productMap);
-        order.setOrderItems(orderItemRepo.findByOrder(order));
+        List<OrderItem> orderItems = createOrderItems(order, quantityMap, productMap);
+        order.setOrderItems(orderItems);
 
         log.info("Method: {}", request.getMethod());
-        if (request.getMethod().equals(PaymentMethod.CASH)) {
+
+        if (request.getMethod() == PaymentMethod.CASH) {
             PaymentRequest paymentRequest = PaymentRequest.builder()
                     .orderId(order.getOrderId())
                     .method(request.getMethod())
-                    .amount(toInt(order.getTotalAmount(), RoundingMode.HALF_UP))
+                    .amount(totalAmount.intValue())
                     .build();
             PaymentResponse.PaymentInfoResponse payment = paymentService.createPayment(paymentRequest);
-            OrderCreatedEvent event = new OrderCreatedEvent(order.getOrderId(), payment.getPaymentId());
-            eventProducer.sendOrderCreatedEvent(event);
+
+            eventProducer.sendOrderCreatedEvent(
+                    new OrderCreatedEvent(order.getOrderId(), payment.getPaymentId())
+            );
         } else {
             throw new AppException(ErrorCode.PAYMENT_METHOD_UNSUPPORTED);
         }
@@ -109,6 +110,7 @@ public class OrderService implements IOrderService {
     }
 
 
+    @Transactional(readOnly = true)
     @Override
     public OrderResponse getOrder(String orderId) {
         Order order = orderRepo.findByOrderId(orderId);
@@ -149,7 +151,7 @@ public class OrderService implements IOrderService {
     @Override
     @Transactional
     public OrderResponse updateOrder(String orderId, OrderCreateRequest orderCreateRequest) {
-        Order order = orderRepo.findById(orderId)
+        Order order = orderRepo.findByIdWithItems(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         // Chỉ cho sửa nếu đơn hàng đang chờ xử lý
@@ -311,18 +313,25 @@ public class OrderService implements IOrderService {
         return totalAmount;
     }
 
-    private void createOrderItems(Order order, Map<String, Integer> quantityMap, Map<String, Product> productMap) {
+    private List<OrderItem> createOrderItems(Order order, Map<String, Integer> quantityMap, Map<String, Product> productMap) {
+        List<OrderItem> orderItems = new ArrayList<>();
+
         for (Map.Entry<String, Integer> entry : quantityMap.entrySet()) {
             String productId = entry.getKey();
-            int quantity = entry.getValue();
+            Integer quantity = entry.getValue();
+            Product product = productMap.get(productId);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
-            orderItem.setProduct(productMap.get(productId));
+            orderItem.setProduct(product);
             orderItem.setQuantity(quantity);
-            orderItem.setUnitPrice(productMap.get(productId).getPrice());
-            orderItemRepo.save(orderItem);
+            orderItem.setUnitPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+
+            // Lưu vào DB và add vào list
+            orderItems.add(orderItemRepo.save(orderItem));
         }
+
+        return orderItems;
     }
 
     private List<OrderItemRequest> getOrderItemsFromCart(List<CartItem> cartItems) {

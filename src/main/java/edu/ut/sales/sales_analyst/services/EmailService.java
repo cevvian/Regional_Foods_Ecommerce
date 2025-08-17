@@ -18,6 +18,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
@@ -30,6 +31,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Service
+@Transactional
 public class EmailService implements IEmailService {
 
     private final OrderRepo orderRepo;
@@ -82,7 +84,7 @@ public class EmailService implements IEmailService {
     }
 
     private Context buildInvoiceEmailContext(PaymentRequest paymentRequest) {
-        Order order = orderRepo.findByOrderId(paymentRequest.getOrderId());
+        Order order = orderRepo.findByOrderIdWithItems(paymentRequest.getOrderId());
         String orderId = paymentRequest.getTransactionId();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd 'tháng' M yyyy", new Locale("vi", "VN"));

@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface OrderRepo extends JpaRepository<Order, String> {
     Order findByOrderId(String orderId);
@@ -34,4 +36,11 @@ public interface OrderRepo extends JpaRepository<Order, String> {
     """)
     boolean existsCompletedOrderByUserIdAndProductId(@Param("userId") String userId, @Param("productId") String productId);
 
+    @Query("SELECT o FROM Order o " +
+            "LEFT JOIN FETCH o.orderItems oi " +
+            "LEFT JOIN FETCH oi.product " +
+            "WHERE o.orderId = :id")
+    Optional<Order> findByIdWithItems(@Param("id") String id);
+    @Query("SELECT o FROM Order o JOIN FETCH o.orderItems WHERE o.orderId = :orderId")
+    Order findByOrderIdWithItems(@Param("orderId") String orderId);
 }

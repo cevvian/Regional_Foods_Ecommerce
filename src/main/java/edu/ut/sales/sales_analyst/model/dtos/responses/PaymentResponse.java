@@ -28,9 +28,9 @@ public abstract class PaymentResponse {
         private PaymentStatus status;
         private String description;
         private String transactionId;
-        private Date paidAt;
-        private Date createdAt;
-        private Date updatedAt;
-        private OrderResponse order;
+        private LocalDateTime paidAt;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+        private String orderId;
     }
 }

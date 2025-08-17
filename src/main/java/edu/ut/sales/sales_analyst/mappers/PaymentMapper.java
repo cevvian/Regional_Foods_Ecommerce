@@ -7,6 +7,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {OrderMapper.class})
 public interface PaymentMapper {
-    @Mapping(source = "order", target = "order")
+    @Mapping(target = "orderId", source = "order.orderId")
     PaymentResponse.PaymentInfoResponse toPaymentInfoResponse(Payment payment);
 }
