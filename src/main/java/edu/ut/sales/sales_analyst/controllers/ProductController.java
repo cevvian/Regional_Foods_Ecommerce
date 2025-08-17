@@ -1,8 +1,6 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.model.dtos.requests.ProductCreateRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.ProductFilterRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
+import edu.ut.sales.sales_analyst.model.dtos.requests.*;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
@@ -15,8 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -26,9 +28,35 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping
-    public ResponseAPI<ProductResponse> createProduct(@Valid @RequestBody ProductCreateRequest productCreateRequest) {
-        ProductResponse productResponse = productService.createProduct(productCreateRequest);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseAPI<ProductResponse> createProduct(
+            @RequestParam String productName,
+            @RequestParam String categoryId,
+            @RequestParam String regionId,
+            @RequestParam String description,
+            @RequestParam BigDecimal price,
+            @RequestParam int stockQuantity,
+            @RequestParam List<MultipartFile> files
+            ) {
+
+        List<ImageProductCreationRequest> images = new ArrayList<>();
+        for (int i = 0; i < files.size(); i++) {
+            ImageProductCreationRequest image = new ImageProductCreationRequest();
+            image.setImage(files.get(i));
+            images.add(image);
+        }
+
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .categoryId(categoryId)
+                .regionId(regionId)
+                .description(description)
+                .price(price)
+                .stockQuantity(stockQuantity)
+                .productName(productName)
+                .images(images)
+                .build();
+
+        ProductResponse productResponse = productService.createProduct(request);
         return new ResponseAPI<>("Create product successfully", HttpStatus.CREATED, productResponse);
     }
 
@@ -63,12 +91,36 @@ public class ProductController {
         return new ResponseAPI<>("Get product successfully", HttpStatus.OK, productResponse);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseAPI<ProductResponse> updateProduct(
             @PathVariable String id,
-            @RequestBody ProductCreateRequest productCreateRequest
+            @RequestParam String productName,
+            @RequestParam String categoryId,
+            @RequestParam String regionId,
+            @RequestParam String description,
+            @RequestParam BigDecimal price,
+            @RequestParam int stockQuantity,
+            @RequestParam List<MultipartFile> files
     ) {
-        ProductResponse productResponse = productService.updateProduct(id, productCreateRequest);
+
+        List<ImageProductCreationRequest> images = new ArrayList<>();
+        for (int i = 0; i < files.size(); i++) {
+            ImageProductCreationRequest image = new ImageProductCreationRequest();
+            image.setImage(files.get(i));
+            images.add(image);
+        }
+
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .categoryId(categoryId)
+                .regionId(regionId)
+                .description(description)
+                .price(price)
+                .stockQuantity(stockQuantity)
+                .productName(productName)
+                .images(images)
+                .build();
+
+        ProductResponse productResponse = productService.updateProduct(id, request);
         return new ResponseAPI<>("Update product successfully", HttpStatus.OK, productResponse);
     }
 

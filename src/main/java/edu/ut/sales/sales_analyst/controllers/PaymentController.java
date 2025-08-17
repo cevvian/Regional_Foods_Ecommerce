@@ -1,6 +1,5 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.model.dtos.requests.PaymentRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.*;
 import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
@@ -12,7 +11,6 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

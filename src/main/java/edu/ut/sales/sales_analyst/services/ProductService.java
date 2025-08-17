@@ -117,6 +117,12 @@ public class ProductService implements IProductService {
         if(category == null) {
             throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
         }
+
+        if (productCreateRequest.getImages() != null && !productCreateRequest.getImages().isEmpty()) {
+            imageProductRepo.deleteByProduct(product);
+            handleImageUploadAndAttachToProduct(product, productCreateRequest.getImages());
+        }
+
         Region region = regionRepo.findById(productCreateRequest.getRegionId())
                         .orElseThrow(() -> new AppException(ErrorCode.REGION_NOT_FOUND));
         product.setProductName(productCreateRequest.getProductName());
