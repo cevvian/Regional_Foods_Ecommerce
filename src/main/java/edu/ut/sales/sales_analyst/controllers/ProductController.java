@@ -87,12 +87,36 @@ public class ProductController {
         return new ResponseAPI<>("Get product successfully", HttpStatus.OK, productResponse);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseAPI<ProductResponse> updateProduct(
             @PathVariable String id,
-            @RequestBody ProductCreateRequest productCreateRequest
+            @RequestParam String productName,
+            @RequestParam String categoryId,
+            @RequestParam String regionId,
+            @RequestParam String description,
+            @RequestParam BigDecimal price,
+            @RequestParam int stockQuantity,
+            @RequestParam List<MultipartFile> files
     ) {
-        ProductResponse productResponse = productService.updateProduct(id, productCreateRequest);
+
+        List<ImageProductCreationRequest> images = new ArrayList<>();
+        for (int i = 0; i < files.size(); i++) {
+            ImageProductCreationRequest image = new ImageProductCreationRequest();
+            image.setImage(files.get(i));
+            images.add(image);
+        }
+
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .categoryId(categoryId)
+                .regionId(regionId)
+                .description(description)
+                .price(price)
+                .stockQuantity(stockQuantity)
+                .productName(productName)
+                .images(images)
+                .build();
+
+        ProductResponse productResponse = productService.updateProduct(id, request);
         return new ResponseAPI<>("Update product successfully", HttpStatus.OK, productResponse);
     }
 

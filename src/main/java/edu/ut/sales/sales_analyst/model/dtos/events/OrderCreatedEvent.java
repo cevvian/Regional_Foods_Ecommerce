@@ -14,5 +14,4 @@ import java.util.List;
 public class OrderCreatedEvent {
     private String orderId;
     private String paymentId;
-    private List<CartItemRequest> cartItems;
 }

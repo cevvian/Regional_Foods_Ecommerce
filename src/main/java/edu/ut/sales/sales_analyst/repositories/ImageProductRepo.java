@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
 public interface ImageProductRepo extends JpaRepository<ImageProduct, String> {
     ImageProduct findByImageId(String id);
     Page<ImageProduct> findByProduct(Product product, Pageable pageable);
+    void deleteByProduct(Product product);
 }
