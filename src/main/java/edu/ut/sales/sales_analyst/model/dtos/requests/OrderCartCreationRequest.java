@@ -21,8 +21,5 @@ public class OrderCartCreationRequest {
     @NotBlank(message = "Address id can not be blank")
     String addressId;
 
-    @NotEmpty(message = "Order must contain at least one item")
-    List<CartItemRequest> cartItems;
-
     PaymentMethod method;
 }

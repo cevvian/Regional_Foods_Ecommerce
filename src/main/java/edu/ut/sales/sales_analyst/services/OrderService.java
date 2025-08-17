@@ -67,12 +67,12 @@ public class OrderService implements IOrderService {
         User customer = validateCustomer(request.getCustomerId());
         Address address = validateAddress(request.getAddressId(), customer.getUserId());
 
+        List<CartItem> cartItemList = customer.getCart().getItems();
+
         // Nếu có cartItems truyền vào thì convert sang orderItems
         List<OrderItemRequest> orderItemRequests;
-        if (request.getCartItems() != null && !request.getCartItems() .isEmpty()) {
-            List<CartItem> cartItems = cartItemMapper.toCartItem(request.getCartItems());
-            orderItemRequests = getOrderItemsFromCart(cartItems);
-            // Ghi đè lại orderItems trong request
+        if (cartItemList != null && !cartItemList.isEmpty()) {
+            orderItemRequests = getOrderItemsFromCart(cartItemList);
             orderCreateRequest.setOrderItems(orderItemRequests);
         }
 
