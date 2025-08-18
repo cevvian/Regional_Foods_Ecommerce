@@ -55,7 +55,7 @@ public class CartController {
         return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);
     }
 
-    @DeleteMapping("/cart-item")
+    @DeleteMapping("/cart-item/by-user")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<String> deleteAllItemsByUser() {
         String response = cartService.deleteAllItemsByUser();
