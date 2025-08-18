@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class CategoryController {
     CategoryService categoryService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
         CategoryResponse response = categoryService.createCategory(request);
         return new ResponseAPI<>("Create category successfully", HttpStatus.CREATED, response);
@@ -58,12 +60,14 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<CategoryResponse> update(@PathVariable String id, @Valid @RequestBody CategoryRequest request) {
         CategoryResponse response = categoryService.updateCategory(id, request);
         return new ResponseAPI<>("Update successfully", HttpStatus.OK, response);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<String> delete(@PathVariable String id) {
         String response = categoryService.deleteCategory(id);
         return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);

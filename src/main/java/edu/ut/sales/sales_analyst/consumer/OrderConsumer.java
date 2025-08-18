@@ -50,7 +50,8 @@ public class OrderConsumer {
         OrderResponse order = orderService.getOrder(event.getOrderId());
 
         // Xoá cart
-        cartService.deleteAllItemsByUser(order.getUserResponse().getUserId());
+
+        cartService.deleteAllItemsByUser();
 
         // Gửi email invoice
         PaymentResponse.PaymentInfoResponse payment = paymentService.getPaymentById(event.getPaymentId());

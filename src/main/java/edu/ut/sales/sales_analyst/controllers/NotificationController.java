@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,15 +31,15 @@ public class NotificationController {
     NotificationService notificationService;
 
     @Operation(summary = "Get notifications by userId and read status", description = "Retrieve notifications of a user filtered by read status (or all if null)")
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<List<NotificationResponse>> getNotificationsByUser(
-            @PathVariable String userId,
             @RequestParam(required = false) Boolean isRead,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
             Pageable pageable = PageRequest.of(page, size);
-            Page<NotificationResponse> notificationPage = notificationService.getByUserIdAndIsRead(pageable, userId, isRead);
+            Page<NotificationResponse> notificationPage = notificationService.getByUserIdAndIsRead(pageable, isRead);
 
             PageMeta meta = PageMeta.builder()
                     .page(notificationPage.getNumber())
@@ -53,15 +54,17 @@ public class NotificationController {
 
     @Operation(summary = "Get notification detail", description = "Retrieve detail of a specific notification")
     @GetMapping("/{notificationId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<NotificationResponse> getDetail(@PathVariable String notificationId) {
             NotificationResponse response = notificationService.getDetail(notificationId);
             return new ResponseAPI<>("Get notification successfully", HttpStatus.OK, response);
     }
 
     @Operation(summary = "Count unread notifications", description = "Count number of unread notifications of a user")
-    @GetMapping("/user/{userId}/unread-count")
-    public ResponseAPI<Long> countUnread(@PathVariable String userId) {
-            Long count = notificationService.countUnread(userId);
+    @GetMapping("/user/unread-count")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    public ResponseAPI<Long> countUnread() {
+            Long count = notificationService.countUnread();
             return new ResponseAPI<>("Count unread notifications successfully", HttpStatus.OK, count);
     }
 
@@ -74,29 +77,33 @@ public class NotificationController {
 
     @Operation(summary = "Mark a notification as read", description = "Mark a single notification as read")
     @PatchMapping("/{notificationId}/mark-read")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<Boolean> markOneAsRead(@PathVariable String notificationId) {
             Boolean updated = notificationService.markOneIsRead(notificationId);
             return new ResponseAPI<>("Mark notification as read successfully", HttpStatus.OK, updated);
     }
 
     @Operation(summary = "Mark all notifications as read", description = "Mark all unread notifications of a user as read")
-    @PatchMapping("/user/{userId}/mark-all-read")
-    public ResponseAPI<Boolean> markAllAsRead(@PathVariable String userId) {
-            Boolean updated = notificationService.markAllIsRead(userId);
+    @PatchMapping("/user/mark-all-read")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    public ResponseAPI<Boolean> markAllAsRead() {
+            Boolean updated = notificationService.markAllIsRead();
             return new ResponseAPI<>("Mark all notifications as read successfully", HttpStatus.OK, updated);
     }
 
     @Operation(summary = "Delete a notification", description = "Delete a single notification by ID")
     @DeleteMapping("/{notificationId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<Boolean> deleteNotification(@PathVariable String notificationId) {
             Boolean deleted = notificationService.deleteNotification(notificationId);
             return new ResponseAPI<>("Delete notification successfully", HttpStatus.OK, deleted);
     }
 
     @Operation(summary = "Delete all notifications of a user", description = "Delete all notifications belonging to a user")
-    @DeleteMapping("/user/{userId}")
-    public ResponseAPI<Boolean> deleteAllByUser(@PathVariable String userId) {
-            Boolean deleted = notificationService.deleteAllByUser(userId);
+    @DeleteMapping("/user")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    public ResponseAPI<Boolean> deleteAllByUser() {
+            Boolean deleted = notificationService.deleteAllByUser();
             return new ResponseAPI<>("Delete all notifications successfully", HttpStatus.OK, deleted);
     }
 }

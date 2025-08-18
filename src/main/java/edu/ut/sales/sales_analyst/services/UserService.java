@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -235,5 +236,20 @@ public class UserService implements IUserService {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
         return userMapper.toUserResponse(user);
+    }
+
+    public User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            User user = userRepo.findByEmail(username);
+            if (user == null) {
+                throw new AppException(ErrorCode.USER_NOT_FOUND);
+            }
+            return user;
+        } else {
+            throw new IllegalStateException("User not authenticated!");
+        }
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +29,14 @@ public class RegionController {
     RegionService regionService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<RegionResponse> create(@Valid @RequestBody RegionRequest request) {
         RegionResponse response = regionService.createRegion(request);
         return new ResponseAPI<>("Create region successfully", HttpStatus.CREATED, response);
     }
 
     @PostMapping("/bulk")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<List<Region>> addRegions(@RequestBody @Valid List<RegionRequest> regionRequests) {
         List<Region> createdRegions = regionService.addRegions(regionRequests);
         return new ResponseAPI<>("Create list region successfully", HttpStatus.CREATED, createdRegions);
@@ -59,18 +62,21 @@ public class RegionController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<RegionResponse> getById(@PathVariable String id) {
         RegionResponse response = regionService.getRegionById(id);
         return new ResponseAPI<>("Get region by id successfully", HttpStatus.OK, response);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<RegionResponse> update(@PathVariable String id, @Valid @RequestBody RegionRequest request) {
         RegionResponse response = regionService.updateRegion(id, request);
         return new ResponseAPI<>("Update successfully", HttpStatus.OK, response);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<String> delete(@PathVariable String id) {
         String response = regionService.deleteRegion(id);
         return new ResponseAPI<>("Delete successfully", HttpStatus.OK, response);

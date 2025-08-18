@@ -15,9 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderCartCreationRequest {
-    @NotBlank(message = "Customer id can not be blank")
-    String customerId;
-
     @NotBlank(message = "Address id can not be blank")
     String addressId;
 

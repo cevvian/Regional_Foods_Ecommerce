@@ -61,11 +61,11 @@ public class WebSecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // ======== PUBLIC BUSINESS API (ví dụ) ========
+                        // ======== PUBLIC BUSINESS API ========
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
-                        // Thêm các GET public khác ở đây nếu cần
-                        // .requestMatchers(HttpMethod.GET, "/api/v1/news/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/news/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
                         // ============================================
 
                         // Còn lại bắt buộc có JWT

@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ public class NewController {
     private final NewService newService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<NewResponse> createNews(
             @RequestParam String title,
             @RequestParam String content,
@@ -78,6 +80,7 @@ public class NewController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<NewResponse> updateNews(
             @PathVariable String id,
             @RequestParam(required = false) String title,
@@ -108,6 +111,7 @@ public class NewController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<Boolean> deleteNews(@PathVariable String id) {
         boolean deleted = newService.deleteNews(id);
         if (deleted) {

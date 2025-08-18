@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,16 +38,15 @@ public class CartService implements ICartService {
     CartItemMapper cartItemMapper;
     UserRepo userRepo;
     ProductRepo productRepo;
+    UserService userService;
 
     @Override
-    public CartResponse addToCard(AddToCartRequest request){
-        User user = userRepo.findByUserId(request.getUserId());
-        if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
-
-        Cart cart = cartRepo.findByUser(user)
+    public CartResponse addToCard(AddToCartRequest request) {
+        User userCurrent = userService.getCurrentUser();
+        Cart cart = cartRepo.findByUser(userCurrent)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
-                    newCart.setUser(user);
+                    newCart.setUser(userCurrent);
                     return cartRepo.save(newCart);
                 });
 
@@ -85,9 +85,13 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public String deleteCartItem(String cartItemId){
-        CartItem cartItem = cartItemRepo.findById(cartItemId)
+    @Transactional
+    public String deleteCartItem(String cartItemId) {
+        User currentUser = userService.getCurrentUser();
+
+        CartItem cartItem = cartItemRepo.findByIdAndCartUserId(cartItemId, currentUser.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
+
         cartItemRepo.delete(cartItem);
         boolean isDeleted = !cartItemRepo.existsById(cartItemId);
         return isDeleted
@@ -107,20 +111,13 @@ public class CartService implements ICartService {
                 .toList();
 
         cartItemRepo.deleteAllInBatch(cartItemList); // Nhanh hơn deleteAll
-
-        // Kiểm tra còn item nào trong DB không
-//        long remainingCount = cartItemRepo.countAllByCartItemIdIn(ids);
-
-//        if (remainingCount == 0) {
-//            return "All items deleted successfully";
-//        } else {
-//            return "Some items were not deleted (" + remainingCount + " remaining)";
-//        }
     }
 
     @Override
     public CartItemResponse updateCartItemQuantity(String cartItemId, CartItemRequest request){
-        CartItem cartItem = cartItemRepo.findById(cartItemId)
+        User currentUser = userService.getCurrentUser();
+
+        CartItem cartItem = cartItemRepo.findByIdAndCartUserId(cartItemId, currentUser.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
         cartItem.setQuantity(request.getQuantity());
         cartItemRepo.save(cartItem);
@@ -133,7 +130,9 @@ public class CartService implements ICartService {
 
         for (String cartItemId : cartItemIds) {
             try {
-                CartItem cartItem = cartItemRepo.findById(cartItemId)
+                User currentUser = userService.getCurrentUser();
+
+                CartItem cartItem = cartItemRepo.findByIdAndCartUserId(cartItemId, currentUser.getUserId())
                         .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
                 cartItemRepo.delete(cartItem);
                 boolean isDeleted = !cartItemRepo.existsById(cartItemId);
@@ -148,19 +147,20 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public String deleteAllItemsByUser(String userId) {
-        Cart cart = cartRepo.findByUser_UserId(userId);
+    public String deleteAllItemsByUser() {
+        User userCurrent = userService.getCurrentUser();
+        Cart cart = cartRepo.findByUser_UserId(userCurrent.getUserId());
         if (cart == null) throw new AppException(ErrorCode.CART_NOT_FOUND);
 
-        List<CartItem> items = cartItemRepo.findAllByUserId(userId);
+        List<CartItem> items = cartItemRepo.findAllByUserId(userCurrent.getUserId());
         if (items.isEmpty()) {
-            return "No items found for user: " + userId;
+            return "No items found for user: " + userCurrent.getUserId();
         }
         cartItemRepo.deleteAll(items);
 
-        boolean isDeletedAll = cartItemRepo.findAllByUserId(userId).isEmpty();
+        boolean isDeletedAll = cartItemRepo.findAllByUserId(userCurrent.getUserId()).isEmpty();
         return isDeletedAll
-                ? "Successfully deleted all items for user: " + userId
-                : "Failed to delete some items for user: " + userId;
+                ? "Successfully deleted all items for user: " + userCurrent.getUserId()
+                : "Failed to delete some items for user: " + userCurrent.getUserId();
     }
 }

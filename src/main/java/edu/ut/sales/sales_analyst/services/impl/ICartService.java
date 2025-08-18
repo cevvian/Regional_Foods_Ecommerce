@@ -6,6 +6,7 @@ import edu.ut.sales.sales_analyst.model.dtos.responses.CartItemResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.CartResponse;
 import edu.ut.sales.sales_analyst.model.entities.CartItem;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public interface ICartService {
     CartResponse viewCart(String userId);
     String deleteCartItem(String cartItemId);
     CartItemResponse updateCartItemQuantity(String cartItemId, CartItemRequest request);
-    String deleteAllItemsByUser(String userId);
+    String deleteAllItemsByUser();
     Map<String, String> deleteCartItemList(List<String> cartItemIds);
     void deleteListCartItem(List<CartItem> cartItemList);
 }

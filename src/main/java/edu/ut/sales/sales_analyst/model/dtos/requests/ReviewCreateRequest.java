@@ -17,9 +17,6 @@ public class ReviewCreateRequest {
     @NotBlank(message = "comment is required")
     private String comment;
 
-    @NotBlank(message = "userId is required")
-    private String userId;
-
     @NotBlank(message = "productId is required")
     private String productId;
 }

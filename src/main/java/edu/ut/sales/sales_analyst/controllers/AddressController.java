@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class AddressController {
 
     @Operation(summary = "Get address by ID", description = "Retrieve address details by address ID")
     @GetMapping("/{addressId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<AddressResponse> getAddress(@PathVariable String addressId) {
         try {
             AddressResponse response = addressService.getAddress(addressId);
@@ -43,6 +45,7 @@ public class AddressController {
 
     @Operation(summary = "Get all addresses of a user", description = "Retrieve all addresses of a specific user with pagination")
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<List<AddressResponse>> getAddressesByUserId(
             @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
@@ -69,6 +72,7 @@ public class AddressController {
 
     @Operation(summary = "Create a new address", description = "Add a new address for the user")
     @PostMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<AddressResponse> createAddress(@Valid @RequestBody AddressRequest request) {
         try {
             AddressResponse response = addressService.createAddress(request);
@@ -80,6 +84,7 @@ public class AddressController {
 
     @Operation(summary = "Update address", description = "Update an existing address by address ID")
     @PutMapping("/{addressId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<AddressResponse> updateAddress(
             @PathVariable String addressId,
             @Valid @RequestBody AddressRequest request
@@ -94,6 +99,7 @@ public class AddressController {
 
     @Operation(summary = "Change default address", description = "Set a specific address as the default address for the user")
     @PatchMapping("/{addressId}/default")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<AddressResponse> changeDefaultAddress(
             @Parameter(description = "ID of the address to set as default", required = true)
             @PathVariable("addressId") String addressId) {
@@ -108,6 +114,7 @@ public class AddressController {
 
     @Operation(summary = "Delete address", description = "Delete an address by ID (cannot delete default address)")
     @DeleteMapping("/{addressId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<Boolean> deleteAddress(@PathVariable String addressId) {
         try {
             Boolean deleted = addressService.deleteAddress(addressId);

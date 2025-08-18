@@ -22,18 +22,21 @@ public class NotificationService implements INotificationService {
     private final NotificationMapper notificationMapper;
     private final NotificationRepo notificationRepo;
     private final UserRepo userRepo;
+    private final UserService userService;
 
-    public NotificationService(NotificationMapper notificationMapper, NotificationRepo notificationRepo, UserRepo userRepo) {
+    public NotificationService(NotificationMapper notificationMapper, NotificationRepo notificationRepo, UserRepo userRepo, UserService userService) {
         this.notificationMapper = notificationMapper;
         this.notificationRepo = notificationRepo;
         this.userRepo = userRepo;
+        this.userService = userService;
     }
 
     @Override
-    public Page<NotificationResponse> getByUserIdAndIsRead(Pageable pageable, String userId, Boolean isRead) {
+    public Page<NotificationResponse> getByUserIdAndIsRead(Pageable pageable, Boolean isRead) {
+        User currentUser = userService.getCurrentUser();
         Page<Notification> notifications;
 
-        notifications = notificationRepo.findByUserIdAndIsReadOptional(pageable, userId, isRead);
+        notifications = notificationRepo.findByUserIdAndIsReadOptional(pageable, currentUser.getUserId(), isRead);
 
         if (notifications.isEmpty()) {
             throw new AppException(ErrorCode.NOTIFICATION_LIST_EMPTY);
@@ -50,9 +53,9 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
-    public Long countUnread(String userId) {
-
-        return notificationRepo.countByUserIdAndIsReadNot(userId);
+    public Long countUnread() {
+        User currentUser = userService.getCurrentUser();
+        return notificationRepo.countByUserIdAndIsReadNot(currentUser.getUserId());
     }
 
     @Override
@@ -92,9 +95,10 @@ public class NotificationService implements INotificationService {
 
     @Override
     @Transactional
-    public Boolean markAllIsRead(String userId) {
+    public Boolean markAllIsRead() {
+        User currentUser = userService.getCurrentUser();
 
-        User user = userRepo.findByUserId(userId);
+        User user = userRepo.findByUserId(currentUser.getUserId());
         if (user == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
@@ -123,8 +127,9 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
-    public Boolean deleteAllByUser(String userId) {
-        List<Notification> userNotifications = notificationRepo.findByUserId(userId);
+    public Boolean deleteAllByUser() {
+        User currentUser = userService.getCurrentUser();
+        List<Notification> userNotifications = notificationRepo.findByUserId(currentUser.getUserId());
 
         if (userNotifications.isEmpty()) {
             throw new AppException(ErrorCode.NOTIFICATION_LIST_EMPTY);

@@ -43,28 +43,26 @@ public class OrderService implements IOrderService {
     private final AddressRepo addressRepo;
     private final EventProducer eventProducer;
     private final PaymentService paymentService;
-    private final CartItemMapper cartItemMapper;
-    private final CartService cartService;
+    private final UserService userService;
 
-    public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo, CartService cartService,
+    public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo,
                         ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo,
-                        EventProducer eventProducer, PaymentService paymentService, CartItemMapper cartItemMapper) {
+                        EventProducer eventProducer, PaymentService paymentService, UserService userService) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
         this.userRepo = userRepo;
-        this.cartService = cartService;
         this.productRepo = productRepo;
         this.orderItemRepo = orderItemRepo;
         this.addressRepo = addressRepo;
         this.eventProducer = eventProducer;
         this.paymentService = paymentService;
-        this.cartItemMapper = cartItemMapper;
+        this.userService = userService;
     }
 
     @Override
     @Transactional
     public OrderResponse createOrder(OrderCartCreationRequest request) {
-        User customer = validateCustomer(request.getCustomerId());
+        User customer = validateCustomer(userService.getCurrentUser().getUserId());
         Address address = validateAddress(request.getAddressId(), customer.getUserId());
 
         List<CartItem> cartItemList = customer.getCart().getItems();
@@ -136,12 +134,12 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Page<OrderResponse> getOrdersByCustomerId(String id, Pageable pageable) {
-        User customer = userRepo.findByUserId(id);
+    public Page<OrderResponse> getOrdersByCustomerId(Pageable pageable) {
+        User customer = userRepo.findByUserId(userService.getCurrentUser().getUserId());
         if (customer == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-        Page<Order> orders = orderRepo.findByUser_UserId(id, pageable);
+        Page<Order> orders = orderRepo.findByUser_UserId(userService.getCurrentUser().getUserId(), pageable);
         if (orders.isEmpty()) {
             throw new AppException(ErrorCode.ORDER_LIST_EMPTY);
         }

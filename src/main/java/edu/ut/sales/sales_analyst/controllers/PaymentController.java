@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class PaymentController {
     //Thông tin thẻ test: https://sandbox.vnpayment.vn/apis/vnpay-demo/
     @Operation(summary = "payment order", description = "Payment an order with VNPay")
     @GetMapping("/vn-pay")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<PaymentResponse.VNPayResponse> pay(HttpServletRequest request) {
             PaymentResponse.VNPayResponse response = paymentService.createVnPayPayment(request);
             return new ResponseAPI<>("Payment successfully", HttpStatus.OK, response);
@@ -45,6 +47,7 @@ public class PaymentController {
 
     @Operation(summary = "handle VNPay call back", description = "Handle VNPay call back after make a transaction")
     @GetMapping("/vn-pay-callback")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<PaymentResponse.VNPayResponse> payCallbackHandler(HttpServletRequest request) {
             PaymentResponse.VNPayResponse response = paymentService.handleCallBack(request);
             return new ResponseAPI<>("Handle successfully", HttpStatus.OK, response);
@@ -52,6 +55,7 @@ public class PaymentController {
 
     @Operation(summary = "create payment", description = "Create a new payment")
     @PostMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<PaymentResponse.PaymentInfoResponse> createPayment(@Valid @RequestBody PaymentRequest request) {
             PaymentResponse.PaymentInfoResponse response = paymentService.createPayment(request);
             return new ResponseAPI<>("Create payment successfully", HttpStatus.CREATED, response);
@@ -67,6 +71,7 @@ public class PaymentController {
 
     @Operation(summary = "get payment by id", description = "Get an existing payment by id")
     @GetMapping("/{paymentId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<PaymentResponse.PaymentInfoResponse> getPaymentById(@PathVariable String paymentId) {
             PaymentResponse.PaymentInfoResponse response = paymentService.getPaymentById(paymentId);
             return new ResponseAPI<>("Get payment successfully", HttpStatus.OK, response);
@@ -74,6 +79,7 @@ public class PaymentController {
 
     @Operation(summary = "Get all payments by orderId")
     @GetMapping("/order/{orderId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<List<PaymentResponse.PaymentInfoResponse>> getAllPaymentByOrderId(
             @PathVariable String orderId,
             @RequestParam(defaultValue = "0") int page,
@@ -95,6 +101,7 @@ public class PaymentController {
 
     @Operation(summary = "Get all payments")
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<List<PaymentResponse.PaymentInfoResponse>> getAllPayments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

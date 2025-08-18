@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class OrderController {
 
     @Operation(summary = "Create a new order", description = "Add a new order")
     @PostMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<OrderResponse> createOrder(@Valid @RequestBody OrderCartCreationRequest request) {
         OrderResponse response = orderService.createOrder(request);
         return new ResponseAPI<>("Create order successfully", HttpStatus.CREATED, response);
@@ -40,6 +42,7 @@ public class OrderController {
 
     @Operation(summary = "Get order by ID", description = "Retrieve order details by order ID")
     @GetMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<OrderResponse> getOrder(@PathVariable String orderId) {
         OrderResponse response = orderService.getOrder(orderId);
         return new ResponseAPI<>("Get order successfully", HttpStatus.OK, response);
@@ -47,6 +50,7 @@ public class OrderController {
 
     @Operation(summary = "Get all active orders", description = "Retrieve all active orders with pagination")
     @GetMapping("/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<List<OrderResponse>> getActiveOrder(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -67,6 +71,7 @@ public class OrderController {
 
     @Operation(summary = "Get all active orders", description = "Retrieve all active orders with pagination")
     @GetMapping("/filter")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<List<OrderResponse>> getOrdersByStatus(
             @RequestParam(name = "status", required = false) OrderStatus status,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -87,14 +92,14 @@ public class OrderController {
     }
 
     @Operation(summary = "Get all active orders by status", description = "Retrieve all active orders with pagination")
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<List<OrderResponse>> getOrdersByStatus(
-            @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<OrderResponse> orderPage = orderService.getOrdersByCustomerId(userId, pageable);
+        Page<OrderResponse> orderPage = orderService.getOrdersByCustomerId(pageable);
 
         PageMeta meta = PageMeta.builder()
                 .page(orderPage.getNumber())
@@ -109,6 +114,7 @@ public class OrderController {
 
     @Operation(summary = "Update order", description = "Update an existing order by order ID")
     @PutMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<OrderResponse> updateOrder(
             @PathVariable String orderId,
             @Valid @RequestBody OrderCreateRequest request
@@ -119,6 +125,7 @@ public class OrderController {
 
     @Operation(summary = "Update order status", description = "Update an existing order by order ID")
     @PutMapping("/{orderId}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<OrderResponse> updateOrderStatus(
             @PathVariable String orderId,
             @RequestParam OrderStatus status
@@ -129,6 +136,7 @@ public class OrderController {
 
     @Operation(summary = "Delete order", description = "Delete a order by ID")
     @DeleteMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<Boolean> deleteOrder(@PathVariable String orderId) {
         Boolean deleted = orderService.deleteOrder(orderId);
         return new ResponseAPI<>("Delete order successfully", HttpStatus.OK, deleted);
@@ -136,6 +144,7 @@ public class OrderController {
 
     @Operation(summary = "Cancel order", description = "Cancel a order by ID")
     @PostMapping("/{orderId}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseAPI<OrderResponse> cancelOrder(@PathVariable String orderId) {
         OrderResponse response = orderService.cancelOrder(orderId);
         return new ResponseAPI<>("Cancel order successfully", HttpStatus.OK, response);

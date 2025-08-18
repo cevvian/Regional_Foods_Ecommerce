@@ -17,7 +17,7 @@ public interface IOrderService {
     OrderResponse getOrder(String orderId);
     Page<OrderResponse> getOrdersActive(Pageable pageable);
     Page<OrderResponse> getOrdersByStatusAndActive(Pageable pageable, OrderStatus orderStatus);
-    Page<OrderResponse> getOrdersByCustomerId(String id, Pageable pageable);
+    Page<OrderResponse> getOrdersByCustomerId(Pageable pageable);
     OrderResponse updateOrder(String orderId, OrderCreateRequest orderCreateRequest);
     OrderResponse updateOrderStatus(String orderId, OrderStatus orderStatus);
     Boolean deleteOrder(String orderId);

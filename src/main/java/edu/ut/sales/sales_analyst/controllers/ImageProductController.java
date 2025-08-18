@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +31,7 @@ public class ImageProductController {
     ImageProductService imageProductService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<ImageProductResponse> createImage(
             @RequestParam String productId,
             @RequestPart MultipartFile file
@@ -44,6 +46,7 @@ public class ImageProductController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<ImageProductResponse> updateImage(
             @PathVariable String id,
             @RequestParam(required = false) String productId,
@@ -59,6 +62,7 @@ public class ImageProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<Boolean> deleteImage(@PathVariable String id) {
         imageProductService.delete(id);
         return new ResponseAPI<>("Delete image successfully", HttpStatus.OK, true);

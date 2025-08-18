@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +30,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<ProductResponse> createProduct(
             @RequestParam String productName,
             @RequestParam String categoryId,
@@ -76,6 +78,7 @@ public class ProductController {
     }
 
     @PostMapping("/products/list")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<List<Product>> createProductList(@RequestBody List<ProductCreateRequest> requests) {
         List<Product> productResponse = productService.createProductList(requests);
         return new ResponseAPI<>("Create product successfully", HttpStatus.CREATED, productResponse);
@@ -88,6 +91,7 @@ public class ProductController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<ProductResponse> updateProduct(
             @PathVariable String id,
             @RequestParam String productName,
@@ -121,6 +125,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<Void> deleteProduct(@PathVariable String id) {
         Boolean deleted = productService.deleteProduct(id);
         if (deleted) {
@@ -131,6 +136,7 @@ public class ProductController {
     }
 
     @GetMapping("/statistics")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<List<RevenueStatsDTO>> getRevenueStats(@ModelAttribute @Valid RevenueFilterDTO filter) {
         List<RevenueStatsDTO> stats = productService.getRevenueByTime(filter);
         return new ResponseAPI<>("Get revenue statistics successfully", HttpStatus.OK, stats);

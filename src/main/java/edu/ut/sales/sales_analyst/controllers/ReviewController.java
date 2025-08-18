@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<ReviewResponse> createReview(@Valid @RequestBody ReviewCreateRequest request) {
         System.out.println("Received review create request: " + request);
 
@@ -58,6 +60,7 @@ public class ReviewController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<ReviewResponse> updateReview(
             @PathVariable String id,
             @Valid @RequestBody ReviewUpdateRequest request
@@ -67,6 +70,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<Boolean> deleteReview(@PathVariable String id) {
         boolean deleted = reviewService.deleteReview(id);
         if (deleted) {

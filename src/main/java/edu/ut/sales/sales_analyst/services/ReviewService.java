@@ -27,15 +27,15 @@ public class ReviewService implements IReviewService {
     private final UserRepo userRepo;
     private final ProductRepo productRepo;
     private final ReviewMapper reviewMapper;
-    private final OrderRepo orderRepo;
+    private final UserService userService;
 
     public ReviewService(ReviewRepo reviewRepo, UserRepo userRepo, ProductRepo productRepo,
-                         ReviewMapper reviewMapper, OrderRepo orderRepo) {
+                         ReviewMapper reviewMapper, UserService userService) {
         this.reviewRepo = reviewRepo;
         this.userRepo = userRepo;
         this.productRepo = productRepo;
         this.reviewMapper = reviewMapper;
-        this.orderRepo = orderRepo;
+        this.userService = userService;
     }
 
     private void updateProductRating(Product product) {
@@ -47,7 +47,7 @@ public class ReviewService implements IReviewService {
 
     @Override
     public ReviewResponse createReview(ReviewCreateRequest request) {
-        User user = userRepo.findByUserId(request.getUserId());
+        User user = userRepo.findByUserId(userService.getCurrentUser().getUserId());
         if (user == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
