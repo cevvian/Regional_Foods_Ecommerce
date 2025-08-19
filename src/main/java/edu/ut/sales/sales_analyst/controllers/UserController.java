@@ -63,6 +63,13 @@ public class UserController {
         return ResponseEntity.ok(new ResponseAPI<>("Users fetched successfully", HttpStatus.OK, userPage.getContent(), meta));
     }
 
+    @Operation(summary = "Get profile user")
+    @GetMapping("/profile")
+    public ResponseEntity<ResponseAPI<UserResponse>> getProfile() {
+        UserResponse userResponse = userService.getProfile();
+        return ResponseEntity.ok(new ResponseAPI<>("User retrieved successfully", HttpStatus.OK, userResponse));
+    }
+
     @Operation(summary = "Get user by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseAPI<UserDetailResponse>> getUserById(@PathVariable String id) {

@@ -238,6 +238,12 @@ public class UserService implements IUserService {
         return userMapper.toUserResponse(user);
     }
 
+    @Override
+    public UserResponse getProfile() {
+        User user = getCurrentUser();
+        return userMapper.toUserResponse(user);
+    }
+
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
