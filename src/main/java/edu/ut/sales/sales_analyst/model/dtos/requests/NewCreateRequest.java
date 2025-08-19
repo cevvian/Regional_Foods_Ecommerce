@@ -1,5 +1,6 @@
 package edu.ut.sales.sales_analyst.model.dtos.requests;
 
+import edu.ut.sales.sales_analyst.model.enums.NewType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -28,4 +29,7 @@ public class NewCreateRequest {
     @Size(max = 5, message = "You can upload up to 5 images")
     @Schema(description = "Upload up to 5 images", type = "array", implementation = MultipartFile.class)
     private List<ImageOfNewCreateRequest> images;
+
+    @Schema(description = "Type of news", example = "PROMOTION")
+    private NewType type;
 }

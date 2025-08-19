@@ -6,6 +6,7 @@ import edu.ut.sales.sales_analyst.model.dtos.requests.NewUpdateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.NewResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
+import edu.ut.sales.sales_analyst.model.enums.NewType;
 import edu.ut.sales.sales_analyst.services.NewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ public class NewController {
             @RequestParam String title,
             @RequestParam String content,
             @RequestParam String categoryId,
+            @RequestParam NewType type,
             @RequestParam List<String> typeContents,
             @RequestPart List<MultipartFile> files
     ) {
@@ -49,10 +51,18 @@ public class NewController {
         request.setContent(content);
         request.setCategoryId(categoryId);
         request.setImages(images);
+        request.setType(type);
+
+//        try {
+//            request.setType(NewType.valueOf(type.toUpperCase()));
+//        } catch (IllegalArgumentException e) {
+//            throw new RuntimeException("Invalid type value: " + type);
+//        }
 
         NewResponse response = newService.createNews(request);
         return new ResponseAPI<>("Create news successfully", HttpStatus.CREATED, response);
     }
+
 
     @GetMapping
     public ResponseAPI<List<NewResponse>> getAllNews(
@@ -86,11 +96,11 @@ public class NewController {
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String content,
             @RequestParam(required = false, name = "categoryId") String categoryId,
+            @RequestParam(required = false) String type, // <-- thêm đây
             @RequestParam(required = false) List<String> typeContents,
             @RequestPart(required = false) List<MultipartFile> files
     ) {
         List<ImageOfNewCreateRequest> images = new ArrayList<>();
-
         if (files != null && typeContents != null && files.size() == typeContents.size()) {
             for (int i = 0; i < files.size(); i++) {
                 ImageOfNewCreateRequest image = new ImageOfNewCreateRequest();
@@ -106,9 +116,18 @@ public class NewController {
         request.setCategoryId(categoryId);
         request.setImages(images);
 
+        if (type != null && !type.isBlank()) {
+            try {
+                request.setType(NewType.valueOf(type.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid type value: " + type);
+            }
+        }
+
         NewResponse response = newService.updateNews(id, request);
         return new ResponseAPI<>("Update news successfully", HttpStatus.OK, response);
     }
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
