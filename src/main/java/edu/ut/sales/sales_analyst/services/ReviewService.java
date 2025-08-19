@@ -6,13 +6,12 @@ import edu.ut.sales.sales_analyst.mappers.ReviewMapper;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ReviewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ReviewUpdateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ReviewResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.ReviewStatsDTO;
+import edu.ut.sales.sales_analyst.model.entities.Category;
 import edu.ut.sales.sales_analyst.model.entities.Product;
 import edu.ut.sales.sales_analyst.model.entities.Review;
 import edu.ut.sales.sales_analyst.model.entities.User;
-import edu.ut.sales.sales_analyst.repositories.OrderRepo;
-import edu.ut.sales.sales_analyst.repositories.ProductRepo;
-import edu.ut.sales.sales_analyst.repositories.ReviewRepo;
-import edu.ut.sales.sales_analyst.repositories.UserRepo;
+import edu.ut.sales.sales_analyst.repositories.*;
 import edu.ut.sales.sales_analyst.services.impl.IReviewService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,14 +27,19 @@ public class ReviewService implements IReviewService {
     private final ProductRepo productRepo;
     private final ReviewMapper reviewMapper;
     private final UserService userService;
+    private final OrderRepo orderRepo;
+    private final CategoryRepo categoryRepo;
 
     public ReviewService(ReviewRepo reviewRepo, UserRepo userRepo, ProductRepo productRepo,
-                         ReviewMapper reviewMapper, UserService userService) {
+                         ReviewMapper reviewMapper, UserService userService, OrderRepo orderRepo,
+                         CategoryRepo categoryRepo) {
         this.reviewRepo = reviewRepo;
         this.userRepo = userRepo;
         this.productRepo = productRepo;
         this.reviewMapper = reviewMapper;
         this.userService = userService;
+        this.orderRepo = orderRepo;
+        this.categoryRepo = categoryRepo;
     }
 
     private void updateProductRating(Product product) {
@@ -208,6 +212,31 @@ public class ReviewService implements IReviewService {
     }
 
     @Override
+    public Page<ReviewResponse> getReviewsByRatingAndCategoryId(Double rating, String categoryId, Pageable pageable) {
+        // Nếu categoryId không null, kiểm tra tồn tại
+        if (categoryId != null) {
+            Category category = categoryRepo.findByCategoryId(categoryId);
+            if (category == null) {
+                throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+            }
+        }
+
+        // Gọi repo với rating và categoryId có thể null
+        Page<Review> reviews = reviewRepo.findByRatingAndCategory(
+                rating,       // có thể null
+                categoryId,   // có thể null
+                pageable
+        );
+
+        if (reviews.isEmpty()) {
+            throw new AppException(ErrorCode.REVIEW_LIST_EMPTY);
+        }
+
+        return reviews.map(reviewMapper::toReviewResponse);
+    }
+
+
+    @Override
     public Double getAverageRatingByProductId(String productId) {
         Product product = productRepo.findByProductId(productId);
         if (product == null) {
@@ -224,4 +253,26 @@ public class ReviewService implements IReviewService {
         }
         return reviewRepo.countReviewsByProductId(productId);
     }
+
+    @Override
+    public ReviewStatsDTO getGlobalReviewStats() {
+        long total = reviewRepo.count();
+
+        double avg = reviewRepo.findAll().stream()
+                .mapToDouble(r -> r.getRating())
+                .average()
+                .orElse(0.0);
+
+        return new ReviewStatsDTO(
+                total,
+                Math.round(avg * 10.0) / 10.0,
+                reviewRepo.countByRating(5),
+                reviewRepo.countByRating(4),
+                reviewRepo.countByRating(3),
+                reviewRepo.countByRating(2),
+                reviewRepo.countByRating(1),
+                reviewRepo.countDistinctCustomers()
+        );
+    }
+
 }

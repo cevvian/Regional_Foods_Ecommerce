@@ -5,6 +5,7 @@ import edu.ut.sales.sales_analyst.model.dtos.requests.ReviewUpdateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ReviewResponse;
+import edu.ut.sales.sales_analyst.model.dtos.responses.ReviewStatsDTO;
 import edu.ut.sales.sales_analyst.services.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER','ADMIN')")
     public ResponseAPI<ReviewResponse> createReview(@Valid @RequestBody ReviewCreateRequest request) {
         System.out.println("Received review create request: " + request);
 
@@ -70,7 +71,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER','ADMIN')")
     public ResponseAPI<Boolean> deleteReview(@PathVariable String id) {
         boolean deleted = reviewService.deleteReview(id);
         if (deleted) {
@@ -142,4 +143,30 @@ public class ReviewController {
         return new ResponseAPI<>("Get reviews by product and user successfully", HttpStatus.OK, reviewPage.getContent(), meta);
     }
 
+    @GetMapping("/filter")
+    public ResponseAPI<List<ReviewResponse>> getReviewsByRatingAndCategory(
+            @RequestParam(required = false) Double rating,
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ReviewResponse> reviewPage = reviewService.getReviewsByRatingAndCategoryId(rating, categoryId, pageable);
+
+        PageMeta meta = PageMeta.builder()
+                .page(reviewPage.getNumber())
+                .size(reviewPage.getSize())
+                .totalElements(reviewPage.getTotalElements())
+                .totalPages(reviewPage.getTotalPages())
+                .last(reviewPage.isLast())
+                .build();
+
+        return new ResponseAPI<>("Get reviews by rating and category successfully", HttpStatus.OK, reviewPage.getContent(), meta);
+    }
+
+    @GetMapping("/stats")
+    public ResponseAPI<ReviewStatsDTO> getGlobalStats() {
+        ReviewStatsDTO stats = reviewService.getGlobalReviewStats();
+        return new ResponseAPI<>("Get global review stats successfully", HttpStatus.OK, stats);
+    }
 }

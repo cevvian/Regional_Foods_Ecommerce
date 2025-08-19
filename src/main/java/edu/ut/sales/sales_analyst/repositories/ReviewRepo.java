@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,6 +20,17 @@ public interface ReviewRepo extends JpaRepository<Review, Integer> {
 
     Page<Review> findByUserAndProduct(User user, Product product, Pageable pageable);
 
+    @Query("""
+    SELECT r FROM Review r
+    WHERE (:rating IS NULL OR r.rating = :rating)
+      AND (:categoryId IS NULL OR r.product.category.categoryId = :categoryId)
+""")
+    Page<Review> findByRatingAndCategory(
+            @Param("rating") Double rating,
+            @Param("categoryId") String categoryId,
+            Pageable pageable
+    );
+
     Review findByReviewId(String reviewId);
 
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.product.productId = :productId")
@@ -26,4 +38,12 @@ public interface ReviewRepo extends JpaRepository<Review, Integer> {
 
     @Query("SELECT COUNT(r) FROM Review r WHERE r.product.productId = :productId")
     Long countReviewsByProductId(String productId);
+
+
+    // Đếm theo rating
+    long countByRating(int rating);
+
+    // Đếm tổng khách hàng unique
+    @Query("SELECT COUNT(DISTINCT r.user.email) FROM Review r")
+    long countDistinctCustomers();
 }
