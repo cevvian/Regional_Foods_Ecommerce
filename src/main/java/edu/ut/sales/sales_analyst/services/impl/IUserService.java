@@ -35,4 +35,6 @@ public interface IUserService {
     User getUserFromRefreshToken(String refreshToken);
 
     UserResponse getUserFromEmail(String email);
+
+    UserResponse getProfile();
 }
