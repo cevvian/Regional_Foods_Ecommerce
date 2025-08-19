@@ -4,10 +4,12 @@ import edu.ut.sales.sales_analyst.model.entities.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,8 +22,10 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Nếu User có role/permission, map sang GrantedAuthority tại đây
-        return Collections.emptyList();
+        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
+        authorityList.add(new SimpleGrantedAuthority("ROLE_"+user.getRole().name()));
+
+        return authorityList;
     }
 
     @Override

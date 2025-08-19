@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.springframework.security.core.GrantedAuthority;
+
 
 @Component
 @RequiredArgsConstructor
@@ -47,7 +49,12 @@ public class JwtTokenUtils {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof CustomUserDetails customUser) {
             claims.put("userId", customUser.getUser().getUserId());
-            claims.put("role", customUser.getUser().getRole());
+            claims.put("roles", userDetails.getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList()
+            );
+
         }
         return Jwts.builder()
                 .setClaims(claims)
