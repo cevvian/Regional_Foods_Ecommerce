@@ -1,5 +1,6 @@
 package edu.ut.sales.sales_analyst.model.dtos.responses;
 
+import edu.ut.sales.sales_analyst.model.enums.NewType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public class NewResponse {
     private String content;
     private Date createAt;
     private Date updateAt;
+    private NewType type;
 
     private CategoryResponse category;
 

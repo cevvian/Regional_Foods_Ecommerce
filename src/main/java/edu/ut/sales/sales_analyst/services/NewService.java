@@ -100,6 +100,7 @@ public class NewService implements INewService {
         news.setTitle(request.getTitle());
         news.setContent(request.getContent());
         news.setCategory(category);
+        news.setType(request.getType());
         newRepo.save(news);
 
         handleImageUploadAndAttachToNews(news, request.getImages());
@@ -109,6 +110,7 @@ public class NewService implements INewService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public NewResponse getNews(String newId) {
         New news = newRepo.findByNewId(newId);
         if (news == null) {
@@ -147,6 +149,10 @@ public class NewService implements INewService {
                 throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
             }
             news.setCategory(category);
+        }
+
+        if (request.getType() != null) {
+            news.setType(request.getType());
         }
 
         // Cập nhật ảnh nếu có gửi lên
