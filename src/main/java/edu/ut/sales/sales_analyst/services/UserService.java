@@ -165,8 +165,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Boolean resetPassword(String userId, ResetPasswordRequest resetPasswordRequest) {
-        User user = userRepo.findByUserId(userId);
+    public Boolean resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        User currentUser = getCurrentUser();
+        User user = userRepo.findByUserId(currentUser.getUserId());
         if (user == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }

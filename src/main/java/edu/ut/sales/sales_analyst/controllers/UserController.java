@@ -112,22 +112,4 @@ public class UserController {
                 .ok(new ResponseAPI<>("User unblocked successfully", HttpStatus.OK, null));
     }
 
-    @Operation(summary = "Reset user password")
-    @PostMapping("/reset-password/{id}")
-    public ResponseEntity<ResponseAPI<Boolean>> resetPassword(
-            @PathVariable String id,
-            @RequestBody ResetPasswordRequest request) {
-
-        Boolean result = userService.resetPassword(id, request);
-
-        if (!result) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseAPI<>("Password reset failed", HttpStatus.BAD_REQUEST, false));
-        }
-
-        return ResponseEntity
-                .ok(new ResponseAPI<>("Password reset successfully", HttpStatus.OK, true));
-    }
-
 }

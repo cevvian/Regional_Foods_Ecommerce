@@ -3,6 +3,7 @@ package edu.ut.sales.sales_analyst.services;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.model.dtos.requests.PaymentRequest;
+import edu.ut.sales.sales_analyst.model.dtos.responses.OTP;
 import edu.ut.sales.sales_analyst.model.entities.Order;
 import edu.ut.sales.sales_analyst.model.entities.OrderItem;
 import edu.ut.sales.sales_analyst.model.entities.Payment;
@@ -24,9 +25,11 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -49,6 +52,42 @@ public class EmailService implements IEmailService {
         String htmlContent = templateEngine.process("invoice.html",
                 buildInvoiceEmailContext(paymentRequest));
         sendEmail(email, "Hóa đơn đặc sản", htmlContent);
+    }
+
+    @Override
+    public void sendOTPEmail(String email, OTP otp) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(email);
+        helper.setFrom("dansanViet@gmail.com");
+        helper.setSubject("Mã OTP Xác Thực - Đặc Sản Việt Nam");
+
+        Context context = new Context();
+
+        context.setVariable("otpCode", otp.getOtp());
+
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
+        String formattedExpiryTime = formatter.format(otp.getExpirationTime());
+        context.setVariable("expiryTime", formattedExpiryTime);
+
+        long currentTime = System.currentTimeMillis();
+        long expiryTime = otp.getExpirationTime().getTime();
+        long timeLeft = expiryTime - currentTime;
+        long minutesLeft = TimeUnit.MILLISECONDS.toMinutes(timeLeft);
+        context.setVariable("minutesLeft", minutesLeft > 0 ? minutesLeft : 0);
+
+        context.setVariable("currentYear", java.time.Year.now().getValue());
+        context.setVariable("companyName", "Đặc Sản Việt Nam");
+        context.setVariable("supportPhone", "031 333 666 9999");
+        context.setVariable("supportEmail", "dansanViet@gmail.com");
+        context.setVariable("websiteUrl", "https://www.dacsanviet.com");
+
+        String htmlContent = templateEngine.process("otp", context);
+
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
     }
 
     private void sendEmail(String email, String subject, String body) throws MessagingException {
@@ -126,4 +165,6 @@ public class EmailService implements IEmailService {
 
         return context;
     }
+
+
 }

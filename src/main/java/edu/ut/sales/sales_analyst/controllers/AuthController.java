@@ -115,21 +115,4 @@ public class AuthController {
         }
     }
 
-    @Operation(summary = "Forgot password")
-    @PostMapping("/forgot-password")
-    public ResponseEntity<ResponseAPI<Boolean>> forgotPassword(
-            @RequestBody ForgotPasswordRequest request) {
-
-        Boolean result = userService.forgetPassword(request);
-
-        if (!result) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseAPI<>("Password reset failed", HttpStatus.BAD_REQUEST, false));
-        }
-
-        return ResponseEntity
-                .ok(new ResponseAPI<>("Password updated successfully", HttpStatus.OK, true));
-    }
-
 }

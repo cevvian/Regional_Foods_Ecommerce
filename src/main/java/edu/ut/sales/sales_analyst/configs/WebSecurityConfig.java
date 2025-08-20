@@ -66,6 +66,9 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/news/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/passwords/send-otp").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/passwords/verify-otp").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/passwords/forgot-password").permitAll()
                         // ============================================
 
                         // Còn lại bắt buộc có JWT

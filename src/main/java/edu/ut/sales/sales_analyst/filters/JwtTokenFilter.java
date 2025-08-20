@@ -47,7 +47,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/products/filter", "GET"),
                 Pair.of("/api/v1/reviews", "GET"),
                 Pair.of("/api/v1/reviews/{id}", "GET"),
-                Pair.of("/api/v1/reviews/by-product", "GET")
+                Pair.of("/api/v1/reviews/by-product", "GET"),
+                Pair.of("/api/v1/passwords/send-otp", "GET"),
+                Pair.of("/api/v1/passwords/send-otp", "POST"),
+                Pair.of("/api/v1/passwords/verify-otp", "POST"),
+                Pair.of("/api/v1/passwords/forgot-password", "POST")
         );
 
         String path = request.getServletPath();
