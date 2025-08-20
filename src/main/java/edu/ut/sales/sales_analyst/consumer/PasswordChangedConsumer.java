@@ -44,7 +44,7 @@ public class PasswordChangedConsumer {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formattedDateTime = vietnamTime.format(formatter);
 
-        notificationRequest.setMessage("Your password has been reset at " + formattedDateTime);
+        notificationRequest.setContent("Your password has been reset at " + formattedDateTime);
         NotificationResponse notification = notificationService.createNotification(notificationRequest);
 
         messagingTemplate.convertAndSend("/queue/notifications-" + event.getUserId(), notification);

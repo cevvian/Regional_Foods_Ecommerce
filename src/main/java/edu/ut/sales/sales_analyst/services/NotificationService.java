@@ -60,7 +60,7 @@ public class NotificationService implements INotificationService {
 
     @Override
     public NotificationResponse createNotification(NotificationRequest request) {
-        Boolean notification = notificationRepo.existsNotificationByContentAndTitle(request.getTitle(), request.getMessage());
+        Boolean notification = notificationRepo.existsNotificationByContentAndTitle(request.getTitle(), request.getContent());
         if (notification) {
             throw new AppException(ErrorCode.NOTIFICATION_ALREADY_EXISTS);
         }
@@ -72,7 +72,7 @@ public class NotificationService implements INotificationService {
 
         Notification notificationEntity = new Notification();
         notificationEntity.setTitle(request.getTitle());
-        notificationEntity.setContent(request.getMessage());
+        notificationEntity.setContent(request.getContent());
         notificationEntity.setUser(user);
         notificationRepo.save(notificationEntity);
         return notificationMapper.toNotificationResponse(notificationEntity);
