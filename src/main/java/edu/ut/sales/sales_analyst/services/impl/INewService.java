@@ -3,6 +3,7 @@ package edu.ut.sales.sales_analyst.services.impl;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewCreateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.NewUpdateRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.NewResponse;
+import edu.ut.sales.sales_analyst.model.enums.NewType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,4 +21,6 @@ public interface INewService {
     Boolean deleteNews(String newId);
 
     Page<NewResponse> getNewsByCategory(String categoryId, Pageable pageable);
+
+    Page<NewResponse> getNewsByFilter(String categoryId, NewType type, Pageable pageable);
 }

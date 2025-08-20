@@ -10,6 +10,7 @@ import edu.ut.sales.sales_analyst.model.dtos.responses.NewResponse;
 import edu.ut.sales.sales_analyst.model.entities.Category;
 import edu.ut.sales.sales_analyst.model.entities.ImageNew;
 import edu.ut.sales.sales_analyst.model.entities.New;
+import edu.ut.sales.sales_analyst.model.enums.NewType;
 import edu.ut.sales.sales_analyst.repositories.CategoryRepo;
 import edu.ut.sales.sales_analyst.repositories.ImageNewRepo;
 import edu.ut.sales.sales_analyst.repositories.NewRepo;
@@ -195,4 +196,26 @@ public class NewService implements INewService {
 
         return news.map(newMapper::ToNewResponse);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<NewResponse> getNewsByFilter(String categoryId, NewType type, Pageable pageable) {
+        Category category = null;
+
+        if (categoryId != null && !categoryId.isBlank()) {
+            category = categoryRepo.findByCategoryId(categoryId);
+            if (category == null) {
+                throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+            }
+        }
+
+        Page<New> newsPage = newRepo.findByTypeAndCategoryNullable(type, category, pageable);
+
+        if (newsPage.isEmpty()) {
+            throw new AppException(ErrorCode.NEWS_LIST_EMPTY);
+        }
+
+        return newsPage.map(newMapper::ToNewResponse);
+    }
+
 }
