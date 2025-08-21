@@ -25,19 +25,34 @@ public class CategoryService implements ICategoryService {
     CategoryMapper categoryMapper;
 
     @Override
-    public Page<CategoryResponse> getAllCategories(Pageable pageable){
+    public Page<CategoryResponse> getAllCategories(Pageable pageable) {
         Page<Category> categories = categoryRepo.findAll(pageable);
         if (categories.isEmpty()) {
             throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
         }
-        return categories.map(categoryMapper::toResponse);
+
+        return categories.map(category -> {
+            int productCount = categoryRepo.countProductsByCategoryId(category.getCategoryId());
+
+            return CategoryResponse.builder()
+                    .productCount(productCount)
+                    .categoryName(category.getCategoryName())
+                    .categoryId(category.getCategoryId())
+                    .description(category.getDescription())
+                    .build();
+        });
     }
 
     @Override
     public CategoryResponse getCategoryById(String id){
         Category category = categoryRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-        return categoryMapper.toResponse(category);
+        return CategoryResponse.builder()
+                .productCount(category.getProducts().size())
+                .categoryName(category.getCategoryName())
+                .categoryId(category.getCategoryId())
+                .description(category.getDescription())
+                .build();
     }
 
     @Override

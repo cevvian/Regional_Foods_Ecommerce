@@ -38,7 +38,7 @@ public class ProductController {
             @RequestParam String description,
             @RequestParam BigDecimal price,
             @RequestParam int stockQuantity,
-            @RequestPart List<MultipartFile> images
+            @RequestPart(required = false) List<MultipartFile> images
     ) {
         List<ImageProductCreationRequest> imageList = new ArrayList<>();
         for (MultipartFile multipartFile : images) {
@@ -100,7 +100,7 @@ public class ProductController {
             @RequestParam String description,
             @RequestParam BigDecimal price,
             @RequestParam int stockQuantity,
-            @RequestParam List<MultipartFile> files
+            @RequestPart List<MultipartFile> files
     ) {
 
         List<ImageProductCreationRequest> images = new ArrayList<>();
@@ -122,6 +122,17 @@ public class ProductController {
 
         ProductResponse productResponse = productService.updateProduct(id, request);
         return new ResponseAPI<>("Update product successfully", HttpStatus.OK, productResponse);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseAPI<Void> softDeleteProduct(@PathVariable String id) {
+        Boolean deleted = productService.softDeleteProduct(id);
+        if (deleted) {
+            return new ResponseAPI<>("Delete product successfully", HttpStatus.OK, null);
+        } else {
+            return new ResponseAPI<>("Delete product failed", HttpStatus.NOT_FOUND, null);
+        }
     }
 
     @DeleteMapping("/{id}")

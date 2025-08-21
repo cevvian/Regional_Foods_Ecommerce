@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class ImageProductResponse {
     private String imageId;
     private String imageUrl;
-    private Product product;
+//    private Product product;
 }

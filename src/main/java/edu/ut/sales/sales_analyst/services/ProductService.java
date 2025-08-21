@@ -13,6 +13,7 @@ import edu.ut.sales.sales_analyst.repositories.ProductRepo;
 import edu.ut.sales.sales_analyst.repositories.RegionRepo;
 import edu.ut.sales.sales_analyst.services.cloundinary.ImageUploadService;
 import edu.ut.sales.sales_analyst.services.impl.IProductService;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -144,6 +146,18 @@ public class ProductService implements IProductService {
         }
         productRepo.delete(product);
         return true;
+    }
+
+    @Transactional
+    public boolean softDeleteProduct(String productId) {
+        Optional<Product> optionalProduct = productRepo.findById(productId);
+        if (optionalProduct.isPresent()) {
+            Product product = optionalProduct.get();
+            product.setDeleted(true);
+            productRepo.save(product);
+            return true;
+        }
+        return false; // sản phẩm không tồn tại
     }
 
     @Override
