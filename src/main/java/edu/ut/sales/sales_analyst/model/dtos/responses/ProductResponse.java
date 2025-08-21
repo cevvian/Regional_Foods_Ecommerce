@@ -19,6 +19,7 @@ public class ProductResponse {
     private BigDecimal price;
     private Double rating;
     private int stockQuantity;
+    private boolean isDeleted;
     private CategoryResponse category;
     private RegionResponse region;
     private List<ImageProductResponse> imageProductResponseList;

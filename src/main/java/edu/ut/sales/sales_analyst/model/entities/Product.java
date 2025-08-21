@@ -56,8 +56,8 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<Review> reviews;
 
-    @Column(name = "isDeleted")
-    private boolean isDeleted = Boolean.FALSE;
+    @Column(name = "deleted")
+    private boolean isDeleted;
 
     @PreUpdate
     public void preUpdate() {

@@ -100,7 +100,7 @@ public class ProductController {
             @RequestParam String description,
             @RequestParam BigDecimal price,
             @RequestParam int stockQuantity,
-            @RequestPart List<MultipartFile> files
+            @RequestPart(required = false) List<MultipartFile> files
     ) {
 
         List<ImageProductCreationRequest> images = new ArrayList<>();
@@ -124,7 +124,7 @@ public class ProductController {
         return new ResponseAPI<>("Update product successfully", HttpStatus.OK, productResponse);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/soft-delete/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<Void> softDeleteProduct(@PathVariable String id) {
         Boolean deleted = productService.softDeleteProduct(id);

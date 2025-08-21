@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
     @Mapping(target = "imageProductResponseList", source = "images")
+    @Mapping(target = "isDeleted", source = "deleted")
     ProductResponse toProductDTO(Product product);
     Product toProduct(ProductCreateRequest request);
     Product toProductEntity(ProductResponse productResponse);

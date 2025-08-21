@@ -39,6 +39,7 @@ public enum ErrorCode {
     PRODUCT_INVALID_STOCK(1376, "Stock quantity cannot be negative", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST(1377, "Invalid request parameters", HttpStatus.BAD_REQUEST),
     PRODUCT_INVALID_QUANTITY(1378, "Quantity must be greater than 0", HttpStatus.BAD_REQUEST),
+    PRODUCT_ALREADY_DELETED(1379, "Product already deleted", HttpStatus.CONFLICT),
     // ---------------- ORDER (1600–1799) ----------------
 
     // Not Found (1600–1649)

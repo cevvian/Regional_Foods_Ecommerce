@@ -60,6 +60,7 @@ public class ProductService implements IProductService {
         Product product = productMapper.toProduct(productCreateRequest);
         product.setCategory(category);
         product.setRegion(region);
+        product.setDeleted(false);
         product = productRepo.save(product);
 
         handleImageUploadAndAttachToProduct(product, productCreateRequest.getImages());
@@ -150,14 +151,14 @@ public class ProductService implements IProductService {
 
     @Transactional
     public boolean softDeleteProduct(String productId) {
-        Optional<Product> optionalProduct = productRepo.findById(productId);
-        if (optionalProduct.isPresent()) {
-            Product product = optionalProduct.get();
-            product.setDeleted(true);
-            productRepo.save(product);
-            return true;
-        }
-        return false; // sản phẩm không tồn tại
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+//        if(product.isDeleted())
+//            throw new AppException(ErrorCode.PRODUCT_ALREADY_DELETED);
+
+        product.setDeleted(true);
+        productRepo.save(product);
+        return product.isDeleted();
     }
 
     @Override
