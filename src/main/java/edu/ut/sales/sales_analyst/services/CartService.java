@@ -70,8 +70,9 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public CartResponse viewCart(String userId) {
-        User user = userRepo.findByUserId(userId);
+    public CartResponse viewCart() {
+        User userCurrent = userService.getCurrentUser();
+        User user = userRepo.findByUserId(userCurrent.getUserId());
         if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
 
         Cart cart = cartRepo.findByUser(user)

@@ -45,74 +45,69 @@ public class AuthController {
             @RequestBody @Valid LoginRequest loginReq,
             HttpServletRequest request) {
 
-        try {
-            String token = userService.login(loginReq);
-            User userDetail = userService.getUserDetailsFromToken(token);
+        String token = userService.login(loginReq);
+        User userDetail = userService.getUserDetailsFromToken(token);
 
-            Token jwtToken = tokenService.addToken(userDetail, token);
+        Token jwtToken = tokenService.addToken(userDetail, token);
 
-            TokenResponse tokenResponse = new TokenResponse(
-                    jwtToken.getTokenId(),
-                    jwtToken.getToken(),
-                    jwtToken.getRefreshToken(),
-                    jwtToken.getTokenType(),
-                    jwtToken.getExpirationDate(),
-                    jwtToken.getRefreshExpirationDate(),
-                    jwtToken.isRevoked(),
-                    jwtToken.isExpired()
-            );
+        TokenResponse tokenResponse = new TokenResponse(
+                jwtToken.getTokenId(),
+                jwtToken.getToken(),
+                jwtToken.getRefreshToken(),
+                jwtToken.getTokenType(),
+                jwtToken.getExpirationDate(),
+                jwtToken.getRefreshExpirationDate(),
+                jwtToken.isRevoked(),
+                jwtToken.isExpired()
+        );
 
-            return new ResponseAPI<>("Login successfully", HttpStatus.OK, tokenResponse);
-        } catch (Exception ex) {
-            return new ResponseAPI<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
+        return new ResponseAPI<>("Login successfully", HttpStatus.OK, tokenResponse);
     }
 
     @Operation(summary = "Refresh access token", description = "Generate a new access token using a valid refresh token")
     @PostMapping("/refresh")
-    public ResponseAPI<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest refreshReq) {
-        try {
-            User currentUser = userService.getUserFromRefreshToken(refreshReq.getRefreshToken());
+    public ResponseAPI<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest refreshReq) throws Exception {
+        User currentUser = userService.getUserFromRefreshToken(refreshReq.getRefreshToken());
+        Token jwtToken = tokenService.refreshToken(refreshReq.getRefreshToken(), currentUser);
 
-            Token jwtToken = tokenService.refreshToken(refreshReq.getRefreshToken(), currentUser);
+        TokenResponse tokenResponse = new TokenResponse(
+                jwtToken.getTokenId(),
+                jwtToken.getToken(),
+                jwtToken.getRefreshToken(),
+                jwtToken.getTokenType(),
+                jwtToken.getExpirationDate(),
+                jwtToken.getRefreshExpirationDate(),
+                jwtToken.isRevoked(),
+                jwtToken.isExpired()
+        );
 
-            TokenResponse tokenResponse = new TokenResponse(
-                    jwtToken.getTokenId(),
-                    jwtToken.getToken(),
-                    jwtToken.getRefreshToken(),
-                    jwtToken.getTokenType(),
-                    jwtToken.getExpirationDate(),
-                    jwtToken.getRefreshExpirationDate(),
-                    jwtToken.isRevoked(),
-                    jwtToken.isExpired()
-            );
-
-            return new ResponseAPI<>("Get refresh token successfully", HttpStatus.OK, tokenResponse);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new ResponseAPI<>("Get refresh token successfully", HttpStatus.OK, tokenResponse);
     }
 
     @Operation(summary = "User logout", description = "Invalidate the current access token to logout user")
     @PostMapping("/logout")
-    public ResponseAPI<Boolean> logout(HttpServletRequest request) {
-        try {
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return new ResponseAPI<>("Missing or invalid Authorization header", HttpStatus.BAD_REQUEST, false);
-            }
-
-            String token = authHeader.substring(7);
-
-            boolean revoked = tokenService.revokeToken(token);
-            if (!revoked) {
-                return new ResponseAPI<>("Token not found or already revoked", HttpStatus.BAD_REQUEST, false);
-            }
-
-            return new ResponseAPI<>("Logout successfully", HttpStatus.OK, true);
-        } catch (Exception e) {
-            return new ResponseAPI<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
+    public ResponseEntity<ResponseAPI<Boolean>> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return new ResponseEntity<>(
+                    new ResponseAPI<>("Missing or invalid Authorization header", HttpStatus.BAD_REQUEST, false),
+                    HttpStatus.BAD_REQUEST
+            );
         }
-    }
 
+        String token = authHeader.substring(7);
+
+        boolean revoked = tokenService.revokeToken(token);
+        if (!revoked) {
+            return new ResponseEntity<>(
+                    new ResponseAPI<>("Token not found or already revoked", HttpStatus.BAD_REQUEST, false),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        return new ResponseEntity<>(
+                new ResponseAPI<>("Logout successfully", HttpStatus.OK, true),
+                HttpStatus.OK
+        );
+    }
 }

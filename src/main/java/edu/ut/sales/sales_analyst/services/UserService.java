@@ -137,31 +137,23 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String login(LoginRequest accountLoginRequest) throws Exception {
-        try {
-            User existingUser = userRepo.findByEmail(accountLoginRequest.getEmail());
-            if (existingUser == null) {
-                throw new AppException(ErrorCode.USER_NOT_FOUND);
-            }
-
-            if (!passwordEncoder.matches(accountLoginRequest.getPassword(), existingUser.getPassword())) {
-                throw new BadCredentialsException("Wrong email or password");
-            }
-
-            // Auth check
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(accountLoginRequest.getEmail(),
-                            accountLoginRequest.getPassword());
-            authenticationManager.authenticate(authenticationToken);
-
-            // Load CustomUserDetails and generate token
-            UserDetails userDetails = new CustomUserDetails(existingUser);
-            return jwtTokenUtils.generateToken(userDetails);
-
-        } catch (Exception e) {
-            log.error("Login failed for user {}: {}", accountLoginRequest.getEmail(), e.getMessage());
-            throw new Exception(e.getMessage(), e);
+    public String login(LoginRequest accountLoginRequest) {
+        User existingUser = userRepo.findByEmail(accountLoginRequest.getEmail());
+        if (existingUser == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
+
+        if (!passwordEncoder.matches(accountLoginRequest.getPassword(), existingUser.getPassword())) {
+            throw new BadCredentialsException("Wrong email or password");
+        }
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(accountLoginRequest.getEmail(),
+                        accountLoginRequest.getPassword());
+        authenticationManager.authenticate(authenticationToken);
+
+        UserDetails userDetails = new CustomUserDetails(existingUser);
+        return jwtTokenUtils.generateToken(userDetails);
     }
 
     @Override
