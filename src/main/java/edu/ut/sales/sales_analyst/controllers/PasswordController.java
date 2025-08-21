@@ -31,17 +31,23 @@ public class PasswordController {
 
     @PostMapping("/send-otp")
     @Operation(summary = "Send OTP to email")
-    public ResponseEntity<String> sendOtp(@RequestBody SendOtpRequest request)
+    public ResponseEntity<ResponseAPI<SendOtpRequest>> sendOtp(@RequestBody SendOtpRequest request)
             throws MessagingException, IOException {
         passwordService.verifyEmailAndSendOTP(request.getEmail());
-        return ResponseEntity.ok("OTP đã được gửi tới email: " + request.getEmail());
+
+        return ResponseEntity.ok(
+                new ResponseAPI<>("OTP đã được gửi thành công", HttpStatus.OK)
+        );
     }
 
     @PostMapping("/verify-otp")
     @Operation(summary = "Verify OTP code sent to email")
-    public ResponseEntity<String> verifyOtp(@RequestBody VerifyOtpRequest request) {
+    public ResponseEntity<ResponseAPI<VerifyOtpRequest>> verifyOtp(@RequestBody VerifyOtpRequest request) {
         passwordService.verifyOTP(request.getEmail(), request.getOtp());
-        return ResponseEntity.ok("OTP hợp lệ, bạn có thể đặt lại mật khẩu mới.");
+
+        return ResponseEntity.ok(
+                new ResponseAPI<>("Xác thực OTP thành công", HttpStatus.OK)
+        );
     }
 
     @Operation(summary = "Reset user password")

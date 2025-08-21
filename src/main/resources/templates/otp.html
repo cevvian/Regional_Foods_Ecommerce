@@ -361,8 +361,8 @@
                         <div class="otp-timer" th:if="${minutesLeft > 0}">
                             Mã có hiệu lực trong <span th:text="${minutesLeft}">5</span> phút
                         </div>
-                        <div class="otp-timer" th:if="${minutesLeft <= 0}" style="color: #ff6b6b;">
-                            ⚠️ Mã đã hết hạn
+                        <div class="otp-timer" th:if="${minutesLeft < 0}" style="color: #ff6b6b;">
+                            Mã đã hết hạn
                         </div>
                     </div>
                 </div>
@@ -392,30 +392,11 @@
                 <div class="contact-section">
                     <div class="contact-text">Cần hỗ trợ? Liên hệ với chúng tôi:</div>
                     <div class="contact-info">
-                        📞 <span th:text="${supportPhone}">031 333 666 9999</span> | 📧 <span th:text="${supportEmail}">dansanViet@gmail.com</span><br>
-                        📍 2 Võ Oanh, Bình Thạnh, TP.HCM
+                        <span th:text="${supportPhone}">031 333 666 9999</span> | <span th:text="${supportEmail}">dansanViet@gmail.com</span><br>
+                        2 Võ Oanh, Bình Thạnh, TP.HCM
                     </div>
                 </div>
             </div>
-
-            <!-- Footer -->
-            <div class="footer-section">
-                <div class="footer-dots">
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                </div>
-                <div class="website">WWW.DACSANVIET.COM</div>
-
-                <div class="social-links">
-                    <a href="#" class="social-link">f</a>
-                    <a href="#" class="social-link">📞</a>
-                    <a href="#" class="social-link">📧</a>
-                </div>
-            </div>
-
         </td>
     </tr>
 </table>
