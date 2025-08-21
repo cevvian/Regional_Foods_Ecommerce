@@ -53,12 +53,6 @@ public class NewController {
         request.setImages(images);
         request.setType(type);
 
-//        try {
-//            request.setType(NewType.valueOf(type.toUpperCase()));
-//        } catch (IllegalArgumentException e) {
-//            throw new RuntimeException("Invalid type value: " + type);
-//        }
-
         NewResponse response = newService.createNews(request);
         return new ResponseAPI<>("Create news successfully", HttpStatus.CREATED, response);
     }
@@ -96,7 +90,7 @@ public class NewController {
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String content,
             @RequestParam(required = false, name = "categoryId") String categoryId,
-            @RequestParam(required = false) String type, // <-- thêm đây
+            @RequestParam(required = false) NewType type,
             @RequestParam(required = false) List<String> typeContents,
             @RequestPart(required = false) List<MultipartFile> files
     ) {
@@ -115,14 +109,7 @@ public class NewController {
         request.setContent(content);
         request.setCategoryId(categoryId);
         request.setImages(images);
-
-        if (type != null && !type.isBlank()) {
-            try {
-                request.setType(NewType.valueOf(type.toUpperCase()));
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Invalid type value: " + type);
-            }
-        }
+        request.setType(type);
 
         NewResponse response = newService.updateNews(id, request);
         return new ResponseAPI<>("Update news successfully", HttpStatus.OK, response);
@@ -159,5 +146,32 @@ public class NewController {
 
         return new ResponseAPI<>("Get news by category successfully", HttpStatus.OK, newsPage.getContent(), meta);
     }
+
+    @GetMapping("/filter")
+    public ResponseAPI<List<NewResponse>> filterNews(
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) NewType type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<NewResponse> newsPage = newService.getNewsByFilter(categoryId, type, pageable);
+
+        PageMeta meta = PageMeta.builder()
+                .page(newsPage.getNumber())
+                .size(newsPage.getSize())
+                .totalElements(newsPage.getTotalElements())
+                .totalPages(newsPage.getTotalPages())
+                .last(newsPage.isLast())
+                .build();
+
+        return new ResponseAPI<>(
+                "Filter news successfully",
+                HttpStatus.OK,
+                newsPage.getContent(),
+                meta
+        );
+    }
+
 
 }
