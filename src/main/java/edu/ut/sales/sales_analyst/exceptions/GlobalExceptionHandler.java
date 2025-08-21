@@ -5,9 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.stream.Collectors;
 
@@ -44,6 +49,17 @@ public class GlobalExceptionHandler {
                 new ResponseAPI<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseAPI<Void> handleBadCredentialsException(BadCredentialsException ex) {
+        return new ResponseAPI<>("Wrong email or password", HttpStatus.UNAUTHORIZED, null);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseAPI<Void> handleAccessDeniedException(AccessDeniedException ex) {
+        return new ResponseAPI<>("Access Denied", HttpStatus.FORBIDDEN);
     }
 }
 

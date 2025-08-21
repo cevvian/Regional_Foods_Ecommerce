@@ -26,7 +26,7 @@ public interface IUserService {
 
     String login(LoginRequest accountLoginRequest) throws Exception;
 
-    Boolean resetPassword(String userId, ResetPasswordRequest resetPasswordRequest);
+    Boolean resetPassword(ResetPasswordRequest resetPasswordRequest);
 
     Boolean forgetPassword(ForgotPasswordRequest forgotPasswordsRequest);
 

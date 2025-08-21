@@ -27,10 +27,10 @@ import java.util.Map;
 public class CartController {
     CartService cartService;
 
-    @GetMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
-    public ResponseAPI<CartResponse> viewMyCart(@PathVariable String userId) {
-        CartResponse cartResponse = cartService.viewCart(userId);
+    @GetMapping("")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public ResponseAPI<CartResponse> viewMyCart() {
+        CartResponse cartResponse = cartService.viewCart();
         return new ResponseAPI<>("View cart successfully", HttpStatus.OK, cartResponse);
     }
 

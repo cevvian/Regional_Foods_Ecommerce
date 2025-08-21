@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NotificationRequest {
-    private String userId;
-    private String title;
-    private String content;
+public class VerifyOtpRequest {
+    private String email;
+    private Integer otp;
 }

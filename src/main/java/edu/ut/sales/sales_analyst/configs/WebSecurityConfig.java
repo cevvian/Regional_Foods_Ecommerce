@@ -52,6 +52,7 @@ public class WebSecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/users/register",
                                 "/api/v1/users/refresh-token",
+                                "/api/v1/payment/*",
                                 "/swagger-ui/index.html",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
@@ -64,9 +65,11 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/category/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/news/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/region/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/passwords/send-otp").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/passwords/verify-otp").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/passwords/forgot-password").permitAll()
                         // ============================================
 
                         // Còn lại bắt buộc có JWT

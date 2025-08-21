@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mã OTP Xác Thực - Đặc Sản Việt Nam</title>
+    <style>
+        /* Reset styles for email compatibility */
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f1eb;
+            color: #8b4a47;
+            line-height: 1.6;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        img {
+            border: 0;
+            display: block;
+        }
+
+        /* Main container - fixed width for email compatibility */
+        .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f5f1eb;
+        }
+
+        .content-wrapper {
+            padding: 30px 20px;
+        }
+
+        /* Header table */
+        .header-table {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .logo-cell {
+            text-align: center;
+            vertical-align: top;
+        }
+
+
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #8b4a47;
+            text-shadow: 0 2px 4px rgba(139, 74, 71, 0.1);
+        }
+
+        .tagline {
+            font-size: 12px;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Main content card */
+        .main-card {
+            background: linear-gradient(135deg, rgba(212, 181, 196, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border-radius: 20px;
+            padding: 40px 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(139, 74, 71, 0.1);
+            border: 1px solid rgba(212, 181, 196, 0.3);
+        }
+
+        /* Greeting section */
+        .greeting-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .greeting-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8b4a47;
+            margin-bottom: 10px;
+        }
+
+        .greeting-subtitle {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* OTP Section */
+        .otp-section {
+            text-align: center;
+            margin: 35px 0;
+        }
+
+        .otp-label {
+            font-size: 14px;
+            color: #8b4a47;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .otp-container {
+            background: linear-gradient(135deg, #8b4a47 0%, #a85b58 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(139, 74, 71, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .otp-container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .otp-code {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 8px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+            font-family: 'Courier New', monospace;
+        }
+
+        .otp-timer {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Instructions */
+        .instructions {
+            background-color: rgba(212, 181, 196, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 4px solid #8b4a47;
+        }
+
+        .instructions-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #8b4a47;
+            margin-bottom: 10px;
+        }
+
+        .instructions-list {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .instructions-list li {
+            margin-bottom: 5px;
+            list-style: none;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .instructions-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #8b4a47;
+            font-weight: bold;
+        }
+
+        /* Security notice */
+        .security-notice {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 235, 59, 0.1) 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            text-align: center;
+        }
+
+        .security-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .security-text {
+            font-size: 12px;
+            color: #8b4a47;
+            font-weight: 500;
+        }
+
+        /* Contact section */
+        .contact-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(212, 181, 196, 0.5);
+        }
+
+        .contact-text {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .contact-info {
+            font-size: 12px;
+            color: #8b4a47;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px 0;
+        }
+
+        .footer-dots {
+            margin-bottom: 15px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #8b4a47;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: pulse 2s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .dot:nth-child(4) { animation-delay: 0.6s; }
+        .dot:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .website {
+            font-size: 11px;
+            color: #999;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .social-links {
+            margin-top: 10px;
+        }
+
+        .social-link {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #8b4a47;
+            color: white;
+            text-decoration: none;
+            border-radius: 50%;
+            line-height: 30px;
+            margin: 0 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background-color: #d4b5c4;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+
+            .content-wrapper {
+                padding: 20px 15px !important;
+            }
+
+            .main-card {
+                padding: 30px 20px !important;
+            }
+
+            .greeting-title {
+                font-size: 24px !important;
+            }
+
+            .otp-code {
+                font-size: 28px !important;
+                letter-spacing: 4px !important;
+            }
+
+            .company-name {
+                font-size: 20px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<table class="email-container" cellpadding="0" cellspacing="0">
+    <tr>
+        <td class="content-wrapper">
+
+            <!-- Header -->
+            <table class="header-table" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="logo-cell">
+                        <div class="company-name">ĐẶC SẢN VIỆT NAM</div>
+                        <div class="tagline">Hương vị truyền thống - Chất lượng tự nhiên</div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Main Content Card -->
+            <div class="main-card">
+                <!-- Greeting -->
+                <div class="greeting-section">
+                    <div class="greeting-title">Xin chào!</div>
+                    <div class="greeting-subtitle">
+                        Chúng tôi đã nhận được yêu cầu xác thực tài khoản của bạn.<br>
+                        Vui lòng sử dụng mã OTP bên dưới để hoàn tất quá trình xác thực.
+                    </div>
+                </div>
+
+                <!-- OTP Section -->
+                <div class="otp-section">
+                    <div class="otp-label">Mã xác thực của bạn</div>
+                    <div class="otp-container">
+                        <div class="otp-code" th:text="${otpCode}">123456</div>
+                        <div class="otp-timer" th:if="${minutesLeft > 0}">
+                            Mã có hiệu lực trong <span th:text="${minutesLeft}">5</span> phút
+                        </div>
+                        <div class="otp-timer" th:if="${minutesLeft < 0}" style="color: #ff6b6b;">
+                            Mã đã hết hạn
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="instructions">
+                    <div class="instructions-title">Hướng dẫn sử dụng:</div>
+                    <ul class="instructions-list">
+                        <li>Nhập mã OTP gồm 6 chữ số vào ô xác thực</li>
+                        <li th:if="${minutesLeft > 0}">Mã OTP chỉ có hiệu lực trong <span th:text="${minutesLeft}">5</span> phút</li>
+                        <li th:if="${minutesLeft < 0}" style="color: #ff6b6b;">⚠️ Mã OTP đã hết hạn, vui lòng yêu cầu mã mới</li>
+                        <li>Không chia sẻ mã này với bất kỳ ai</li>
+                        <li>Nếu bạn không yêu cầu mã này, hãy bỏ qua email</li>
+                    </ul>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="security-notice">
+                    <div class="security-icon">🔒</div>
+                    <div class="security-text">
+                        Để bảo mật tài khoản, vui lòng không chia sẻ mã OTP với bất kỳ ai.
+                        Đội ngũ hỗ trợ của chúng tôi sẽ không bao giờ yêu cầu mã OTP qua điện thoại hoặc email.
+                    </div>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="contact-section">
+                    <div class="contact-text">Cần hỗ trợ? Liên hệ với chúng tôi:</div>
+                    <div class="contact-info">
+                        <span th:text="${supportPhone}">031 333 666 9999</span> | <span th:text="${supportEmail}">dansanViet@gmail.com</span><br>
+                        2 Võ Oanh, Bình Thạnh, TP.HCM
+                    </div>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+</body>
+
+</html>

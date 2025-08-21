@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface ICartService {
     CartResponse addToCard(AddToCartRequest request);
-    CartResponse viewCart(String userId);
+    CartResponse viewCart();
     String deleteCartItem(String cartItemId);
     CartItemResponse updateCartItemQuantity(String cartItemId, CartItemRequest request);
     String deleteAllItemsByUser();

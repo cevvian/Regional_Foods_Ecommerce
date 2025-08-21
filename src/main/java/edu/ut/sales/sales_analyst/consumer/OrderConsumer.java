@@ -7,12 +7,14 @@ import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
 import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
 import edu.ut.sales.sales_analyst.services.*;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class OrderConsumer {
 
     private final CartService cartService;
@@ -65,11 +67,10 @@ public class OrderConsumer {
 
         // Gửi noti
         sendNotificationToUserAndAdmin(
-                "Order Created",
-                "Your order #" + order.getOrderId() + " has been created successfully!",
-                "New order #" + order.getOrderId() + " has been created by user " + order.getUserResponse().getEmail(),
-                order.getUserResponse().getUserId(),
-                "/topic/order-created"
+                "Đơn hàng mới",
+                "Đơn hàng số #" + order.getOrderId() + " của bạn đã được tạo thành công!",
+                "Đơn hàng mới #" + order.getOrderId() + " đã được tạo bởi người dùng " + order.getUserResponse().getEmail(),
+                order.getUserResponse().getUserId()
         );
     }
 
@@ -83,11 +84,10 @@ public class OrderConsumer {
         String statusMessage = event.getOrderStatus().getMessage();
 
         sendNotificationToUserAndAdmin(
-                "Order Status Updated",
-                "Order #" + order.getOrderId() + ": " + statusMessage,
-                "Order #" + order.getOrderId() + " for user " + order.getUserResponse().getEmail() + " is now: " + statusMessage,
-                order.getUserResponse().getUserId(),
-                "/topic/order-status-changed"
+                "Cập nhật trạng thái đơn hàng",
+                "Đơn hàng số #" + order.getOrderId() + ": " + statusMessage,
+                "Đơn hàng số #" + order.getOrderId() + " của người dùng " + order.getUserResponse().getEmail() + " hiện tại là: " + statusMessage,
+                order.getUserResponse().getUserId()
         );
     }
 
@@ -108,34 +108,25 @@ public class OrderConsumer {
         });
 
         sendNotificationToUserAndAdmin(
-                "Order Cancelled",
-                "Order #" + order.getOrderId() + ": " + OrderStatus.CANCELLED.getMessage(),
-                "Order #" + order.getOrderId() + " for user " + order.getUserResponse().getEmail()
-                        + " is now: " + OrderStatus.CANCELLED.getMessage(),
-                order.getUserResponse().getUserId(),
-                "/topic/order-cancelled"
+                "Hủy Đơn",
+                "Đơn hàng số #" + order.getOrderId() + ": " + OrderStatus.CANCELLED.getMessage(),
+                "Đơn hàng số #" + order.getOrderId() + " của người dùng " + order.getUserResponse().getEmail() + " hiện tại là: " + OrderStatus.CANCELLED.getMessage(),
+                order.getUserResponse().getUserId()
         );
     }
 
-    private void sendNotificationToUserAndAdmin(String title, String userMessage, String adminMessage,
-                                                String userId, String topic) {
-        // User
-        NotificationRequest userNotification = new NotificationRequest();
-        userNotification.setTitle(title);
-        userNotification.setMessage(userMessage);
-        userNotification.setUserId(userId);
+    private void sendNotificationToUserAndAdmin(String title, String userMessage, String adminMessage, String userId) {
+        NotificationRequest userNotification = new NotificationRequest(title, userMessage, userId);
         notificationService.createNotification(userNotification);
+        messagingTemplate.convertAndSend("/queue/notifications-" + userId, userNotification);
 
-        // Admin
         UserResponse adminUser = userService.getUserFromEmail(adminEmail);
-        NotificationRequest adminNotification = new NotificationRequest();
-        adminNotification.setTitle(title);
-        adminNotification.setMessage(adminMessage);
-        adminNotification.setUserId(adminUser.getUserId());
-        notificationService.createNotification(adminNotification);
-
-        // Socket
-        messagingTemplate.convertAndSend(topic, userNotification);
-        messagingTemplate.convertAndSend(topic, adminNotification);
+        if (adminUser != null) {
+            NotificationRequest adminNotification = new NotificationRequest(title, adminMessage, adminUser.getUserId());
+            notificationService.createNotification(adminNotification);
+            messagingTemplate.convertAndSend("/queue/notifications-" + adminUser.getUserId(), adminNotification);
+        } else {
+            log.warn("Không tìm thấy tài khoản quản trị viên với email {}. Không thể gửi thông báo cho quản trị viên.", adminEmail);
+        }
     }
 }
