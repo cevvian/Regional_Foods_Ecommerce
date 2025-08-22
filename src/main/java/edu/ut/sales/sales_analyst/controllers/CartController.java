@@ -35,7 +35,7 @@ public class CartController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     public ResponseAPI<CartResponse> addNewItem(@Valid @RequestBody AddToCartRequest cartRequest) {
         CartResponse cartResponse = cartService.addToCard(cartRequest);
         return new ResponseAPI<>("Add new cart item successfully", HttpStatus.CREATED, cartResponse);

@@ -4,7 +4,7 @@ import edu.ut.sales.sales_analyst.model.dtos.responses.CartResponse;
 import edu.ut.sales.sales_analyst.model.entities.Cart;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {CartItemMapper.class})
 public interface CartMapper {
     CartResponse toCartResponse(Cart cart);
     Cart toCart(CartResponse cartResponse);
