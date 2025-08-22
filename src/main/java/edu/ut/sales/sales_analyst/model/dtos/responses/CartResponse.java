@@ -1,7 +1,5 @@
 package edu.ut.sales.sales_analyst.model.dtos.responses;
 
-import edu.ut.sales.sales_analyst.model.entities.CartItem;
-import edu.ut.sales.sales_analyst.model.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
