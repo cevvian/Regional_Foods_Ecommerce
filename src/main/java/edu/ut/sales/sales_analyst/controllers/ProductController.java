@@ -166,6 +166,13 @@ public class ProductController {
         return new ResponseAPI<>("Get revenue statistics successfully", HttpStatus.OK, stats);
     }
 
+    @GetMapping("/category/{categoryId}")
+    public ResponseAPI<List<ProductResponse>> getProductsByCategory(@PathVariable String categoryId) {
+        List<ProductResponse> products = productService.getProductsByCategoryId(categoryId);
+        return new ResponseAPI<>("Get list product by category successfully", HttpStatus.OK, products);
+    }
+
+
     @GetMapping("/filter")
     public ResponseAPI<List<ProductResponse>> filterProducts(
             @ModelAttribute @Valid ProductFilterRequest filter,

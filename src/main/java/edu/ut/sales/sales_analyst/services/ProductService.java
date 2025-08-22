@@ -146,6 +146,7 @@ public class ProductService implements IProductService {
     }
 
     @Transactional
+    @Override
     public boolean updateDeletedStatusProduct(String productId, boolean isDelected) {
         Product product = productRepo.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -189,6 +190,19 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         product.setStockQuantity(product.getStockQuantity() + quantity);
         productRepo.save(product);
+    }
+
+    @Override
+    public List<ProductResponse> getProductsByCategoryId(String categoryId) {
+        Category category = categoryRepo.findByCategoryId(categoryId);
+        if (category == null) {
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+
+        List<Product> products = productRepo.findByCategory(category);
+        return products.stream()
+                .map(productMapper::toProductDTO)
+                .collect(Collectors.toList());
     }
 
     private void handleImageUploadAndAttachToProduct(Product product, List<ImageProductCreationRequest> imageRequests) {

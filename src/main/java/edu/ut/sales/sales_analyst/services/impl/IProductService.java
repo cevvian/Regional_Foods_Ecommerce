@@ -6,6 +6,7 @@ import edu.ut.sales.sales_analyst.model.dtos.requests.RevenueFilterDTO;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ProductResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsDTO;
 import edu.ut.sales.sales_analyst.model.entities.Product;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,6 +19,9 @@ public interface IProductService {
     ProductResponse updateProduct(String productId, ProductCreateRequest productCreateRequest);
     Boolean deleteProduct(String productId);
 
+    @Transactional
+    boolean updateDeletedStatusProduct(String productId, boolean isDelected);
+
     List<RevenueStatsDTO> getRevenueByTime(RevenueFilterDTO filter);
     Page<ProductResponse> filterProducts(
             ProductFilterRequest filterRequest,
@@ -25,4 +29,6 @@ public interface IProductService {
     );
     List<Product> createProductList(List<ProductCreateRequest> requests);
     void increaseStock(String productId, int quantity);
+
+    List<ProductResponse> getProductsByCategoryId(String categoryId);
 }
