@@ -52,6 +52,8 @@ public class CartService implements ICartService {
 
         Product product = productRepo.findById(request.getProductId())
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        if(product.isDeleted())
+            throw new AppException(ErrorCode.PRODUCT_ALREADY_DELETED);
 
         Optional<CartItem> existingItemOpt = cartItemRepo.findByCartAndProduct(cart, product);
         if (existingItemOpt.isPresent()) {
