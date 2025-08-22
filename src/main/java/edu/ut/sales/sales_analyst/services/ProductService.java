@@ -106,6 +106,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse updateProduct(String productId, ProductCreateRequest productCreateRequest) {
         Product product = productRepo.findByProductId(productId);
         if(product == null) {
