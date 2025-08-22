@@ -100,14 +100,16 @@ public class ProductController {
             @RequestParam String description,
             @RequestParam BigDecimal price,
             @RequestParam int stockQuantity,
-            @RequestPart(required = false) List<MultipartFile> files
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
 
         List<ImageProductCreationRequest> images = new ArrayList<>();
-        for (int i = 0; i < files.size(); i++) {
-            ImageProductCreationRequest image = new ImageProductCreationRequest();
-            image.setImage(files.get(i));
-            images.add(image);
+        if (files != null) {
+            for (MultipartFile file : files) {
+                ImageProductCreationRequest image = new ImageProductCreationRequest();
+                image.setImage(file);
+                images.add(image);
+            }
         }
 
         ProductCreateRequest request = ProductCreateRequest.builder()
@@ -127,7 +129,7 @@ public class ProductController {
     @PutMapping("/soft-delete/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<Void> softDeleteProduct(@PathVariable String id) {
-        Boolean deleted = productService.updateDeletedStatusProduct(id, false);
+        Boolean deleted = productService.updateDeletedStatusProduct(id, true);
         if (deleted) {
             return new ResponseAPI<>("Delete product successfully", HttpStatus.OK, null);
         } else {
@@ -138,7 +140,7 @@ public class ProductController {
     @PutMapping("/restore/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<Void> restoreProduct(@PathVariable String id) {
-        Boolean deleted = productService.updateDeletedStatusProduct(id, true);
+        Boolean deleted = productService.updateDeletedStatusProduct(id, false);
         if (deleted) {
             return new ResponseAPI<>("Restore product successfully", HttpStatus.OK, null);
         } else {
@@ -163,6 +165,13 @@ public class ProductController {
         List<RevenueStatsDTO> stats = productService.getRevenueByTime(filter);
         return new ResponseAPI<>("Get revenue statistics successfully", HttpStatus.OK, stats);
     }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseAPI<List<ProductResponse>> getProductsByCategory(@PathVariable String categoryId) {
+        List<ProductResponse> products = productService.getProductsByCategoryId(categoryId);
+        return new ResponseAPI<>("Get list product by category successfully", HttpStatus.OK, products);
+    }
+
 
     @GetMapping("/filter")
     public ResponseAPI<List<ProductResponse>> filterProducts(

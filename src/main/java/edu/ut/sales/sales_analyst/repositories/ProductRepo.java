@@ -1,5 +1,6 @@
 package edu.ut.sales.sales_analyst.repositories;
 
+import edu.ut.sales.sales_analyst.model.entities.Category;
 import edu.ut.sales.sales_analyst.model.entities.Product;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,8 @@ public interface ProductRepo extends JpaRepository<Product, String> {
     Product findByProductName(String name);
 
     Product findByProductId(String id);
+
+    List<Product> findByCategory(Category category);
 
     //lock hàng tồn kho
     @Lock(LockModeType.PESSIMISTIC_WRITE)

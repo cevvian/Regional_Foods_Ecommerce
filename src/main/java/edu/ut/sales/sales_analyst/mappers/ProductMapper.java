@@ -6,7 +6,7 @@ import edu.ut.sales.sales_analyst.model.entities.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ImageProductMapper.class})
 public interface ProductMapper {
     @Mapping(target = "imageProductResponseList", source = "images")
     @Mapping(target = "isDeleted", source = "deleted")
