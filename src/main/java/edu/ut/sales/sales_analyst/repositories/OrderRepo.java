@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -43,4 +44,13 @@ public interface OrderRepo extends JpaRepository<Order, String> {
     Optional<Order> findByIdWithItems(@Param("id") String id);
     @Query("SELECT o FROM Order o JOIN FETCH o.orderItems WHERE o.orderId = :orderId")
     Order findByOrderIdWithItems(@Param("orderId") String orderId);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.status = 'PROCESS' AND MONTH(o.orderDate) = :month AND YEAR(o.orderDate) = :year")
+    long countPendingOrdersByMonth(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT o FROM Payment p " +
+            "JOIN p.order o " +
+            "WHERE p.status = 'PAID' " +
+            "ORDER BY p.updatedAt DESC")
+    List<Order> findRecentPaidOrders(Pageable pageable);
 }

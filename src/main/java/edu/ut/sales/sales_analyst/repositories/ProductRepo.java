@@ -93,4 +93,7 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             @Param("minRating") Double minRating,
             Pageable pageable
     );
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE MONTH(p.createAt) = :month AND YEAR(p.createAt) = :year")
+    long countProductsByMonth(@Param("month") int month, @Param("year") int year);
 }
