@@ -6,6 +6,7 @@ import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.UserMapper;
 import edu.ut.sales.sales_analyst.model.dtos.events.PasswordChangedEvent;
 import edu.ut.sales.sales_analyst.model.dtos.requests.*;
+import edu.ut.sales.sales_analyst.model.dtos.responses.StatsResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
 import edu.ut.sales.sales_analyst.model.entities.Token;
@@ -236,6 +237,7 @@ public class UserService implements IUserService {
         User user = getCurrentUser();
         return userMapper.toUserResponse(user);
     }
+
 
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

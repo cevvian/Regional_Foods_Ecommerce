@@ -1,5 +1,6 @@
 package edu.ut.sales.sales_analyst.repositories;
 
+import edu.ut.sales.sales_analyst.model.dtos.responses.StatsResponse;
 import edu.ut.sales.sales_analyst.model.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +22,7 @@ public interface UserRepo extends JpaRepository<User, Integer> {
         SELECT u FROM User u WHERE (:isActive IS NULL OR u.isActive = :isActive)
     """)
     Page<User> findAllByIsActiveNullable(@Param("isActive") Boolean isActive, Pageable pageable);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE MONTH(u.createAt) = :month AND YEAR(u.createAt) = :year")
+    long countUsersByMonth(@Param("month") int month, @Param("year") int year);
 }

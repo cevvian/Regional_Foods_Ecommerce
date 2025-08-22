@@ -4,6 +4,7 @@ import edu.ut.sales.sales_analyst.model.dtos.requests.ForgotPasswordRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.LoginRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.ResetPasswordRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.UserCreateRequest;
+import edu.ut.sales.sales_analyst.model.dtos.responses.StatsResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserDetailResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.UserResponse;
 import edu.ut.sales.sales_analyst.model.entities.User;
