@@ -44,10 +44,13 @@ public class OrderService implements IOrderService {
     private final EventProducer eventProducer;
     private final PaymentService paymentService;
     private final UserService userService;
+    private final CartItemMapper cartItemMapper;
+    private final CartItemRepo cartItemRepo;
 
     public OrderService(OrderRepo orderRepo, OrderMapper orderMapper, UserRepo userRepo,
                         ProductRepo productRepo, OrderItemRepo orderItemRepo, AddressRepo addressRepo,
-                        EventProducer eventProducer, PaymentService paymentService, UserService userService) {
+                        EventProducer eventProducer, PaymentService paymentService, UserService userService,
+                        CartItemMapper cartItemMapper, CartItemRepo cartItemRepo) {
         this.orderRepo = orderRepo;
         this.orderMapper = orderMapper;
         this.userRepo = userRepo;
@@ -57,6 +60,8 @@ public class OrderService implements IOrderService {
         this.eventProducer = eventProducer;
         this.paymentService = paymentService;
         this.userService = userService;
+        this.cartItemMapper = cartItemMapper;
+        this.cartItemRepo = cartItemRepo;
     }
 
     @Override
@@ -65,10 +70,11 @@ public class OrderService implements IOrderService {
         User customer = validateCustomer(userService.getCurrentUser().getUserId());
         Address address = validateAddress(request.getAddressId(), customer.getUserId());
 
-        List<CartItem> cartItemList = customer.getCart().getItems();
+        List<CartItem> cartItemList = cartItemRepo.findAllByCartItemIdIn(request.getCartItemsId());
         if (cartItemList == null || cartItemList.isEmpty()) {
             throw new AppException(ErrorCode.CART_EMPTY);
         }
+        cartItemRepo.deleteAllByCartItemIdIn(request.getCartItemsId());
 
         // Convert cart -> orderItems
         List<OrderItemRequest> orderItemRequests = getOrderItemsFromCart(cartItemList);

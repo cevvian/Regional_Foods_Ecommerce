@@ -127,11 +127,22 @@ public class ProductController {
     @PutMapping("/soft-delete/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseAPI<Void> softDeleteProduct(@PathVariable String id) {
-        Boolean deleted = productService.softDeleteProduct(id);
+        Boolean deleted = productService.updateDeletedStatusProduct(id, false);
         if (deleted) {
             return new ResponseAPI<>("Delete product successfully", HttpStatus.OK, null);
         } else {
             return new ResponseAPI<>("Delete product failed", HttpStatus.NOT_FOUND, null);
+        }
+    }
+
+    @PutMapping("/restore/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseAPI<Void> restoreProduct(@PathVariable String id) {
+        Boolean deleted = productService.updateDeletedStatusProduct(id, true);
+        if (deleted) {
+            return new ResponseAPI<>("Restore product successfully", HttpStatus.OK, null);
+        } else {
+            return new ResponseAPI<>("Restore product failed", HttpStatus.NOT_FOUND, null);
         }
     }
 

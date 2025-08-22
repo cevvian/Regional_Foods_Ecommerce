@@ -19,18 +19,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -150,13 +145,10 @@ public class ProductService implements IProductService {
     }
 
     @Transactional
-    public boolean softDeleteProduct(String productId) {
+    public boolean updateDeletedStatusProduct(String productId, boolean isDelected) {
         Product product = productRepo.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-//        if(product.isDeleted())
-//            throw new AppException(ErrorCode.PRODUCT_ALREADY_DELETED);
-
-        product.setDeleted(true);
+        product.setDeleted(isDelected);
         productRepo.save(product);
         return product.isDeleted();
     }

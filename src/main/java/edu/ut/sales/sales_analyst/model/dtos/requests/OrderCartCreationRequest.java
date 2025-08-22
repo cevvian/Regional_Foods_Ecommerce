@@ -1,5 +1,6 @@
 package edu.ut.sales.sales_analyst.model.dtos.requests;
 
+import edu.ut.sales.sales_analyst.model.entities.CartItem;
 import edu.ut.sales.sales_analyst.model.enums.PaymentMethod;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -19,4 +20,6 @@ public class OrderCartCreationRequest {
     String addressId;
 
     PaymentMethod method;
+
+    List<String> cartItemsId;
 }
