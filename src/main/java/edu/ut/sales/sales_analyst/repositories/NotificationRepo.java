@@ -55,9 +55,9 @@ public interface NotificationRepo extends JpaRepository<Notification, String> {
 //    Long countByUserIdAndIsReadNot(@Param("userId") String userId);
 
     @Query("""
-    SELECT CASE WHEN COUNT(n) > 0 THEN true ELSE false END
-    FROM Notification n
-    WHERE n.title = :title AND n.content = :content
-""")
+        SELECT CASE WHEN COUNT(n) > 0 THEN true ELSE false END
+        FROM Notification n
+        WHERE n.title = :title AND n.content = :content
+    """)
     Boolean existsNotificationByContentAndTitle(@Param("title") String title, @Param("content") String content);
 }

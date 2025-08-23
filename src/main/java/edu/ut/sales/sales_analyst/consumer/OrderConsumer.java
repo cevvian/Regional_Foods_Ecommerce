@@ -53,9 +53,10 @@ public class OrderConsumer {
 
         // Xoá cart
 
-        cartService.deleteAllItemsByUser();
+        cartService.deleteAllItemsByUser(order.getUserResponse().getUserId());
 
         // Gửi email invoice
+        log.info(" Payment ID: {}", event.getPaymentId());
         PaymentResponse.PaymentInfoResponse payment = paymentService.getPaymentById(event.getPaymentId());
         // Tạm thời chuyển qua request cho đúng hàm send mail
         PaymentRequest paymentRequest = new PaymentRequest();
@@ -63,8 +64,17 @@ public class OrderConsumer {
         paymentRequest.setAmount(payment.getAmount());
         paymentRequest.setMethod(payment.getMethod());
         paymentRequest.setTransactionId(payment.getTransactionId());
+        log.info("📧 Sending invoice email to {} | orderId={} | amount={} | method={} | txn={}",
+                order.getUserResponse().getEmail(),
+                paymentRequest.getOrderId(),
+                paymentRequest.getAmount(),
+                paymentRequest.getMethod(),
+                paymentRequest.getTransactionId()
+        );
         emailService.sendInvoiceEmail(order.getUserResponse().getEmail(), paymentRequest);
 
+        log.info("✅ Invoice email sent successfully to {}", order.getUserResponse().getEmail());
+        log.info("User ID: {}", order.getUserResponse().getUserId());
         // Gửi noti
         sendNotificationToUserAndAdmin(
                 "Đơn hàng mới",
@@ -116,13 +126,17 @@ public class OrderConsumer {
     }
 
     private void sendNotificationToUserAndAdmin(String title, String userMessage, String adminMessage, String userId) {
-        NotificationRequest userNotification = new NotificationRequest(title, userMessage, userId);
-        notificationService.createNotification(userNotification);
+        System.out.println("Function sendNotificationToUserAndAdmin called");
+        NotificationRequest userNotification = new NotificationRequest(userId, title, userMessage);
+        NotificationResponse notification = notificationService.createNotification(userNotification);
+        log.info("Create notification successfully: {}", notification);
         messagingTemplate.convertAndSend("/queue/notifications-" + userId, userNotification);
 
         UserResponse adminUser = userService.getUserFromEmail(adminEmail);
+        log.info("Admin info: {}", adminUser);
         if (adminUser != null) {
-            NotificationRequest adminNotification = new NotificationRequest(title, adminMessage, adminUser.getUserId());
+            // Nếu NotificationRequest(userId, title, content)
+            NotificationRequest adminNotification = new NotificationRequest(adminUser.getUserId(), title, adminMessage);
             notificationService.createNotification(adminNotification);
             messagingTemplate.convertAndSend("/queue/notifications-" + adminUser.getUserId(), adminNotification);
         } else {

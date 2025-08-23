@@ -15,7 +15,7 @@ public interface ICartService {
     CartResponse viewCart();
     String deleteCartItem(String cartItemId);
     CartItemResponse updateCartItemQuantity(String cartItemId, CartItemRequest request);
-    String deleteAllItemsByUser();
+    String deleteAllItemsByUser(String userId);
     Map<String, String> deleteCartItemList(List<String> cartItemIds);
     void deleteListCartItem(List<CartItem> cartItemList);
 }

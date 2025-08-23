@@ -150,20 +150,19 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public String deleteAllItemsByUser() {
-        User userCurrent = userService.getCurrentUser();
-        Cart cart = cartRepo.findByUser_UserId(userCurrent.getUserId());
+    public String deleteAllItemsByUser(String userId) {
+        Cart cart = cartRepo.findByUser_UserId(userId);
         if (cart == null) throw new AppException(ErrorCode.CART_NOT_FOUND);
 
-        List<CartItem> items = cartItemRepo.findAllByUserId(userCurrent.getUserId());
+        List<CartItem> items = cartItemRepo.findAllByUserId(userId);
         if (items.isEmpty()) {
-            return "No items found for user: " + userCurrent.getUserId();
+            return "No items found for user: " + userId;
         }
         cartItemRepo.deleteAll(items);
 
-        boolean isDeletedAll = cartItemRepo.findAllByUserId(userCurrent.getUserId()).isEmpty();
+        boolean isDeletedAll = cartItemRepo.findAllByUserId(userId).isEmpty();
         return isDeletedAll
-                ? "Successfully deleted all items for user: " + userCurrent.getUserId()
-                : "Failed to delete some items for user: " + userCurrent.getUserId();
+                ? "Successfully deleted all items for user: " + userId
+                : "Failed to delete some items for user: " + userId;
     }
 }

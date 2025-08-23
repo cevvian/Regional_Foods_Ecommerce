@@ -45,12 +45,9 @@ public interface OrderRepo extends JpaRepository<Order, String> {
     @Query("SELECT o FROM Order o JOIN FETCH o.orderItems WHERE o.orderId = :orderId")
     Order findByOrderIdWithItems(@Param("orderId") String orderId);
 
-    @Query("SELECT COUNT(o) FROM Order o WHERE o.status = 'PROCESS' AND MONTH(o.orderDate) = :month AND YEAR(o.orderDate) = :year")
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.status = 'PENDING' AND MONTH(o.orderDate) = :month AND YEAR(o.orderDate) = :year")
     long countPendingOrdersByMonth(@Param("month") int month, @Param("year") int year);
 
-    @Query("SELECT o FROM Payment p " +
-            "JOIN p.order o " +
-            "WHERE p.status = 'PAID' " +
-            "ORDER BY p.updatedAt DESC")
-    List<Order> findRecentPaidOrders(Pageable pageable);
+    List<Order> findTop5ByOrderByUpdatedAtDesc();
+
 }

@@ -1,6 +1,8 @@
 package edu.ut.sales.sales_analyst.services;
 
+import edu.ut.sales.sales_analyst.mappers.OrderMapper;
 import edu.ut.sales.sales_analyst.model.dtos.responses.MonthlyRevenue;
+import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OverviewStatsResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.RevenueStatsResponse;
 import edu.ut.sales.sales_analyst.model.entities.Order;
@@ -9,7 +11,7 @@ import edu.ut.sales.sales_analyst.repositories.PaymentRepo;
 import edu.ut.sales.sales_analyst.repositories.ProductRepo;
 import edu.ut.sales.sales_analyst.repositories.UserRepo;
 import edu.ut.sales.sales_analyst.services.impl.IStatsService;
-import org.springframework.data.domain.PageRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,18 +23,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class StatsService implements IStatsService {
     private final UserRepo userRepo;
     private final ProductRepo productRepo;
     private final OrderRepo orderRepo;
     private final PaymentRepo paymentRepo;
+    private final OrderMapper orderMapper;
 
-    public StatsService(UserRepo userRepo, ProductRepo productRepo, OrderRepo orderRepo, PaymentRepo paymentRepo) {
+    public StatsService(UserRepo userRepo, ProductRepo productRepo, OrderRepo orderRepo, PaymentRepo paymentRepo, OrderMapper orderMapper) {
         this.userRepo = userRepo;
         this.productRepo = productRepo;
         this.orderRepo = orderRepo;
         this.paymentRepo = paymentRepo;
+        this.orderMapper = orderMapper;
     }
 
     @Override
@@ -96,11 +101,12 @@ public class StatsService implements IStatsService {
         }
 
         // Lấy 5 đơn gần nhất
-        List<Order> recentOrders = orderRepo.findRecentPaidOrders(PageRequest.of(0, 5));
+        List<Order> recentOrders = orderRepo.findTop5ByOrderByUpdatedAtDesc();
+        log.info("Data recent orders : {}", recentOrders);
 
         return RevenueStatsResponse.builder()
                 .revenues(revenues)
-                .recentOrders(recentOrders)
+                .recentOrders(orderMapper.toListOrderResponse(recentOrders))
                 .build();
     }
 

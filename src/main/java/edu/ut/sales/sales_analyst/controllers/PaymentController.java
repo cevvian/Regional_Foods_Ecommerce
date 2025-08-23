@@ -32,7 +32,7 @@ public class PaymentController {
     //Thông tin thẻ test: https://sandbox.vnpayment.vn/apis/vnpay-demo/
     @Operation(summary = "payment order", description = "Payment an order with VNPay")
     @GetMapping("/vn-pay")
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
+//    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<PaymentResponse.VNPayResponse> pay(HttpServletRequest request) {
             PaymentResponse.VNPayResponse response = paymentService.createVnPayPayment(request);
             return new ResponseAPI<>("Payment successfully", HttpStatus.OK, response);
