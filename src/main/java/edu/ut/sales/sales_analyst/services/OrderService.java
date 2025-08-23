@@ -91,9 +91,8 @@ public class OrderService implements IOrderService {
 
         List<OrderItem> orderItems = createOrderItems(order, quantityMap, productMap);
         order.setOrderItems(orderItems);
-
+        OrderResponse response = orderMapper.toOrderResponse(order);
         log.info("Method: {}", request.getMethod());
-
         if (request.getMethod() == PaymentMethod.CASH) {
             PaymentRequest paymentRequest = PaymentRequest.builder()
                     .orderId(order.getOrderId())
@@ -105,12 +104,15 @@ public class OrderService implements IOrderService {
             eventProducer.sendOrderCreatedEvent(
                     new OrderCreatedEvent(order.getOrderId(), payment.getPaymentId())
             );
+            response.setPaymentMethod(PaymentMethod.CASH);
+        } else if (request.getMethod() == PaymentMethod.VNPAY) {
+            response.setPaymentMethod(PaymentMethod.VNPAY);
         } else {
             throw new AppException(ErrorCode.PAYMENT_METHOD_UNSUPPORTED);
         }
 
         log.info("Created order {} for user {}", order.getOrderId(), customer.getUserId());
-        return orderMapper.toOrderResponse(order);
+        return response;
     }
 
 

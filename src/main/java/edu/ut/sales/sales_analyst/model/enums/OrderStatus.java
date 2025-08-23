@@ -17,8 +17,8 @@ public enum OrderStatus {
 
     public boolean canTransitionTo(OrderStatus newStatus) {
         return switch (this) {
-            case PENDING -> (newStatus == CONFIRM || newStatus == CANCELLED);
-            case CONFIRM -> (newStatus == SHIPPED);
+            case PENDING -> (newStatus == CONFIRM || newStatus == CANCELLED || newStatus == COMPLETED);
+            case CONFIRM -> (newStatus == SHIPPED || newStatus == COMPLETED);
             case SHIPPED -> (newStatus == COMPLETED);
             default -> false; // FAILED, REFUNDED không đổi trạng thái
         };

@@ -1,6 +1,8 @@
 package edu.ut.sales.sales_analyst.model.dtos.responses;
 
 import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
+import edu.ut.sales.sales_analyst.model.enums.PaymentMethod;
+import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,4 +24,5 @@ public class OrderResponse {
     private BigDecimal totalAmount;
     private OrderStatus status;
     private Date orderDate;
+    private PaymentMethod paymentMethod;
 }
