@@ -45,6 +45,7 @@ public class WebSecurityConfig {
 
                         // WebSocket/SockJS — luôn public
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/v1/payment/vn-pay-callback").permitAll()
 
                         // Auth/public endpoints
                         .requestMatchers(

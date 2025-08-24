@@ -1,9 +1,7 @@
 package edu.ut.sales.sales_analyst.controllers;
 
-import edu.ut.sales.sales_analyst.model.dtos.requests.OrderAndPaymentRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCartCreationRequest;
 import edu.ut.sales.sales_analyst.model.dtos.requests.OrderCreateRequest;
-import edu.ut.sales.sales_analyst.model.dtos.requests.PaymentRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.OrderResponse;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PageMeta;
 import edu.ut.sales.sales_analyst.model.dtos.responses.ResponseAPI;
@@ -72,7 +70,7 @@ public class OrderController {
     @Operation(summary = "Get all active orders", description = "Retrieve all active orders with pagination")
     @GetMapping("/filter")
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
-    public ResponseAPI<List<OrderResponse>> getOrdersByStatus(
+    public ResponseAPI<List<OrderResponse>> getOrdersByCustomer(
             @RequestParam(name = "status", required = false) OrderStatus status,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
@@ -91,10 +89,10 @@ public class OrderController {
         return new ResponseAPI<>("Get orders successfully", HttpStatus.OK, orderPage.getContent(), meta);
     }
 
-    @Operation(summary = "Get all active orders by status", description = "Retrieve all active orders with pagination")
+    @Operation(summary = "Get all active orders by customer", description = "Retrieve all active orders with pagination")
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
-    public ResponseAPI<List<OrderResponse>> getOrdersByStatus(
+    public ResponseAPI<List<OrderResponse>> getOrdersByCustomer(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
