@@ -47,7 +47,6 @@ public class PaymentController {
 
     @Operation(summary = "handle VNPay call back", description = "Handle VNPay call back after make a transaction")
     @GetMapping("/vn-pay-callback")
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseAPI<PaymentResponse.VNPayResponse> payCallbackHandler(HttpServletRequest request) {
             PaymentResponse.VNPayResponse response = paymentService.handleCallBack(request);
             return new ResponseAPI<>("Handle successfully", HttpStatus.OK, response);
