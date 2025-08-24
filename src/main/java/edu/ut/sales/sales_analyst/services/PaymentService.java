@@ -4,6 +4,7 @@ import edu.ut.sales.sales_analyst.configs.VNPayConfig;
 import edu.ut.sales.sales_analyst.exceptions.AppException;
 import edu.ut.sales.sales_analyst.exceptions.ErrorCode;
 import edu.ut.sales.sales_analyst.mappers.PaymentMapper;
+import edu.ut.sales.sales_analyst.model.dtos.events.OrderCreatedEvent;
 import edu.ut.sales.sales_analyst.model.dtos.requests.PaymentRequest;
 import edu.ut.sales.sales_analyst.model.dtos.responses.PaymentResponse;
 import edu.ut.sales.sales_analyst.model.entities.Order;
@@ -11,6 +12,7 @@ import edu.ut.sales.sales_analyst.model.entities.Payment;
 import edu.ut.sales.sales_analyst.model.enums.OrderStatus;
 import edu.ut.sales.sales_analyst.model.enums.PaymentMethod;
 import edu.ut.sales.sales_analyst.model.enums.PaymentStatus;
+import edu.ut.sales.sales_analyst.producer.EventProducer;
 import edu.ut.sales.sales_analyst.repositories.OrderRepo;
 import edu.ut.sales.sales_analyst.repositories.PaymentRepo;
 import edu.ut.sales.sales_analyst.services.impl.IPaymentService;
@@ -32,7 +34,7 @@ public class PaymentService implements IPaymentService {
     private final PaymentMapper paymentMapper;
     private final OrderRepo orderRepo;
     private final PaymentRepo paymentRepo;
-
+    private final EventProducer eventProducer;
     @Override
     public PaymentResponse.VNPayResponse createVnPayPayment(HttpServletRequest request) {
         String orderId = request.getParameter("orderId");
@@ -88,6 +90,7 @@ public class PaymentService implements IPaymentService {
 
             order.setStatus(OrderStatus.COMPLETED);
             orderRepo.save(order);
+
         } else {
             updatePaymentStatus(PaymentStatus.FAILED, payment.getPaymentId());
         }
@@ -95,6 +98,7 @@ public class PaymentService implements IPaymentService {
         payment.setDescription(description);
         paymentRepo.save(payment);
 
+        eventProducer.sendOrderCreatedEvent(new OrderCreatedEvent(payment.getOrder().getOrderId(), payment.getPaymentId()));
         return PaymentResponse.VNPayResponse.builder()
                 .status(responseCode)
                 .message(description)
