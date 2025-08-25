@@ -38,15 +38,13 @@ public class ImageUploadService {
                 "resource_type", "image",
                 "folder", "news",
                 "public_id", publicId,
-                "context", Map.of("news_id", newsId),
-                "transformation", new Transformation()
-                        .width(800).height(500).crop("fill").quality("auto")
-                        .fetchFormat("webp")
+                "context", Map.of("news_id", newsId)
         );
 
         Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
         return (String) uploadResult.get("secure_url");
     }
+
 
     public List<String> uploadNewsImages(List<MultipartFile> files, String newsId) throws IOException {
         if (files == null || files.isEmpty()) {
@@ -62,10 +60,7 @@ public class ImageUploadService {
                     "resource_type", "image",
                     "folder", "news",
                     "public_id", publicId,
-                    "context", Map.of("news_id", newsId),
-                    "transformation", new Transformation()
-                            .width(800).height(500).crop("fill").quality("auto")
-                            .fetchFormat("webp")
+                    "context", Map.of("news_id", newsId)
             );
 
             Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
